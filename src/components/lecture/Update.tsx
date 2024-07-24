@@ -9,7 +9,7 @@ import banner from '../../assets/banner2.jpg'
 
   // 이진송
   // 틀만 짜서 디자인 정하고 서버받고 난 후 axios 해야함
-  // 해당 페이지 axios로 기존 데이터를 받아서 띄워주는게 필요함.(필수x 중요도 low) 
+
   
 const LectureUpdate: React.FC = () => {
   interface FormData {
@@ -226,9 +226,9 @@ const LectureUpdate: React.FC = () => {
             </div>
             <hr className='my-3'></hr>
             <FormLabel htmlFor="datetime" className="mt-3 mx-3 text-2xl">수업 요일</FormLabel>
-            <div className='flex justify-center'>
+            <div>
               {Object.keys(WEEKDAY_VALUES).map((day) => (
-                <label key={day}>
+                <label key={day} className="flex items-center">
                   <img
                     src={activeDays[day] ? checkimg : uncheckimg}
                     onClick={() => handleCheckboxChange(day)}
@@ -262,21 +262,11 @@ const LectureUpdate: React.FC = () => {
             data={formData.information} 
             onChange={handleEditorChange}
           />
-        <div className='p-5 border my-5'>
-        <h1 className='text-6xl'>강의 등록시 주의사항</h1>
-        <ul>
-          <li>- 이해하기 쉬운 언어 사용: 학생들의 연령대에 맞는 쉬운 언어와 예시를 사용해 강의를 준비하세요.</li>
-          <li>- 적절한 강의 시간 설정: 집중력이 떨어지지 않도록 강의 시간을 적절하게 조절하고, 쉬는 시간을 포함하세요.</li>
-          <li>- 참여 유도: 학생들이 적극적으로 참여할 수 있도록 질문을 유도하고, 활동적인 학습 방법을 도입하세요.</li>
-          <li>- 안전과 윤리 준수: 강의 내용과 활동은 안전하고 윤리적이어야 하며, 학생들의 개인정보 보호에 유의하세요.</li>
-        </ul>
-        </div>
           <button type='submit'>버튼임</button>
           </FormControl>
         </form>
               </div>
           <div className='col-span-2'></div>
-          
       </div>
   );
 };

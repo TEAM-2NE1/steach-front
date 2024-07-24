@@ -138,15 +138,10 @@ const StudentSignUp: React.FC = () => {
             />
             {formData.password.length >= 8 &&
               confirmPassword.length >= 8 &&
-              (formData.password === confirmPassword ? (
+              formData.password === confirmPassword && (
                 <p className="mt-2 text-sm text-red-500">
-                비밀번호가 일치합니다.
+                  비밀번호가 일치합니다.
                 </p>
-              ) : (
-                <p className="mt-2 text-sm text-red-500">
-                비밀번호가 일치하지 않습니다.
-                </p>
-              )
               )}
           </div>
         </section>

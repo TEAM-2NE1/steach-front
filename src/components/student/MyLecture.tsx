@@ -152,7 +152,7 @@ const LectureSwiper: React.FC<LectureSwiperProps> = ({ title }) => {
 const ScheduledLectures: React.FC = () => {
   return (
     <>
-      <LectureSwiper title="강의 리포트" />
+      <LectureSwiper title="지금 선생님이 수업을 시작했어요!" />
       <LectureSwiper title="예정 된 수업이 있어요 ~" />
     </>
   );

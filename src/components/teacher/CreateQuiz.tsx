@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FormControl,
   FormLabel,
@@ -32,7 +32,7 @@ const CreateQuiz: React.FC = () => {
 
   const [qui, setQui] = useState<QuizData[]>([
     {
-      lectureId: 0, // params로 받을듯?
+      lectureId: 0, // params로 받을?듯?
       quizNumber: 1,
       question: "",
       isAnswer: 1,
@@ -49,7 +49,7 @@ const CreateQuiz: React.FC = () => {
       setQui([
         ...qui,
         {
-          lectureId: 0, // params로 받을듯?
+          lectureId: 0, // params로 받을?듯?
           quizNumber: counTab,
           question: "",
           isAnswer: 1,
@@ -63,7 +63,7 @@ const CreateQuiz: React.FC = () => {
     // axios 추가해야함
     console.log(qui);
   };
-  // handleChange, handleChoiceChange 아래 두 함수는 받은 값을 qui배열에 저장하는 역할, 특별한 이유 없이 수정x
+  
   const handleChange = (index: number, name: string, value: string | number) => {
     const newQuizzes = [...qui];
     newQuizzes[index] = { ...newQuizzes[index], [name]: value };
@@ -76,11 +76,13 @@ const CreateQuiz: React.FC = () => {
     setQui(newQuizzes);
   };
 
+
   return (
     <div className="grid grid-cols-12 bg-Beige">
       <div className="col-span-3"></div>
-      <div className=" flex col-span-6 p-4">
-        <div className="hidden lg:flex lg:flex-row lg:justify-between lg:ml-0 my-auto">
+
+      <div className=" flex col-span-6">
+        <div className="hidden lg:flex lg:flex-row lg:justify-between p-4 lg:ml-0">
           {
             Array.from({ length: qui.length }, (a, i) => (
               <div key={i}>
@@ -98,19 +100,19 @@ const CreateQuiz: React.FC = () => {
             ))
           }
         </div>
-          <div className='hidden lg:flex lg:flex-row ml-auto mr-10 my-auto hover:text-lightOrange'>
+          <div className='hidden ml-auto mr-10 my-auto hover:text-lightOrange'>
           <button onClick={plusTab} className="flex justify-end">
             퀴즈 추가하기
           </button>
             </div>
-        {/* --------------------------------------------------------------- */}
+        {/* --------------------- */}
         {/* 모바일 메뉴 */}
         {isMenuOpen && (
           <div className="flex flex-grow p-4 lg:hidden">
             <ul className="flex flex-col mx-auto text-lg font-bold mt-4">
             {
               Array.from({ length: qui.length }, (a, i) => (
-                <div key={i} className="w-full flex flex-col">
+                <div key={i} className="w-full flex flex-col lg:hidden">
                     <li className="p-2">
                   <button
                     onClick={() => setTab(i + 1)}
@@ -125,7 +127,7 @@ const CreateQuiz: React.FC = () => {
                 </div>
               ))
             }
-            <div className='flex items-center mx-auto hover:text-lightOrange'>
+            <div className='flex items-center mx-auto hover:text-lightOrange lg:hidden'>
               <button onClick={plusTab}>
                 퀴즈 추가하기
               </button>
@@ -134,12 +136,12 @@ const CreateQuiz: React.FC = () => {
           </div>
         )}
         {/* 햄버거 */}
-        <div className="ml-auto mt-5 lg:hidden">
+        <div className="absolute right-40 lg:hidden">
         <button onClick={toggleMenu} className="focus:outline-none">
           <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} size="2x" />
         </button>
       </div>
-        {/* --------------------------------------------------------------- */}
+        {/* --------------------- */}
       </div>
       <div className="col-span-3"></div>
       <div className="col-span-3"></div>
@@ -153,57 +155,55 @@ const CreateQuiz: React.FC = () => {
                     key={i}
                     className="w-full"
                   >
-                <FormControl>
-                  <hr className="border-2 border-hardBeige"></hr>
-                  <FormLabel htmlFor="question" className="mt-3 mx-3 text-2xl ">
-                    퀴즈 문제를 입력하세요! - question
-                  </FormLabel>
-                  <Input
-                    type="text"
-                    id="question"
-                    name="question"
-                    value={a.question}
-                    onChange={(e) => handleChange(i, 'question', e.target.value)}
-                    className="border-2 rounded-lg w-full p-2 mt-3"
-                    required
-                  />
-                  <FormLabel htmlFor="choiceSentence" className="mt-3 mx-3 text-2xl ">
-                    퀴즈 보기를 입력하세요! - choiceSentence
-                  </FormLabel>
-                    {a.choiceSentence.map((choice, choicei) => (
-                    <div key={choicei}>
-                      <label className="mx-2">보기 {choicei + 1}</label>
+        <FormControl>
+            <hr className="border-2 border-hardBeige"></hr>
+          <FormLabel htmlFor="question" className="mt-3 mx-3 text-2xl ">
+            문제 - question
+          </FormLabel>
+          <Input
+            type="text"
+            id="question"
+            name="question"
+            value={a.question}
+            onChange={(e) => handleChange(i, 'question', e.target.value)}
+            className="border-2 rounded-lg w-full p-2 mt-3"
+            required
+          />
+          <FormLabel htmlFor="choiceSentence" className="mt-3 mx-3 text-2xl ">
+            답 - choiceSentence
+          </FormLabel>
+            {a.choiceSentence.map((choice, choicei) => (
+            <div key={choicei}>
+              <label className="mx-2">보기 {choicei + 1}</label>
+              <br></br>
+              <Input
+                type="text"
+                value={choice}
+                onChange={(e) => handleChoiceChange(i, choicei, e.target.value)}
+                className="border-2 rounded-lg p-2 mt-3"
+                required
+              />
+            </div>
+          ))}
+            <FormLabel htmlFor="isAnswer" className="text-2xl">정답</FormLabel>
+            <select
+            id='isAnswer'
+            name='isAnswer'
+            value={a.isAnswer}
+            onChange={(e) => handleChange(i, 'isAnswer', parseInt(e.target.value))}
+            className="border-2 rounded-lg p-2 mb-5"
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+                      </select>
                       <br></br>
-                      <Input
-                        type="text"
-                        value={choice}
-                        onChange={(e) => handleChoiceChange(i, choicei, e.target.value)}
-                        className="border-2 rounded-lg p-2 mt-3"
-                        required
-                      />
-                    </div>
-                  ))}
-                    <FormLabel htmlFor="isAnswer" className="text-2xl">정답</FormLabel>
-                    <select
-                      id='isAnswer'
-                      name='isAnswer'
-                      value={a.isAnswer}
-                      onChange={(e) => handleChange(i, 'isAnswer', parseInt(e.target.value))}
-                      className="border-2 rounded-lg p-2 mb-5"
-                    >
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                    </select>
-                    <br></br>
-                    <div className="flex">
-                    <Button
-                      className="bg-orange-300 w-20 p-2 ml-auto mr-3 rounded-lg hover:bg-orange-400 hover:text-white"
-                      onClick={handleSaveQuizzes}
-                    >저장</Button>
-                    </div>
-                  </FormControl>
+          <Button
+              className="bg-orange-300 w-20 p-2 mt-3 rounded-lg hover:bg-orange-400 hover:text-white"
+              onClick={handleSaveQuizzes}
+          >버튼임</Button>
+        </FormControl>
                 </div>
               )
             })
