@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   Heading,
@@ -9,83 +9,48 @@ import {
   Button,
   Box,
 } from "@chakra-ui/react";
-
 import { Swiper as SwiperClass } from "swiper/types";
 import "swiper/swiper-bundle.css";
 import SwiperCore from "swiper";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { fetchLatestCurricula } from "../../api/main/mainAPI";
+import { useNavigate } from "react-router-dom";
+import defaultImg from "../../assets/default.png";
+
 
 SwiperCore.use([Navigation, Pagination]);
 
-// 김헌규 - 자바스크립트로 작성된 코드를 타입스크립트 방식으로 변경 및 interface 객체 생성
-// 김헌규 - 화면 크기에 따른 슬라이드 출력 갯수 수정
-const LatestLectures: React.FC = () => {
-  // 김헌규
-  const [swiper, setSwiper] = useState<SwiperClass>();
-  const [isBeginning, setIsBeginning] = useState<boolean>(true);
-  const [isEnd, setIsEnd] = useState<boolean>(false);
+interface Curriculum {
+  curriculum_id: number;
+  banner_img_url: string;
+  title: string;
+  intro: string;
+  max_attendees: number;
+  current_attendees: number;
+  created_at: string;
+  teacher_name: string;
+}
 
-  // 김헌규
-  interface Sample {
-    image: string;
-    title: string;
-    description: string;
-    teacher: string;
-  }
+export default function LatestLectures() {
+  const navigate = useNavigate();
+  const [, setSwiper] = useState<SwiperClass>();
+  const [, setIsBeginning] = useState(true);
+  const [, setIsEnd] = useState(false);
+  const [curricula, setCurricula] = useState<Curriculum[]>([]);
 
-  // 김헌규
-  const samples: Sample[] = [
-    {
-      image:
-        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-      title: "김호경의 Unity 강의",
-      description: "게임 개발의 마스터가 되기 위한 강의",
-      teacher: "김호경",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-      title: "김호경의 Unity 강의",
-      description: "게임 개발의 마스터가 되기 위한 강의",
-      teacher: "김호경",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-      title: "김호경의 Unity 강의",
-      description: "게임 개발의 마스터가 되기 위한 강의",
-      teacher: "김호경",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-      title: "김호경의 Unity 강의",
-      description: "게임 개발의 마스터가 되기 위한 강의",
-      teacher: "김호경",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-      title: "김호경의 Unity 강의",
-      description: "게임 개발의 마스터가 되기 위한 강의",
-      teacher: "김호경",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-      title: "박수진의 React 강의",
-      description: "프론트엔드 개발의 기초와 심화",
-      teacher: "박수진",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-      title: "이준호의 Python 강의",
-      description: "백엔드 개발의 마스터가 되기 위한 강의",
-      teacher: "이준호",
-    },
-  ];
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const data = await fetchLatestCurricula();
+        setCurricula(data.curricula);
+      } catch (error) {
+        console.error("Failed to fetch latest curricula:", error);
+      }
+    };
+
+    getData();
+  }, []);
 
   return (
     <section className="flex justify-center py-6">
@@ -96,9 +61,7 @@ const LatestLectures: React.FC = () => {
         <Box className="flex justify-center">
           <Swiper
             onSlideChange={(e) => {
-              // 시작 슬라이더인지 아닌지 boolean 반환
               setIsBeginning(e.isBeginning);
-              // 마지막 슬라이더인지 아닌지 boolean 반환
               setIsEnd(e.isEnd);
             }}
             onSwiper={(e) => {
@@ -125,29 +88,45 @@ const LatestLectures: React.FC = () => {
             }}
             className="flex justify-center grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
           >
-            {samples.map((sample, index) => (
-              <SwiperSlide key={index}>
+            {curricula.map((curriculum) => (
+              <SwiperSlide key={curriculum.curriculum_id}>
                 <Card className="m-3 bg-white rounded-xl shadow overflow-hidden">
                   <CardBody>
+                  <Box className="relative">
+                      <button
+                        className="absolute inset-0 bg-black opacity-0 hover:opacity-75 transition-opacity duration-300 flex flex-col items-start"
+                        onClick={() => { navigate(`/curricula/detail/${curriculum.curriculum_id}`)}}
+                      >
+                        <div className="flex flex-col h-full p-2">
+                          <div>
+                            <Text className="text-white text-2xl text-left pb-2">강의 소개</Text>
+                            <Text className="text-white text-lg text-left">{curriculum.intro}</Text>
+                          </div>
+                          <Text className="text-white text-lg absolute bottom-3 right-3">수강 인원 {curriculum.current_attendees}/{curriculum.max_attendees}</Text>
+                        </div>
+                    </button>
                     <Image
-                      src={sample.image}
-                      alt="no-image"
+                      src={curriculum.banner_img_url ? curriculum.banner_img_url : defaultImg}
+                      alt={curriculum.title}
                       borderRadius="lg"
+                      onError={(e) => { e.currentTarget.src = defaultImg }}
+                      className="w-60 h-40"
                     />
                     <Stack mt="6" spacing="3" className="p-2">
-                      <Heading fontSize="lg">{sample.title}</Heading>
-                      <Text>{sample.description}</Text>
+                    <Heading className="font-bold text-2xl overflow-hidden whitespace-nowrap text-overflow-ellipsis">
+                        {curriculum.title}
+                      </Heading>
+                      <Text className="overflow-hidden" style={{
+                        display: '-webkit-box',
+                        WebkitBoxOrient: 'vertical',
+                        WebkitLineClamp: 1, // 원하는 줄 수로 설정 (여기서는 3줄)
+                        whiteSpace: 'normal'
+                      }}>{curriculum.intro}</Text>
                       <Text className="text-slate-500">
-                        {sample.teacher} 선생님
+                        {curriculum.teacher_name}
                       </Text>
                     </Stack>
-                    <Button
-                      variant="solid"
-                      colorScheme="blue"
-                      className="p-2 text-lightNavy hover:text-hoverNavy"
-                    >
-                      자세히 보기
-                    </Button>
+                    </Box>
                   </CardBody>
                 </Card>
               </SwiperSlide>
@@ -157,6 +136,4 @@ const LatestLectures: React.FC = () => {
       </Box>
     </section>
   );
-};
-
-export default LatestLectures;
+}

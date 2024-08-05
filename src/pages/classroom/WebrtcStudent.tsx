@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
+import WebRTCVideo from '../../components/video';
 import { WebRTCUser } from '../../types';
 
 const pc_config = {
@@ -347,8 +348,8 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			);
 		});
 
-		socketRef.current.on('receive_chat', (data: { senderRole: string; senderEmail: string; message: string }) => {
-			setMessages((oldMessages) => [...oldMessages, `[${data.senderEmail}] ${data.message}`]);
+		socketRef.current.on('receive_chat', (data: { senderRole: string; senderEmail: string; receivedChat: string }) => {
+			setMessages((oldMessages) => [...oldMessages, `[${data.senderEmail}] ${data.receivedChat}`]);
 		});
 
 		return () => {
@@ -389,6 +390,20 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			<button onClick={toggleAudio} disabled={isAudioDisabledByTeacher}>
 				{isAudioEnabled ? 'Turn Off Audio' : 'Turn On Audio'}
 			</button>
+			{users.map((user, index) => (
+				<div key={index}>
+					<WebRTCVideo
+						email={user.email}
+						userRole={user.userRole}
+						stream={user.stream}
+						videoEnabled={user.videoEnabled}
+						audioEnabled={user.audioEnabled}
+						audioDisabledByTeacher={user.audioDisabledByTeacher}
+						//아랫줄 주석 치면 어케 되나?
+						muted={userRole !== 'teacher' && user.userRole !== 'teacher'} // Students can only see the teacher's video
+					/>
+				</div>
+			))}
 			<div>
 				<h3>Chat</h3>
 				<div>

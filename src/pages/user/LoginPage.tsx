@@ -1,14 +1,17 @@
 import { useState } from "react";
-import LoginBannerBgImg from "../../assets/banner.jpg";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import axios from "axios";
+import { loginSteach } from "../../store/userInfo/AuthSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
+import LoginBannerBgImg from "../../assets/banner.jpg";
 
 // 이진송
 // 디자인 변경 필요함
 const Login: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
+  // 로그인 폼 형식
   interface FormData {
     username: string;
     password: string;
@@ -19,6 +22,7 @@ const Login: React.FC = () => {
     password: "",
   });
 
+  // 양방향 바인딩을 위한 핸들러 함수
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
@@ -27,27 +31,16 @@ const Login: React.FC = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const loginFormData: FormData = {
+      username: formData.username,
+      password: formData.password,
+    };
 
-    // 로그인 검증
-    if (Object.values(formData).some((value) => value === "")) {
-      alert("아이디, 비밀번호를 입력해주세요.");
-    } else {
-      axios
-        .post("http://localhost:8080/api/v1/login", formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        })
-        .then((response) => {
-          console.log(response.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+    await dispatch(loginSteach(loginFormData));
+    navigate("/");
+    window.location.reload();
   };
 
   return (
@@ -63,13 +56,13 @@ const Login: React.FC = () => {
             onSubmit={handleSubmit}
           >
             <div>
-              <label htmlFor="userId" className="text-2xl">
+              <label htmlFor="username" className="text-2xl">
                 아이디
               </label>
               <input
                 type="text"
-                id="userId"
-                name="userId"
+                id="username"
+                name="username"
                 value={formData.username}
                 onChange={handleChange}
                 className="w-full border-2 rounded-lg p-2 mb-4"

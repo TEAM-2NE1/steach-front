@@ -326,8 +326,8 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			// }
 		});
 
-		socketRef.current.on('receive_chat', (data: { senderRole: string; senderEmail: string; message: string }) => {
-			setMessages((oldMessages) => [...oldMessages, `[${data.senderEmail}] ${data.message}`]);
+		socketRef.current.on('receive_chat', (data: { senderRole: string; senderEmail: string; receivedChat: string }) => {
+			setMessages((oldMessages) => [...oldMessages, `[${data.senderEmail}] ${data.receivedChat}`]);
 		});
 
 		return () => {
