@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# 없어지지마!!
+/Users/김헌규/AppData/Roaming/npm-cache/

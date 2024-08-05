@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import LectureDetail from '../../components/lecture/Detail';
-
+import React from "react";
+import LectureDetail from "../../components/lecture/Detail";
 
 const LectureDetailPage: React.FC = () => {
   return (
@@ -9,6 +7,6 @@ const LectureDetailPage: React.FC = () => {
       <LectureDetail />
     </>
   );
-}
+};
 
 export default LectureDetailPage;

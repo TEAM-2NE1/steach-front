@@ -3,6 +3,7 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      scrollBehavior: ['responsive', 'motion-safe', 'motion-reduce'],
       fontFamily: {
         dongle: ["Dongle", "sans-serif"],
         "noto-sans": ['"Noto Sans Korean"', "sans-serif"],

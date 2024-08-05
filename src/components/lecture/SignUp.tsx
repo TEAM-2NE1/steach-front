@@ -1,49 +1,21 @@
 import React, { useState } from 'react';
-import CKEditor from '../main/CKEditor'
+import Froala from '../main/FroalaEditor.tsx'
 import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { TbArrowsRight } from "react-icons/tb";
-import he from 'he';
 import checkimg from '../../assets/checked.jpg'
 import uncheckimg from '../../assets/unchecked.jpg'
 import banner from '../../assets/banner2.jpg'
-import { SignUpLecture } from '../../store/lecturesSlice'
+// import { SignUpLecture } from '../../store/curriculaSlice.tsx'
+import { SignUpLecture } from '../../api/lecture/curriculumAPI.ts'
 import { useDispatch } from "react-redux";
 import { AppDispatch } from '../../store.tsx'
-import parse from 'html-react-parser';
+import { CurriculaFormData } from '../../interface/Curriculainterface.tsx'
 
 const LectureSignUp: React.FC = () => {
-    
-  interface FormData {
-    // 제목
-    title: string;
-    // 부제목
-    sub_title : string;
-    // 강의 소개
-    intro : string;
-    // 강의 상세 설명
-    information: string;
-    // 강의 대분류
-    category: string;
-    // 강의 중분류
-    sub_category : string;
-    // 배너 이미지
-    banner_img_url : File | null;
-    // 강의 시작일
-    start_date : string;
-    // 강의 종료일
-    end_date : string;
-    // 강의 시작 시간
-    lecture_start_time : string;
-    // 강의 종료 시간
-    lecture_end_time: string;
-    // 수업 요일
-    weekdays_bitmask: number;
-    // 최대 수강 정원
-    max_attendees: number;
-    }
     const dispatch: AppDispatch = useDispatch();
   
-    const [activeDays, setActiveDays] = useState<{ [key: string]: boolean }>({
+    type Weekday = '월' | '화' | '수' | '목' | '금' | '토' | '일';
+    const [activeDays, setActiveDays] = useState<{ [key in Weekday]: boolean }>({
       월: false,
       화: false,
       수: false,
@@ -54,12 +26,12 @@ const LectureSignUp: React.FC = () => {
     });
   
     // 데이터를 담기 위한 박스 개념, 함수를 위의 interface에 맞춰서 작성
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<CurriculaFormData>({
       title: '',
       sub_title: '',
       category: 'KOREAN',
       sub_category: '',
-      banner_img_url: null,
+      banner_img_url: '',
       intro: '',
       start_date: new Date().toISOString().substr(0, 10),
       end_date: new Date().toISOString().substr(0, 10),
@@ -67,77 +39,92 @@ const LectureSignUp: React.FC = () => {
       lecture_end_time: new Date().toTimeString().substr(0, 5),
       weekdays_bitmask: 0,
       max_attendees: 4,
-      information: '<예시> <br> 강의 대상: 초등생 4~5학년 수준의 강의입니다. <br> 학습 요구사항: 자바 객체지향 선행학습 필수 <br> 강의 설명 : 자바스크립트 언어의 기초부터 심화까지 완전 정복',
+      information: '<예시> 강의 대상: 초등생 4~5학년 수준의 강의입니다. <br>학습 요구사항: 자바 객체지향 선행학습 필수  <br>강의 설명 : 자바스크립트 언어의 기초부터 심화까지 완전 정복',
     });
     
-    const WEEKDAY_VALUES = {
-      월: 1000000,
-      화: 100000,
-      수: 10000,
-      목: 1000,
-      금: 100,
-      토: 10,
+    const WEEKDAY_VALUES: Record<Weekday, number> = {
+      월: 64,
+      화: 32,
+      수: 16,
+      목: 8,
+      금: 4,
+      토: 2,
       일: 1,
     }
-    
   
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const { name, value } = event.target;
-      setFormData({
-      ...formData,
-      [name]: value,
-      });
+      const { name, value, type, files } = event.target as HTMLInputElement;
+      if (type === 'file') {
+        const file = files ? files[0] : null;
+        setFormData({
+        ...formData,
+        [name]: file,
+        });
+      } else {
+        setFormData({
+        ...formData,
+        [name]: value,
+        });
+      }
     };
   
     const handleEditorChange = (data: string) => {
       setFormData((prevFormData) => ({
         ...prevFormData,
-        intro: data,
+        information: data,
       }));
       console.log(data)
     };
   
-    const handleCheckboxChange = (day: string) => {
-      const value = WEEKDAY_VALUES[day as keyof typeof WEEKDAY_VALUES];
-      const isActive = !activeDays[day];
-  
-      setActiveDays((prevActiveDays) => ({
-        ...prevActiveDays,
-        [day]: isActive,
-      }));
-  
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        weekdays_bitmask: isActive
-          ? prevFormData.weekdays_bitmask + value
-          : prevFormData.weekdays_bitmask - value,
-      }));
+    const handleCheckboxChange = (day: Weekday) => {
+      setActiveDays((prevActiveDays) => {
+        const newActiveDays = {
+          ...prevActiveDays,
+          [day]: !prevActiveDays[day],
+        };
+        const newBitmask = Object.keys(newActiveDays).reduce((bitmask, key) => {
+          const weekday = key as Weekday;
+          if (newActiveDays[weekday]) {
+            return bitmask + WEEKDAY_VALUES[weekday];
+          }
+          return bitmask;
+        }, 0);
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          weekdays_bitmask: newBitmask,
+        }));
+        return newActiveDays;
+      });
     };
-    
-  //   const decode = () => {
-  //     const decodedData = he.decode(formData.intro);
-  //     console.log(formData)
-  //     setFormData((prevFormData) => ({
-  //       ...prevFormData,
-  //       intro: decodedData
-  //     }));
-  // }
-  
-  const decode = (e:string) => {
-    const a = e.replace(/<\/?[^>]+(>|$)/g, "");
-    console.log(a)
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      intro: a,
-    }));
-    console.log(formData.intro)
-  }
+
+  const formatBitmask = (bitmask: number): string => {
+    return bitmask.toString(2).padStart(7, '0');
+  };
+
+  const stripHtmlTags = (htmlContent: string): string => {
+    const doc = new DOMParser().parseFromString(htmlContent, 'text/html');
+    const textContent = Array.from(doc.body.childNodes).map(node => {
+      if (node.nodeName === 'BR') {
+        return '\n';
+      } else if (node.nodeName === 'P') {
+        return node.textContent + '\n';
+      } else {
+        return node.textContent;
+      }
+    }).join('');
+    return textContent.trim();
+  };
     
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
-      decode(formData.intro);
-      console.log(formData)
-      // dispatch(SignUpLecture(formData))
+      const formDataToSend = {
+        ...formData,
+        intro: stripHtmlTags(formData.intro),
+        information: stripHtmlTags(formData.information),
+        weekdays_bitmask: formatBitmask(formData.weekdays_bitmask)
+      };
+      console.log(formDataToSend)
+      dispatch(SignUpLecture(formDataToSend))
     }
   
     return (
@@ -202,7 +189,6 @@ const LectureSignUp: React.FC = () => {
               />
             </div>
             <hr></hr>
-            {/* url 이니까 assets에 이미지가 등록되고, url을 받는것인지? 토론 필요 */}
             <FormLabel htmlFor="banner_img_url" className="mt-3 mx-3 text-2xl">강의 배너 이미지</FormLabel>
             <Input 
               type='file'
@@ -211,13 +197,18 @@ const LectureSignUp: React.FC = () => {
               // value={formData.banner_img_url}
               onChange={handleChange}
               className="border-2 rounded-lg w-4/5 p-2 mb-3"
-              // required
+              required
               />
             <hr></hr>
             <FormLabel htmlFor="intro" className="my-3 mx-3 text-2xl">강의 소개</FormLabel>
-            <CKEditor 
-              data={formData.intro} 
-              onChange={handleEditorChange}
+            <Input 
+              type='text'
+              id='intro'
+              name='intro'
+              value={formData.intro}
+              onChange={handleChange}
+              className="border-2 rounded-lg w-full p-2 mt-3"
+              required
               />
               <hr className='my-3'></hr>
               <FormLabel htmlFor="datetime" className="mt-3 mx-3 text-2xl">강의 커리큘럼</FormLabel>
@@ -279,8 +270,8 @@ const LectureSignUp: React.FC = () => {
                 {Object.keys(WEEKDAY_VALUES).map((day) => (
                   <label key={day}>
                     <img
-                      src={activeDays[day] ? checkimg : uncheckimg}
-                      onClick={() => handleCheckboxChange(day)}
+                      src={activeDays[day as Weekday] ? checkimg : uncheckimg}
+                      onClick={() => handleCheckboxChange(day as Weekday)}
                       style={{ cursor: 'pointer', width: '80px', height: '80px', marginRight: '8px' }}
                       alt={day}
                     />
@@ -307,7 +298,7 @@ const LectureSignUp: React.FC = () => {
           
           
           <FormLabel htmlFor="datetime" className="text-2xl">강의 상세 설명</FormLabel>
-            <CKEditor
+            <Froala
               data={formData.information} 
               onChange={handleEditorChange}
             />

@@ -3,9 +3,9 @@ import student from "../../../assets/student.png";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { signUpStudent, loginSteach } from "../../../store/AuthSlice";
+import { signUpStudent, loginSteach } from "../../../store/userInfo/AuthSlice";
 import { AppDispatch, RootState } from "../../../store";
-import SpinnerComponent from "../../main/Spinner";
+import SpinnerComponent from "../../main/spinner/Spinner";
 
 // 이진송
 const StudentSignUp: React.FC = () => {
@@ -16,13 +16,13 @@ const StudentSignUp: React.FC = () => {
   const navigate = useNavigate();
 
   // 회원 인증 상태 및 에러
-  const { status } = useSelector((state: RootState) => state.studentAuth);
+  const { status } = useSelector((state: RootState) => state.auth);
 
   // FormData 타입 포함해서 만듦
   interface FormData {
     username: string;
     password: string;
-    name: string;
+    nickname: string;
     email: string;
     auth_code: string;
   }
@@ -36,7 +36,7 @@ const StudentSignUp: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     username: "",
     password: "",
-    name: "",
+    nickname: "",
     email: "",
     auth_code: "",
   });
@@ -80,7 +80,7 @@ const StudentSignUp: React.FC = () => {
     const formDataToSend: FormData = {
       username: formData.username,
       password: formData.password,
-      name: formData.name,
+      nickname: formData.nickname,
       email: formData.email,
       auth_code: formData.auth_code,
     };
@@ -106,6 +106,7 @@ const StudentSignUp: React.FC = () => {
       }
 
       navigate("/");
+      window.location.reload();
     } else {
       if (resultSignUpAction.payload) {
         toast.error(
@@ -198,13 +199,13 @@ const StudentSignUp: React.FC = () => {
           </section>
           <section>
             <label htmlFor="email" className="text-2xl">
-              이름
+              닉네임
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="nickname"
+              name="nickname"
+              value={formData.nickname}
               onChange={handleChange}
               className="border-2 rounded-lg w-full p-2 mb-5"
               required

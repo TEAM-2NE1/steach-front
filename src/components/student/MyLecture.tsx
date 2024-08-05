@@ -10,85 +10,29 @@ import {
 } from "@chakra-ui/react";
 import "swiper/swiper-bundle.css";
 import { Swiper, SwiperSlide } from "swiper/react";
-
-interface Sample {
-  image: string;
-  title: string;
-  time: string;
-  teacher: string;
-}
-
-const samples: Sample[] = [
-  {
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-    title: "김호경의 Unity 강의",
-    time: "오후 4시 0분 ~ 오후 5시 0분",
-    teacher: "김호경",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-    title: "김호경의 Unity 강의",
-    time: "오후 4시 0분 ~ 오후 5시 0분",
-    teacher: "김호경",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-    title: "김호경의 Unity 강의",
-    time: "오후 4시 0분 ~ 오후 5시 0분",
-    teacher: "김호경",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-    title: "김호경의 Unity 강의",
-    time: "오후 4시 0분 ~ 오후 5시 0분",
-    teacher: "김호경",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-    title: "김호경의 Unity 강의",
-    time: "오후 4시 0분 ~ 오후 5시 0분",
-    teacher: "김호경",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-    title: "김호경의 Unity 강의",
-    time: "오후 4시 0분 ~ 오후 5시 0분",
-    teacher: "김호경",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-    title: "김호경의 Unity 강의",
-    time: "오후 4시 0분 ~ 오후 5시 0분",
-    teacher: "김호경",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-    title: "김호경의 Unity 강의",
-    time: "오후 4시 0분 ~ 오후 5시 0분",
-    teacher: "김호경",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80",
-    title: "김호경의 Unity 강의",
-    time: "오후 4시 0분 ~ 오후 5시 0분",
-    teacher: "김호경",
-  },
-];
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
+import { getStudentCurriculas } from "../../store/userInfo/StudentProfileSlice";
+import { RootState } from "../../store";
+import { useSelector } from "react-redux";
+import { Curricula } from "../../interface/Curriculainterface";
 
 interface LectureSwiperProps {
   title: string;
 }
 
 const LectureSwiper: React.FC<LectureSwiperProps> = ({ title }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  useEffect(() => {
+    dispatch(getStudentCurriculas());
+  }, [dispatch]);
+
+  // 프로필 슬라이스 상태에 저장된 수강신청한 커리큘럼 목록 가져오기
+  const examples: Curricula[] = useSelector(
+    (state: RootState) => state.studentProfile.curricula
+  );
+
   return (
     <section className="flex justify-center my-6">
       <Box className="container mx-10 px-6">
@@ -120,12 +64,12 @@ const LectureSwiper: React.FC<LectureSwiperProps> = ({ title }) => {
             }}
             className="flex justify-center grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
           >
-            {samples.map((sample, index) => (
+            {examples.map((sample, index) => (
               <SwiperSlide key={index}>
                 <Card className="m-3 bg-white rounded-lg shadow overflow-hidden">
                   <CardBody>
                     <Image
-                      src={sample.image}
+                      src={sample.banner_img_url}
                       alt="no-image"
                       borderRadius="lg"
                     />
@@ -133,9 +77,11 @@ const LectureSwiper: React.FC<LectureSwiperProps> = ({ title }) => {
                       <Heading className="font-bold text-2xl">
                         {sample.title}
                       </Heading>
-                      <Text>{sample.time}</Text>
+                      <Text>
+                        {sample.start_date} ~ {sample.end_date}까지
+                      </Text>
                       <Text className="text-slate-500">
-                        {sample.teacher} 선생님
+                        {sample.teacher_name} 선생님
                       </Text>
                     </Stack>
                   </CardBody>
@@ -152,7 +98,7 @@ const LectureSwiper: React.FC<LectureSwiperProps> = ({ title }) => {
 const ScheduledLectures: React.FC = () => {
   return (
     <>
-      <LectureSwiper title="강의 리포트" />
+      <LectureSwiper title="오늘의 강의" />
       <LectureSwiper title="예정 된 수업이 있어요 ~" />
     </>
   );

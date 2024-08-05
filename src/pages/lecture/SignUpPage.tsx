@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import LectureSignUp from '../../components/lecture/SignUp';
+import React from "react";
 
+import LectureSignUp from "../../components/lecture/SignUp";
 
 const LectureSignUpPage: React.FC = () => {
   return (
@@ -9,6 +8,6 @@ const LectureSignUpPage: React.FC = () => {
       <LectureSignUp />
     </>
   );
-}
+};
 
 export default LectureSignUpPage;

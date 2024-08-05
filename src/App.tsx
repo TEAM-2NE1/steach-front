@@ -1,17 +1,19 @@
 import Footer from "./components/main/Footer.tsx";
-import Navbar from "./components/main/Navbar.tsx";
+import Navbar from "./components/main/navBar/Navbar.tsx";
 import { Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/user/LoginPage.tsx";
 import SignUpPage from "./pages/user/SignUpPage.tsx";
-import ProfilePage from "./pages/student/ProfilePage.tsx";
+import StudentProfilePage from "./pages/student/StudentProfilePage.tsx";
 import HomePage from "./pages/main/HomePage.tsx";
+import CurriculaDetailPage from "./pages/lecture/DetailPage.tsx";
 import LectureUpdatePage from "./pages/lecture/UpdatePage.tsx";
 import LectureSignUpPage from "./pages/lecture/SignUpPage.tsx";
-import TeacherProfilePage from "./pages/teacher/MyRoomPage.tsx";
+import TeacherProfilePage from "./pages/teacher/TeacherMyRoomPage.tsx";
 import MyInfoDetailPage from "./pages/teacher/MyInfoDetailPage.tsx";
 import MyInfoDetailUpdate from "./pages/teacher/MyInfoDetailUpdatePage.tsx";
-import CurriculumList from "./components/teacher/CurriculumList.tsx";
-import ProfileLectureHistory from "./components/teacher/LectureReport.tsx";
+import TeacherMyLectureList from "./components/teacher/teacherMyLecture/TeacherMyLectureList.tsx";
+import Classroom from "./pages/classroom/classroom.tsx";
+// import ProfileLectureHistory from "./components/teacher/LectureReport.tsx";
 import CreateQuiz from "./components/teacher/CreateQuiz.tsx";
 import LectureReport from "./components/teacher/LectureReport.tsx";
 
@@ -21,15 +23,29 @@ const App: React.FC = () => {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />}></Route>
-        <Route path="/student/profile" element={<ProfilePage />}></Route>
+        <Route
+          path="/student/profile/:username"
+          element={<StudentProfilePage />}
+        ></Route>
         <Route path="/user/login" element={<LoginPage />}></Route>
         <Route path="/user/signup" element={<SignUpPage />}></Route>
-        <Route path="/lecture/signup" element={<LectureSignUpPage />}></Route>
-        <Route path="/lecture/update" element={<LectureUpdatePage />}></Route>
-        <Route path="/teacher/profile" element={<TeacherProfilePage />}></Route>
+        <Route path="/classroom" element={<Classroom />}></Route>
         <Route
-          path="/teacher/profile/lecture"
-          element={<CurriculumList />}
+          path="/curricula/detail/:id"
+          element={<CurriculaDetailPage />}
+        ></Route>
+        <Route path="/lecture/signup" element={<LectureSignUpPage />}></Route>
+        <Route
+          path="/curricula/update/:id"
+          element={<LectureUpdatePage />}
+        ></Route>
+        <Route
+          path="/teacher/profile/:username"
+          element={<TeacherProfilePage />}
+        ></Route>
+        <Route
+          path="/teacher/profile/:username/curricula/:curricula_id"
+          element={<TeacherMyLectureList />}
         ></Route>
         <Route
           path="/teacher/profiledetail/:id"
@@ -40,7 +56,7 @@ const App: React.FC = () => {
           element={<MyInfoDetailUpdate />}
         ></Route>
         <Route
-          path="/teacher/profile/lecture/createQuiz"
+          path="/teacher/profile/:username/curricula/:curricula_id/lecture/:lecture_id/createQuiz"
           element={<CreateQuiz />}
         ></Route>
         <Route

@@ -1,27 +1,27 @@
-import axios from 'axios';
+import axios from "axios";
+import { BASE_URL } from "../BASE_URL";
+import { QuizCreateSendForm } from "../../interface/quiz/QuizInterface";
 
-const BASE_URL = 'http://steach.ssafy.io:8080';
+// 토큰 추출
+const userData = localStorage.getItem("auth");
+const token = userData ? JSON.parse(userData).token : null;
 
-// Create quiz for a lecture
-export const createQuiz = async (lectureId: number, quizData: { quiz_number: number, question: string, choices: string[], answers: string[] }) => {
-    try {
-        const response = await axios.post(`${BASE_URL}/api/v1/quizzes/${lectureId}`, quizData, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        return response.data;
-    } catch (error) {
-        throw error;
+// 퀴즈 생성
+export const createQuizApi = async (quizCreateData: QuizCreateSendForm) => {
+  // 강의 아이디
+  const lectureId: string = quizCreateData.lectureId;
+
+  // 퀴즈 생성 api 요청 함수
+  const response = await axios.post(
+    `${BASE_URL}/api/v1/quizzes/${lectureId}`,
+    quizCreateData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // "Content-Type": "application/json",
+      },
     }
-};
+  );
 
-// Fetch quiz details
-export const fetchQuizDetails = async (quizId: number) => {
-    try {
-        const response = await axios.get(`${BASE_URL}/api/v1/quizzes/${quizId}`);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+  return response.data;
 };

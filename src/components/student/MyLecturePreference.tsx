@@ -9,14 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Stack,
-  Box,
-  StackDivider,
-} from "@chakra-ui/react";
+import { Card, CardHeader, CardBody, Box } from "@chakra-ui/react";
 
 ChartJS.register(
   RadialLinearScale,
