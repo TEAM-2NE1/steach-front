@@ -79,6 +79,11 @@ const DetailQuiz: React.FC = () => {
 
   const handleChoiceClick = (choice: string) => {
     setSelectedChoice(choice);
+  
+    // 타이머 시작 후 몇 초가 지났는지 계산
+    const elapsedSeconds = 3 - timer; // 초기 타이머 값이 3이므로, 현재 타이머 값(timer)으로부터 경과 시간을 계산
+    console.log(`타이머가 시작된 후 ${elapsedSeconds}초가 지났습니다.`);
+  
     setIsClicked(true);
   };
 
