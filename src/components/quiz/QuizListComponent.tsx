@@ -14,12 +14,13 @@ export interface QuizResponseDTO {
 }
 
 interface QuizListComponentProps {
-  trialVersion: boolean;
+  trialVersion?: boolean;
+  trialTimer?: number;
 }
 
 const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjI5NTI5MDYsImV4cCI6MTcyMjk2NDkwNiwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.yt6I5twSVweDkotfGI-t4Wej42TcrOb7eVabOS5er54';
 
-const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion}) => {
+const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion, trialTimer}) => {
   const [quizzes, setQuizzes] = useState<QuizResponseDTO[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<QuizResponseDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +91,10 @@ const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion}) => 
             {/* DetailQuiz Component Centered */}
             <div className="flex justify-center items-center">
               <div className="rounded-lg overflow-hidden w-full">
-                <DetailQuiz initialQuizData={selectedQuiz} onClose={handleCloseModal} trialVersion={trialVersion}/>
+                <DetailQuiz initialQuizData={selectedQuiz} onClose={handleCloseModal} 
+                  trialVersion={trialVersion}
+                  {...(true ? { trialTimer: trialTimer } : {})} // trialTimer is included only when trialVersion is true
+              />
               </div>
             </div>
           </div>
