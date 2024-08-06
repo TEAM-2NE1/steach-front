@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './goUp.css';
 import QuizChoiceButton from './QuizChoiceButton';
-import QuizStatistic from './QuizStatistic';
 import { BASE_URL } from "../../api/BASE_URL";
 import StatisticsChart from '../tmplime/StatisticsChart';
 import maruGif from './toktokmaru.gif';
@@ -20,8 +19,13 @@ interface StatisticData {
   statistics: number[]
 }
 
-const DetailQuiz: React.FC = () => {
-  const [quizData, setQuizData] = useState<QuizData | null>(null);
+interface DetailQuizProps {
+  initialQuizData: QuizData;
+  onClose: () => void;
+}
+
+const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => {
+
   const [showChoices, setShowChoices] = useState(false);
   const [showQuestion, setShowQuestion] = useState(false);
   const [startAnimation, setStartAnimation] = useState(false);
@@ -37,28 +41,11 @@ const DetailQuiz: React.FC = () => {
   const [showStatistic, setShowStatstic] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  // const data: { data: number[] } = 
-  // { data: [0, 10, 4, 1] }
-  // ;
   const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxd2VyIiwiaWF0IjoxNzIyOTIyODI1LCJleHAiOjE3MjI5MzQ4MjUsInRva2VuX3R5cGUiOiJhY2Nlc3MifQ.PDVlpFeHAL6LixUQW8ijfqbr6yoEefwAK7QwXaGLYoM'
 
   useEffect(() => {
-    axios.get<QuizData>(`${BASE_URL}/api/v1/quizzes/1290`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(response => {
-        setQuizData(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching quiz data:', error);
-      });
-  }, []);
-
-  useEffect(() => {
     if (showStatistic) {
-      axios.get<StatisticData>(`${BASE_URL}/api/v1/quizzes/1290/statistic`, {
+      axios.get<StatisticData>(`${BASE_URL}/api/v1/quizzes/${initialQuizData?.quiz_id}/statistic`, {
         headers: {
           Authorization: `Bearer ${token}`, // 필요한 경우 헤더에 인증 정보 추가
         },
@@ -70,7 +57,7 @@ const DetailQuiz: React.FC = () => {
           console.error('Error fetching statistic data:', error);
         });
     }
-  }, [showStatistic]); // showStatistic이 true가 될 때 요청을 보냄
+  }, [showStatistic, initialQuizData]); // showStatistic이 true가 될 때 요청을 보냄
 
   useEffect(() => {
     const emojiTimer = setTimeout(() => {
@@ -109,6 +96,18 @@ const DetailQuiz: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (showModal) {
+      const timeoutId = setTimeout(() => {
+        setShowModal(false);
+        setShowStatstic(true);
+      }, 1000);
+
+      // 타이머 정리
+      return () => clearTimeout(timeoutId);
+    }
+  }, [showModal]);
+
   const handleChoiceClick = (choice: string) => {
     setSelectedChoice(choice);
   
@@ -133,7 +132,7 @@ const DetailQuiz: React.FC = () => {
     setIsClicked(true);
   };
 
-  if (!quizData) {
+  if (!initialQuizData) {
     return <div>Loading...</div>;
   }
 
@@ -142,6 +141,7 @@ const DetailQuiz: React.FC = () => {
 //파 초 노 주 빨
   return (
     <div id="quizContainer" className="relative w-[500px] h-[400px] text-center font-sans flex flex-col justify-start" style={{ backgroundColor: 'rgb(242, 242, 242)' }}>
+      <span className="close-button" onClick={onClose}>&times;</span>   {/* 빼도됨 */}
       <div className="relative h-[200px] flex-1">
         <div style={{ height: '50px' }} />
         <div id='quizEmoji' style={styles.quizEmoji}>
@@ -173,30 +173,19 @@ const DetailQuiz: React.FC = () => {
         <div 
           id="statistic"
           className={`absolute top-[70%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 text-white text-center transition-opacity duration-500 w-full h-[50px] flex items-center justify-center ${
-            showStatistic ? 'opacity-100' : 'opacity-0'
+            showStatistic ? 'opacity-70' : 'opacity-0'
           }`}
         >
           {showStatistic && <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0,1,8,3]}} />}
         </div>
 
-
         <div
           id="result"
-          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 text-white text-center transition-opacity duration-500 w-[150px] h-[50px] rounded-lg bg-blue-300 flex items-center justify-center z-50 ${
-            (showModal && showMyResult) ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`absolute top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 text-white text-center transition-opacity duration-500 w-[150px] h-[50px] rounded-lg flex items-center justify-center z-50 ${
+            (showModal && showMyResult && !showStatistic) ? 'opacity-100' : 'opacity-0'
+          } ${(selectedChoice === initialQuizData.choices[initialQuizData.answers - 1]) ? 'bg-blue-300' : 'bg-red-300'}`}
         >
-          <p>맞았습니다</p>
-          {
-            showModal &&
-            setTimeout(() => {
-              setShowModal(false);
-              
-              
-              
-              setShowStatstic(true);
-            }, 1000)
-          }
+          <p>{(selectedChoice === initialQuizData.choices[initialQuizData.answers - 1]) ? '맞았습니다' : '틀렸습니다'}</p>
         </div>
 
         <div
@@ -207,14 +196,13 @@ const DetailQuiz: React.FC = () => {
           ${showStatistic ? 'transform translate-y-[-140px]' : 'transform translate-y-0'}
           `}
         >
-          <p style={{ backgroundColor: '', padding: 10, width: '100%' }}>{quizData.question}</p>
+          <p style={{ backgroundColor: '', padding: 10, width: '100%' }}>{initialQuizData.question}</p>
         </div>
-
 
       </div>
       <div id='answer' style={{ ...styles.choices, ...(showChoices ? styles.show : styles.hide) }}>
-        {quizData.choices.map((choice, index) => {
-          const isCorrectChoice = index + 1 === quizData.answers;
+        {initialQuizData.choices.map((choice, index) => {
+          const isCorrectChoice = index + 1 === initialQuizData.answers;
           return (
             <QuizChoiceButton
               key={choice}
