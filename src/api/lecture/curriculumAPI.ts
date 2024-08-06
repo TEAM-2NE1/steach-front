@@ -295,9 +295,6 @@ export const searchCurriculaApi = async (searchData: SearchSendCurricula) => {
       pageSize: searchData.pageSize,
       currentPageNumber: searchData.currentPageNumber,
     },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   return response.data;
