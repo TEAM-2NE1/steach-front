@@ -45,18 +45,20 @@ const Login: React.FC = () => {
 
   return (
     <>
-      <div className="main-content relative h-screen background-image bg-cover bg-center bg-no-repeat">
-        <img
-          src={LoginBannerBgImg}
-          className="absolute opacity-60 z-0 w-full"
-        />
-        <div className="flex items-center justify-center h-full ">
+      <div
+        className="main-content flex flex-col min-h-screen bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${LoginBannerBgImg})` }}
+      >
+        <div className="flex-grow flex items-center justify-center">
           <form
-            className="relative max-w-md mx-auto p-6 bg-white shadow-md rounded-lg z-10"
+            className="w-full max-w-md mx-auto p-6 bg-white shadow-md rounded-lg"
             onSubmit={handleSubmit}
           >
             <div>
-              <label htmlFor="username" className="text-2xl">
+              <label
+                htmlFor="username"
+                className="block text-lg font-semibold mb-2"
+              >
                 아이디
               </label>
               <input
@@ -68,7 +70,10 @@ const Login: React.FC = () => {
                 className="w-full border-2 rounded-lg p-2 mb-4"
                 required
               />
-              <label htmlFor="password" className="text-2xl">
+              <label
+                htmlFor="password"
+                className="block text-lg font-semibold mb-2"
+              >
                 비밀번호
               </label>
               <input
@@ -77,22 +82,19 @@ const Login: React.FC = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border-2 rounded-lg p-2w-full border-2 rounded-lg p-2"
+                className="w-full border-2 rounded-lg p-2 mb-4"
                 required
               />
-              {/* 해당부분 로그인 버튼 확인하고 수정해야겠음 - 이진송이 할거임 */}
               <button
                 type="submit"
-                className="w-full text-center bg-orange-300 p-2 mt-4 mb-2 rounded-lg hover:bg-orange-400 hover:text-white"
+                className="w-full bg-orange-400 text-white p-2 rounded-lg hover:bg-orange-500 mb-2"
               >
                 로그인
               </button>
               <button
-                type="submit"
-                className="w-full text-center bg-orange-300 p-2 mt-2 rounded-lg hover:bg-orange-400 hover:text-white"
-                onClick={() => {
-                  navigate("/user/signup");
-                }}
+                type="button"
+                className="w-full bg-gray-400 text-white p-2 rounded-lg hover:bg-gray-500"
+                onClick={() => navigate("/user/signup")}
               >
                 회원가입
               </button>
@@ -103,4 +105,5 @@ const Login: React.FC = () => {
     </>
   );
 };
+
 export default Login;

@@ -10,6 +10,9 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../../../store/userInfo/AuthSlice";
 import { AppDispatch } from "../../../store";
+import { SearchSendCurricula } from "../../../interface/search/SearchInterface";
+import { useLocation } from "react-router-dom";
+import { searchCurricula } from "../../../store/SearchSlice";
 
 // Props 타입 정의
 interface Props {
@@ -18,15 +21,69 @@ interface Props {
 
 const NavbarStudent: React.FC<Props> = ({ username }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 현재 경로 추출
+  const currentPath = location.pathname;
+
+  // 햄버거 메뉴 상태
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // 검색창 바인딩 상태
+  const [inputSearch, setInputSearch] = useState("");
 
   // 아이디 값 추출
   const Data = localStorage.getItem("auth");
   const studentData = Data ? JSON.parse(Data) : "";
 
+  // 검색 요청을 보낼 상태
+  const [searchData, setSearchData] = useState<SearchSendCurricula>({
+    curriculum_category: "",
+    order: "",
+    only_available: false,
+    search: "",
+    pageSize: 12,
+    currentPageNumber: 1,
+  });
+
+  // 메뉴 토글하기
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  // 검색창 바인딩
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputSearch(e.target.value);
+    // 상태 업데이트
+    const { name, value } = e.target;
+    setSearchData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  // 검색 페이지에서 검색바로 검색하는 로직
+  const handleInsideSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch(searchCurricula(searchData));
+  };
+
+  // 검색페이지가 아닌 곳에서 검색바에서 검색 기능 구현할 핸들러
+  const handleOutsideSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const searchParams = new URLSearchParams();
+    searchParams.set("search", inputSearch);
+    searchParams.set("order", searchData.order);
+    searchParams.set("only_available", searchData.only_available.toString());
+    searchParams.set("pageSize", searchData.pageSize.toString());
+    searchParams.set(
+      "currentPageNumber",
+      searchData.currentPageNumber.toString()
+    );
+
+    // 검색어와 옵션들을 URL 파라미터로 포함시켜 이동
+    navigate(`/search?${searchParams.toString()}`);
   };
 
   // 로그아웃 요청 함수
@@ -46,13 +103,29 @@ const NavbarStudent: React.FC<Props> = ({ username }) => {
       </Link>
       {/* 검색창 */}
       <div className="flex-1 flex items-center justify-between lg:justify-around">
-        <form className="relative mx-2 lg:mx-4 flex-grow lg:flex-grow-0 lg:w-1/2">
+        <form
+          className="relative mx-2 lg:mx-4 flex-grow lg:flex-grow-0 lg:w-1/2"
+          onSubmit={
+            currentPath === "/search" ? handleInsideSearch : handleOutsideSearch
+          }
+        >
           <input
             type="text"
+            name="search"
             placeholder="나의 성장을 도와줄 강의를 검색해보세요."
             className="p-2 border-2 w-full h-10 rounded-md border-hardBeige"
+            value={inputSearch}
+            onChange={(e) => handleChange(e)}
           />
-          <button className="absolute right-3 inset-y-2 hover:text-orange-300">
+          <button
+            type="button"
+            className="absolute right-3 inset-y-2 hover:text-orange-300"
+            onClick={
+              currentPath === "/search"
+                ? handleInsideSearch
+                : handleOutsideSearch
+            }
+          >
             <FontAwesomeIcon icon={faMagnifyingGlass} className="size-6" />
           </button>
         </form>
@@ -73,9 +146,9 @@ const NavbarStudent: React.FC<Props> = ({ username }) => {
             </Link>
           </li>
           <li className="mx-4 lg: m-2 lg:px-2 lg:py-0">
-            <a href="#" className="hover:text-orange-300">
-              문의하기
-            </a>
+            <Link to={"/game"} className="hover:text-orange-300">
+              오락
+            </Link>
           </li>
         </ul>
       </div>

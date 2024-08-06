@@ -8,15 +8,45 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
+import { SearchSendCurricula } from "../../../interface/search/SearchInterface";
+import { useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../../store";
+import { searchCurricula } from "../../../store/SearchSlice";
 
 const NavbarLogin: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
+
+  // 현재 경로 추출
+  const currentPath = location.pathname;
+
+  // 햄버거 메뉴 상태
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // 검색창 바인딩 상태
   const [inputSearch, setInputSearch] = useState("");
+
+  // 검색 요청을 보낼 상태
+  const [searchData, setSearchData] = useState<SearchSendCurricula>({
+    curriculum_category: "",
+    order: "",
+    only_available: false,
+    search: "",
+    pageSize: 12,
+    currentPageNumber: 1,
+  });
 
   // 검색창 바인딩
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputSearch(e.target.value);
+    // 상태 업데이트
+    const { name, value } = e.target;
+    setSearchData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   // 메뉴 토글하기
@@ -32,8 +62,28 @@ const NavbarLogin: React.FC = () => {
     navigate("/user/login");
   };
 
-  // 검색바에서 검색 기능 구현할 핸들러
-  const handleSearchBar = () => {};
+  // 검색 페이지에서 검색바로 검색하는 로직
+  const handleInsideSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch(searchCurricula(searchData));
+  };
+
+  // 검색페이지가 아닌 곳에서 검색바에서 검색 기능 구현할 핸들러
+  const handleOutsideSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const searchParams = new URLSearchParams();
+    searchParams.set("search", inputSearch);
+    searchParams.set("order", searchData.order);
+    searchParams.set("only_available", searchData.only_available.toString());
+    searchParams.set("pageSize", searchData.pageSize.toString());
+    searchParams.set(
+      "currentPageNumber",
+      searchData.currentPageNumber.toString()
+    );
+
+    // 검색어와 옵션들을 URL 파라미터로 포함시켜 이동
+    navigate(`/search?${searchParams.toString()}`);
+  };
 
   return (
     <nav className="sticky top-0 flex flex-wrap items-center justify-between p-2 bg-Beige border-b-2 border-hardBeige z-10">
@@ -47,18 +97,26 @@ const NavbarLogin: React.FC = () => {
       <div className="flex-1 flex items-center justify-between lg:justify-around">
         <form
           className="relative mx-2 lg:mx-4 flex-grow lg:flex-grow-0 lg:w-1/2"
-          onSubmit={handleSearchBar}
+          onSubmit={
+            currentPath === "/search" ? handleInsideSearch : handleOutsideSearch
+          }
         >
           <input
             type="text"
+            name="search"
             placeholder="나의 성장을 도와줄 강의를 검색해보세요."
             value={inputSearch}
             onChange={(e) => handleChange(e)}
             className="p-2 border-2 w-full h-10 rounded-md border-hardBeige"
           />
           <button
+            type="button"
             className="absolute right-3 inset-y-2 hover:text-orange-300"
-            onClick={handleSearchBar}
+            onClick={
+              currentPath === "/search"
+                ? handleInsideSearch
+                : handleOutsideSearch
+            }
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} className="size-6" />
           </button>

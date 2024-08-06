@@ -10,6 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import { Card, CardHeader, CardBody, Box } from "@chakra-ui/react";
+import noteImage from "../../assets/noteImage.png";
 
 ChartJS.register(
   RadialLinearScale,
@@ -59,7 +60,6 @@ const options = {
     },
   },
 };
-import noteImage from "../../assets/noteImage.jpg";
 
 const MyLecturePreference: React.FC = () => {
   return (

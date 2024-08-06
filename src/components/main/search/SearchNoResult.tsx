@@ -3,7 +3,18 @@ import noSearch from "../../../assets/noSearch.png";
 const SearchNoResult: React.FC = () => {
   return (
     <div className="flex justify-center items-center p-5">
-      <img src={noSearch} alt="no-image" className="w-full min-h-screen" />
+      <div>
+        <div>
+          <img
+            src="http://steach.ssafy.io:8082/img-upload/display/my/akjccuxzqsimage-removebg-preview (3).png"
+            alt="no-image"
+          />
+        </div>
+        <div className="text-center">
+          <p className="text-2xl">축하해요!</p>
+          <p className="text-3xl">행복을 가져다 주는 황금 코알라를 찾았어요!</p>
+        </div>
+      </div>
     </div>
   );
 };

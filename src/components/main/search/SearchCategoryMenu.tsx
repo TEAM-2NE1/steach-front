@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import all from "../../../assets/futureHokyung.jpg";
+import all from "../../../assets/subject/booklist.png";
 import korean from "../../../assets/subject/korean.png";
 import math from "../../../assets/subject/math.png";
 import social from "../../../assets/subject/social.png";

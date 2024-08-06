@@ -37,6 +37,10 @@ export const getLecturelist = createAsyncThunk<LectureSeries, string>(
   }
 );
 
+
+
+
+
 // 강의 단일 정보 가져오기
 export const getLectureDetail = createAsyncThunk<Lecture, number>(
   "lectures/getDetail",
@@ -108,7 +112,7 @@ const lecturesSlice = createSlice({
       .addCase(getLectureDetail.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
-      });
+      })
   },
 });
 
