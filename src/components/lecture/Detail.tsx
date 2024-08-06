@@ -19,6 +19,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import defaultImg from "../../assets/default.png"
+import Spinner from '../main/spinner/Spinner';
 
 const LectureDetail: React.FC = () => {
   // 이진송
@@ -93,19 +94,12 @@ const LectureDetail: React.FC = () => {
 
   
   let startLecture:any;
-  let daysAgo:any;
   function calculateDaysAgo(dateString: any) {
-    if (!dateString) return null;
-  
-    const targetDate: any = new Date(dateString);
-    if (isNaN(targetDate.getTime())) return null;
-  
-    const today: any = new Date();
-    const difference = today - targetDate;
-    const daysAgo = Math.floor(difference / (1000 * 60 * 60 * 24));
-  
-    return isNaN(daysAgo) ? null : daysAgo;
-  }
+    const targetDate = new Date(dateString);
+    const today = new Date(new Date().toISOString().slice(0, 10));
+    const difference = today.getTime() - targetDate.getTime();
+    return Math.floor(difference / (1000 * 60 * 60 * 24)); // 밀리초를 일 단위로 변환
+  };
 
   return (
     <>
@@ -188,43 +182,66 @@ const LectureDetail: React.FC = () => {
           <Accordion className="shadow-lg" defaultIndex={[]} allowMultiple>
               {
                 Array.from({ length: lectureslist?.week_count ?? 0 }, (_, index) => (
-                  <AccordionItem key={index} className="rounded-lg">
+                  <AccordionItem 
+                  key={index} 
+                  className="rounded-lg"
+                  sx={{
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "8px",
+                    marginBottom: "10px",
+                    overflow: "hidden",
+                    }}
+                  > 
                     <AccordionButton className="bg-gray-200 hover:bg-gray-300">
                       <Box as="span" flex="1" textAlign="left" className="p-2">
                         <Text className="text-2xl">
                           [{lectures?.title}] {index + 1}주차 강의
                         </Text>
-                        <Text className="text-base text-gray-600">
-                          {daysAgo > 0 ? `이미 끝난 강의입니다.` : daysAgo < 0 ? `${-daysAgo}일 후 강의입니다.` : '오늘 강의입니다.'}
-                        </Text>
                       </Box>
+
+                        {/* <Text className="text-base text-gray-600">
+                          {daysAgo > 0 ? `이미 끝난 강의입니다.` : daysAgo < 0 ? `${-daysAgo}일 후 강의입니다.` : '오늘 강의입니다.'}
+                        </Text> */}
                       <AccordionIcon />
                     </AccordionButton>
                     <AccordionPanel pb={4} className="p-3 bg-white">
-                      {
-                        Array.from({ length: lectureslist?.lectures[index + 1].length ?? 0 }, (_, index2) => (
-                          <div className='grid grid-cols-4 border-b border-b-2 border-gray-400 pt-1' key={index2}>
-                            <div className='col-span-2'>
-                              <h2 className='text-xl'>
-                                {lectureslist?.lectures[index + 1][index2].lecture_title}
-                              </h2>
-                            </div>
-                            <div className='col-span-1 text-right'>
-                              <span>강의 날짜 : </span>
-                              <span>시작 시간 : </span>
-                            </div>
-                            <div className='col-span-1'>
-                              <span>{lectureslist?.lectures[index + 1][index2].lecture_start_time.slice(0, 10)}</span>
-                              <p>{lectureslist?.lectures[index + 1][index2].lecture_start_time.slice(11,19)}</p>
-                              <span className='hidden'>{daysAgo = calculateDaysAgo(lectureslist?.lectures[index + 1][index2].lecture_start_time.slice(0, 10))}</span>
-                            </div>
+                    {lectureslist?.lectures[index + 1].map((lecture, index2) => {
+                      const daysAgo = calculateDaysAgo(lecture.lecture_start_time.slice(0, 10));
+                      return (
+                        <div
+                          key={index2}
+                          className="grid grid-cols-4 border-b-2 border-gray-400 pt-1"
+                        >
+                          <div className="col-span-2">
+                            <h2 className="text-xl">
+                              {lecture.lecture_title}
+                            </h2>
+                            <p>
+                              {daysAgo > 0
+                                ? `종료된 강의입니다.`
+                                : daysAgo < 0
+                                ? `${-daysAgo}일 후 강의가 있습니다.`
+                                : "오늘 강의입니다."}
+                            </p>
                           </div>
+                          <div className="flex col-span-1 text-right md:justify-left lg:justify-end">
+                            <header>
+                              <p>강의 날짜 : </p>
+                              <p>시작 시간 : </p>
+                            </header>
+                            <main>
+                              <p>{lecture.lecture_start_time.slice(0, 10)}</p>
+                              <p>{lecture.lecture_start_time.slice(11, 19)}</p>
+                            </main>
+                          </div>
+                        </div>
                         )
-                      )}
+                    })}
                     </AccordionPanel>
                   </AccordionItem>
                 ))
               }
+            {status === "loading" && <Spinner />}
           </Accordion>
         <div>
         </div>

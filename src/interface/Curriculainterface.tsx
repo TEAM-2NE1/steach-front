@@ -82,6 +82,13 @@ export interface returnHotCurriculaList {
   curricula: Curricula[];
 }
 
+export interface returnLastestCurriculaList {
+  current_page_number: number;
+  total_page: number;
+  page_size: number;
+  curricula: Curricula[];
+}
+
 export interface returnStudentCurriculaList {
   current_page_number: number;
   total_page: number;
