@@ -1,6 +1,6 @@
 // 검색 조건 보낼때 인터페이스
 export interface SearchSendCurricula {
-  curriculum_category: string;
+  curriculum_category: string | null;
   order: string;
   only_available: boolean;
   search: string;

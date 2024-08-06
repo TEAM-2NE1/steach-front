@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../../../store";
+import { updateSearchState } from "../../../store/SearchSlice";
+import { SearchSendCurricula } from "../../../interface/search/SearchInterface";
+import { searchCurricula } from "../../../store/SearchSlice";
 import all from "../../../assets/subject/booklist.png";
 import korean from "../../../assets/subject/korean.png";
 import math from "../../../assets/subject/math.png";
@@ -9,21 +14,36 @@ import foreignlanguage from "../../../assets/subject/foreignlanguage.png";
 import engineering from "../../../assets/subject/engineering.png";
 import etc from "../../../assets/subject/etc.png";
 
-interface SearchCategoryMenuProps {
-  handleCategoryChange: (category: string) => void;
-  initialCategory: string;
-}
-
 interface Subject {
   name: string;
   icon: string;
   value: string;
 }
 
+interface SearchCategoryMenuProps {
+  setSearchOption: Dispatch<SetStateAction<SearchSendCurricula>>;
+}
+
 const SearchCategoryMenu: React.FC<SearchCategoryMenuProps> = ({
-  handleCategoryChange,
-  initialCategory,
+  setSearchOption,
 }) => {
+  // SearchSendCurricula와 상태 값을 이용한 상태 구조
+  const searchData: SearchSendCurricula = {
+    curriculum_category: useSelector(
+      (state: RootState) => state.search.curriculum_category
+    ),
+    order: useSelector((state: RootState) => state.search.order),
+    only_available: useSelector(
+      (state: RootState) => state.search.only_available
+    ),
+    search: useSelector((state: RootState) => state.search.search),
+    currentPageNumber: useSelector(
+      (state: RootState) => state.search.current_page_number
+    ),
+    pageSize: useSelector((state: RootState) => state.search.page_size),
+  };
+  const dispatch = useDispatch<AppDispatch>();
+
   // 배열의 타입을 Subject 배열로 정의
   const subjects: Subject[] = [
     { name: "#전체", icon: all, value: "" },
@@ -37,22 +57,25 @@ const SearchCategoryMenu: React.FC<SearchCategoryMenuProps> = ({
     { name: "#기타", icon: etc, value: "ETC" },
   ];
 
-  // 현재 선택된 subject value를 저장할 상태
-  const [selectedValue, setSelectedValue] = useState<string>(
-    initialCategory || ""
-  );
-
   // 아이콘 클릭시 값을 변화시키는 핸들러 함수
-  const handleChange = (value: string) => {
-    setSelectedValue(value);
-    handleCategoryChange(value);
+  const handleChange = async (value: string) => {
+    await dispatch(
+      updateSearchState({
+        ...searchData,
+        curriculum_category: value,
+      })
+    );
+
+    setSearchOption(() => ({ ...searchData }));
+
+    dispatch(searchCurricula(searchData));
   };
 
   useEffect(() => {
-    if (initialCategory) {
-      handleChange(initialCategory);
+    if (searchData.curriculum_category) {
+      handleChange(searchData.curriculum_category);
     }
-  }, [initialCategory]);
+  }, [searchData.curriculum_category]);
 
   return (
     <section className="flex justify-center">
@@ -62,7 +85,9 @@ const SearchCategoryMenu: React.FC<SearchCategoryMenuProps> = ({
             key={index}
             type="button"
             className={`mx-6 my-12 p-2 rounded-md ${
-              selectedValue === subject.value ? "bg-orange-200" : ""
+              searchData.curriculum_category === subject.value
+                ? "bg-orange-200"
+                : ""
             }`}
             onClick={() => handleChange(subject.value)}
           >
