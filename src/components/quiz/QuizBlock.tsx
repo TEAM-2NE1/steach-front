@@ -13,6 +13,7 @@ interface QuizData {
   question: string;
   choices: string[];
   answers: number;
+  time: number;
 }
 
 interface StatisticData {
@@ -35,14 +36,14 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => 
 
   const [statisticData, setStatisticData] = useState<StatisticData | null>(null);
   
-  const [timer, setTimer] = useState<number>(3); //타이머 관련
+  const [timer, setTimer] = useState<number>(initialQuizData.time); //타이머 관련
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const [showMyResult, setShowMyResult] = useState<boolean>(false);
   const [showStatistic, setShowStatstic] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxd2VyIiwiaWF0IjoxNzIyOTIyODI1LCJleHAiOjE3MjI5MzQ4MjUsInRva2VuX3R5cGUiOiJhY2Nlc3MifQ.PDVlpFeHAL6LixUQW8ijfqbr6yoEefwAK7QwXaGLYoM'
+  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjI5MzQ0ODQsImV4cCI6MTcyMjk0NjQ4NCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.b5SSl4QJdfUdsey2CxCt-0ZVB7iExIDEPb2zOh3Wogw'
 
   useEffect(() => {
     if (showStatistic) {
@@ -138,7 +139,8 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => 
   }
 
   // 타이머에 따라 색상 결정
-  const clockColor = timer <= 0 ? 'bg-zinc-500' : timer === 1 ? 'bg-red-600' : timer === 2 ? 'bg-amber-400' : timer ===3 ? 'bg-yellow-300' : timer ===4 ? 'bg-lime-400' : 'bg-blue-600';
+  //: timer ===4 ? 'bg-lime-400'
+  const clockColor = timer <= 0 ? 'bg-zinc-500' : timer === 1 ? 'bg-red-600' : timer === 2 ? 'bg-amber-400' : timer ===3 ? 'bg-yellow-300'  : 'bg-blue-600';
 //파 초 노 주 빨
   return (
     <div id="quizContainer" className="relative w-[500px] h-[400px] text-center font-sans flex flex-col justify-start" style={{ backgroundColor: 'rgb(242, 242, 242)' }}>

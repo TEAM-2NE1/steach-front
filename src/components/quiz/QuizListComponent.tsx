@@ -10,6 +10,7 @@ export interface QuizResponseDTO {
   question: string;
   choices: string[];
   answers: number;
+  time: number;
 }
 
 const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjI5MjYyNDQsImV4cCI6MTcyMjkzODI0NCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.10GG-ui0sHrV6-bbd_yfE7dd8eSAq7QvN9OMhj_p8-I';
