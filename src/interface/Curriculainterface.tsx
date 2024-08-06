@@ -17,6 +17,17 @@ export interface Curricula {
   current_attendees: string;
 }
 
+export interface HotCurricula {
+  curriculum_id: number;
+  banner_img_url: string;
+  title: string;
+  intro: string;
+  max_attendees: number;
+  current_attendees: number;
+  created_at: string;
+  teacher_name: string;
+}
+
 export interface CurriculaFormData {
   title: string;
   sub_title: string;
@@ -64,6 +75,13 @@ export interface PatchLecture {
 }
 
 // 학생 커리큘럼 신청 리스트 조회 폼
+export interface returnHotCurriculaList {
+  current_page_number: number;
+  total_page: number;
+  page_size: number;
+  curricula: Curricula[];
+}
+
 export interface returnStudentCurriculaList {
   current_page_number: number;
   total_page: number;

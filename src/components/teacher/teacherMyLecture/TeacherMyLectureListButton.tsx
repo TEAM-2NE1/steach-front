@@ -31,7 +31,7 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
       {lectureState === "completed" && (
         <>
           <Button
-            className="mx-5 p-3 bg-sky-300 rounded-md shadow text-white hover:bg-sky-400"
+            className="mx-auto p-3 bg-sky-300 rounded-md shadow text-white hover:bg-sky-400"
             onClick={() => navigate("/teacher/profile/lecture/lectureReport")}
           >
             리포트 보기
@@ -45,7 +45,7 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="size-7 text-center"
+                  className="size-7"
                 >
                   <path
                     strokeLinecap="round"
@@ -72,7 +72,7 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
       )}
       {lectureState === "scheduled" && (
         <>
-          <p className="mx-5 p-3 text-sm text-red-500 text-center">
+          <p className="mx-auto p-3 text-sm text-red-500 text-center">
             예정된 강의
           </p>
           <Popover placement="right-start">
@@ -121,7 +121,7 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
       )}
       {lectureState === "ongoing" && (
         <>
-          <Button className="mx-5 p-3 bg-sky-300 rounded-md shadow text-white hover:bg-pink-400">
+          <Button className="mx-auto p-3 bg-sky-300 rounded-md shadow text-white hover:bg-pink-400">
             강의 시작하기
           </Button>
           <Popover placement="right-start">

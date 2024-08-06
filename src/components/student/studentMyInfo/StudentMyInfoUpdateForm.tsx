@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { updateStudentInfo } from "../../../store/userInfo/StudentProfileSlice";
 import { fetchStudentInfo } from "../../../store/userInfo/StudentProfileSlice";
 import { deleteUserSteach } from "../../../store/userInfo/AuthSlice";
+import { logout } from "../../../store/userInfo/AuthSlice";
 
 export interface StudentInfoUpdateForm {
   nickname: string;
@@ -17,6 +18,9 @@ const StudentMyInfoUpdateForm: React.FC = () => {
   const temporaryToken = localStorage.getItem("passwordAuthToken");
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const Data = localStorage.getItem("auth");
+  const studentData = Data ? JSON.parse(Data) : "";
+  console.log(studentData)
   const teacherData = useSelector(
     (state: RootState) => state.studentProfile.info
   );
@@ -48,19 +52,21 @@ const StudentMyInfoUpdateForm: React.FC = () => {
     e.preventDefault();
     await dispatch(updateStudentInfo(formData));
     localStorage.removeItem("passwordAuthToken");
-    navigate("/student/profile");
+    window.location.reload();
   };
 
   // 회원 탈퇴 요청
   const handleDelete = async () => {
+    
+    dispatch(logout());
     // 회원 탈퇴
     await dispatch(deleteUserSteach());
     // 메인페이지로 이동
-    navigate("/");
+    navigate("/home");
     window.location.reload();
   };
   return (
-    <div className="w-9/12 bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
+    <div className="w-9/12 h-screen bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
       <form onSubmit={(e) => handleUpdateSubmit(e)}>
         <h1 className="my-2 p-2 text-center text-4xl text-lightNavy">
           내정보 수정
@@ -97,18 +103,20 @@ const StudentMyInfoUpdateForm: React.FC = () => {
             required
           />
         </div>
+        <div className="absolute bottom-0 right-0 p-6 flex justify-end">
         <button
           onClick={(e) => handleUpdateSubmit(e)}
-          className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
-        >
+          className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300 mr-4"
+          >
           수정하기
         </button>
         <button
           onClick={handleDelete}
           className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
-        >
+          >
           회원탈퇴
         </button>
+          </div>
       </form>
     </div>
   );

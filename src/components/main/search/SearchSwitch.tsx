@@ -19,6 +19,7 @@ const SearchSwitch: React.FC<SearchSwitchProps> = ({
       },
     });
     console.log(checked);
+    console.log('checked');
     // 만약 체크가 변할때마다 그 값에 맞는 강의 검색하기
     handleSearch(null);
   };

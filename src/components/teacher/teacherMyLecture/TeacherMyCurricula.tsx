@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../../../store";
-import { RootState } from "../../../store";
+import { AppDispatch, RootState } from "../../../store";
 import { fetchTeacherCurriculaList } from "../../../store/userInfo/TeacherProfileSlice";
 import { useNavigate } from "react-router-dom";
+import defaultImg from "../../../assets/default.png";
 
 const TeacherMyCurricula: React.FC = () => {
   const navigate = useNavigate();
@@ -66,6 +66,10 @@ const TeacherMyCurricula: React.FC = () => {
                 src={sample.banner_img_url}
                 alt="no-image"
                 className="w-1/3 h-56 object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = defaultImg;
+                }}
+                // className="w-screen h-52"
               />
               <div className="p-4 flex flex-col justify-center">
                 <h2 className="text-3xl font-bold mb-2">{sample.title}</h2>
@@ -84,7 +88,7 @@ const TeacherMyCurricula: React.FC = () => {
                       `/teacher/profile/${userData.username}/curricula/${sample.curriculum_id}`
                     )
                   }
-                  className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700"
+                  className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 w-40"
                 >
                   자세히 보기
                 </button>

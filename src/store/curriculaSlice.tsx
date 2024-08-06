@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { Curricula, LectureSeries } from "../interface/Curriculainterface";
+import { Curricula, LectureSeries, returnHotCurriculaList } from "../interface/Curriculainterface";
 import {
   fetchCurriculumDetails,
   petchCurriculumDetails,
@@ -10,6 +10,8 @@ import {
   getCurriculimApply,
   postCurriculimCancel,
 } from "../api/lecture/curriculumAPI";
+import { fetchPopularCurricula } from "../api/main/mainAPI"
+
 
 import axios from "axios";
 
@@ -18,6 +20,7 @@ import axios from "axios";
 export interface CurriculasState {
   curricula: Curricula[];
   lectureslist: LectureSeries | null;
+  returnHotCurriculaList: returnHotCurriculaList | null;
   selectlectures: Curricula | null;
   isApply: boolean;
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -28,6 +31,7 @@ export interface CurriculasState {
 const initialState: CurriculasState = {
   curricula: [],
   lectureslist: null,
+  returnHotCurriculaList: null,
   selectlectures: null,
   isApply: false,
   status: "idle",
@@ -129,6 +133,24 @@ export const CurriculaCancel = createAsyncThunk<boolean, string>(
     }
   }
 );
+
+// pop한 강의 들고오기
+export const getpopLecturelist = createAsyncThunk<returnHotCurriculaList>(
+  "lectures/poplist",
+  async (_, thunkAPI) => {
+    try {
+      const data = await fetchPopularCurricula();
+      return data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return thunkAPI.rejectWithValue(error.response.data);
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+
 
 // 커리큘럼 슬라이스
 const curriculaSlice = createSlice({
@@ -237,6 +259,21 @@ const curriculaSlice = createSlice({
         console.log(state.status);
       })
       .addCase(CurriculaCancel.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to fetch lectures";
+      })
+      // pop한 강의 들고오기
+      .addCase(getpopLecturelist.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        getpopLecturelist.fulfilled,
+        (state, action: PayloadAction<returnHotCurriculaList>) => {
+          state.status = "succeeded";
+          state.returnHotCurriculaList = action.payload;
+        }
+      )
+      .addCase(getpopLecturelist.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
       });
