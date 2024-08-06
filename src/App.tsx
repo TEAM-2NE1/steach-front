@@ -24,6 +24,7 @@ import Reva from "./pages/sub/Reva.tsx";
 
 import SearchPage from "./pages/main/SearchPage.tsx";
 import MainPage from "./pages/main/MainPage.tsx";
+import QuizTest from "./components/quiz/QuizTest.tsx";
 
 const App: React.FC = () => {
   return (
@@ -84,6 +85,7 @@ const App: React.FC = () => {
         <Route path="/cat" element={<Cat />}></Route>
         <Route path="/reva" element={<Reva />}></Route>
         <Route path="/search" element={<SearchPage />}></Route>
+        <Route path="/privacy" element={<QuizTest />}></Route>
       </Routes>
       <Footer />
     </div>

@@ -23,9 +23,10 @@ interface StatisticData {
 interface DetailQuizProps {
   initialQuizData: QuizData;
   onClose: () => void;
+  trialVersion: boolean;
 }
 
-const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => {
+const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trialVersion }) => {
 
   const [showChoices, setShowChoices] = useState(false);
   const [showQuestion, setShowQuestion] = useState(false);
@@ -118,18 +119,22 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => 
     console.log(`타이머가 시작된 후 ${elapsedSeconds}초가 지났습니다.`);
 
     //statistic axios
-    axios.post(`${BASE_URL}/api/v1/studentsQuizzes/1290`, {
-      score: 0,
-      student_choice: "X"
-    }, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    .catch(error => {
-      console.error("There was an error sending the statistics data!", error);
-    });
+    if (trialVersion) {
+      //pass
+    } else {
+      axios.post(`${BASE_URL}/api/v1/studentsQuizzes/1290`, {
+        score: 0,
+        student_choice: "X"
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .catch(error => {
+        console.error("There was an error sending the statistics data!", error);
+      });
+    }
   
     setIsClicked(true);
   };
@@ -195,9 +200,9 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => 
           id="question"
           className={`absolute inset-0 top-[50px] text-2xl transition-transform duration-500 ease-in-out flex justify-center items-end pb-2 ${
             showQuestion ? 'opacity-100' : 'opacity-0'
-          } ${showChoices ? 'transform translate-y-[-45px]' : 'transform translate-y-0'}
-          ${showStatistic ? 'transform translate-y-[-140px]' : 'transform translate-y-0'}
-          `}
+          } transform ${
+            showStatistic ? 'translate-y-[-145px]' : showChoices ? 'translate-y-[-45px]' : 'translate-y-0'
+          }`}
         >
           <p style={{ backgroundColor: '', padding: 10, width: '100%' }}>{initialQuizData.question}</p>
         </div>

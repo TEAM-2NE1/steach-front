@@ -13,9 +13,13 @@ export interface QuizResponseDTO {
   time: number;
 }
 
-const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjI5MjYyNDQsImV4cCI6MTcyMjkzODI0NCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.10GG-ui0sHrV6-bbd_yfE7dd8eSAq7QvN9OMhj_p8-I';
+interface QuizListComponentProps {
+  trialVersion: boolean;
+}
 
-const QuizListComponent: React.FC = () => {
+const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjI5NTI5MDYsImV4cCI6MTcyMjk2NDkwNiwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.yt6I5twSVweDkotfGI-t4Wej42TcrOb7eVabOS5er54';
+
+const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion}) => {
   const [quizzes, setQuizzes] = useState<QuizResponseDTO[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<QuizResponseDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -86,7 +90,7 @@ const QuizListComponent: React.FC = () => {
             {/* DetailQuiz Component Centered */}
             <div className="flex justify-center items-center">
               <div className="rounded-lg overflow-hidden w-full">
-                <DetailQuiz initialQuizData={selectedQuiz} onClose={handleCloseModal} />
+                <DetailQuiz initialQuizData={selectedQuiz} onClose={handleCloseModal} trialVersion={trialVersion}/>
               </div>
             </div>
           </div>
