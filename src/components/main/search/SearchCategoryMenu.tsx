@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import all from "../../../assets/futureHokyung.jpg";
 import korean from "../../../assets/subject/korean.png";
 import math from "../../../assets/subject/math.png";
@@ -47,6 +47,12 @@ const SearchCategoryMenu: React.FC<SearchCategoryMenuProps> = ({
     setSelectedValue(value);
     handleCategoryChange(value);
   };
+
+  useEffect(() => {
+    if (initialCategory) {
+      handleChange(initialCategory);
+    }
+  }, [initialCategory]);
 
   return (
     <section className="flex justify-center">

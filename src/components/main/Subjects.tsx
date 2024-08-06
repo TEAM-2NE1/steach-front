@@ -7,6 +7,7 @@ import artsandphysical from "../../assets/subject/artsandphysical.png"
 import engineering from "../../assets/subject/engineering.png"
 import foreignlanguage from "../../assets/subject/foreignlanguage.png"
 import etc from "../../assets/subject/etc.png"
+import all from "../../assets/futureHokyung.jpg";
 
 
 // 김헌규 - 자바스크립트 코드를 타입스크립트 코드로 변경(컴포넌트 함수 및 interface와 Subject 타입으로 작성)
@@ -23,14 +24,15 @@ const Subjects: React.FC = () => {
   // 김헌규
   const subjects: Subject[] = [
 
-    { name: "#국어", icon: korean, http: "korean"},
-    { name: "#수학", icon: math, http: "math"},
-    { name: "#사회", icon: social, http: "social"},
-    { name: "#과학", icon: science, http: "science"},
-    { name: "#예체능", icon: artsandphysical, http: "artsandphysical"},
-    { name: "#공학", icon: engineering, http: "engineering"},
-    { name: "#외국어", icon: foreignlanguage, http: "foreignlanguage"},
-    { name: "#ETC", icon: etc, http: "etc"},
+    { name: "#전체", icon: all, http: ""},
+    { name: "#국어", icon: korean, http: "KOREAN"},
+    { name: "#수학", icon: math, http: "MATH"},
+    { name: "#사회", icon: social, http: "SOCIAL"},
+    { name: "#과학", icon: science, http: "SCIENCE"},
+    { name: "#예체능", icon: artsandphysical, http: "ARTS_AND_PHYSICAL"},
+    { name: "#공학", icon: engineering, http: "ENGINEERING"},
+    { name: "#외국어", icon: foreignlanguage, http: "FOREIGN_LANGUAGE"},
+    { name: "#ETC", icon: etc, http: "ETC"},
 
   ];
 
@@ -39,11 +41,15 @@ const Subjects: React.FC = () => {
       <div>
         <div className="flex text-center">
           {subjects.map((subject, index) => (
-            <a href={`${subject.http}`} className="mx-6 my-12 transform transition-transform duration-300 hover:scale-150" key={index}>
+            <a 
+            href={`/search?subject=${subject.http}`} 
+            key={index}
+            className="mx-6 my-12 transform transition-transform duration-300 hover:scale-150" 
+            >
               <img
                 src={`${subject.icon}`}
                 className="sm:size-8 md:size-12 lg:size-16 text-indigo-950"
-              />
+                />
               <div className="text-lightNavy">{subject.name}</div>
             </a>
           ))}
