@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { Curricula, LectureSeries, returnHotCurriculaList } from "../interface/Curriculainterface";
+import { Curricula, LectureSeries, returnHotCurriculaList, returnLastestCurriculaList } from "../interface/Curriculainterface";
 import {
   fetchCurriculumDetails,
   petchCurriculumDetails,
@@ -10,7 +10,7 @@ import {
   getCurriculimApply,
   postCurriculimCancel,
 } from "../api/lecture/curriculumAPI";
-import { fetchPopularCurricula } from "../api/main/mainAPI"
+import { fetchLatestCurricula, fetchPopularCurricula } from "../api/main/mainAPI"
 
 
 import axios from "axios";
@@ -21,6 +21,7 @@ export interface CurriculasState {
   curricula: Curricula[];
   lectureslist: LectureSeries | null;
   returnHotCurriculaList: returnHotCurriculaList | null;
+  returnLastestCurriculaList: returnLastestCurriculaList | null;
   selectlectures: Curricula | null;
   isApply: boolean;
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -32,6 +33,7 @@ const initialState: CurriculasState = {
   curricula: [],
   lectureslist: null,
   returnHotCurriculaList: null,
+  returnLastestCurriculaList: null,
   selectlectures: null,
   isApply: false,
   status: "idle",
@@ -140,6 +142,22 @@ export const getpopLecturelist = createAsyncThunk<returnHotCurriculaList>(
   async (_, thunkAPI) => {
     try {
       const data = await fetchPopularCurricula();
+      return data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return thunkAPI.rejectWithValue(error.response.data);
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+// Lastest한 강의 들고오기
+export const getLastestLecturelist = createAsyncThunk<returnLastestCurriculaList>(
+  "lectures/lastestlist",
+  async (_, thunkAPI) => {
+    try {
+      const data = await fetchLatestCurricula();
       return data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -274,6 +292,21 @@ const curriculaSlice = createSlice({
         }
       )
       .addCase(getpopLecturelist.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to fetch lectures";
+      })
+      // pop한 강의 들고오기
+      .addCase(getLastestLecturelist.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        getLastestLecturelist.fulfilled,
+        (state, action: PayloadAction<returnLastestCurriculaList>) => {
+          state.status = "succeeded";
+          state.returnLastestCurriculaList = action.payload;
+        }
+      )
+      .addCase(getLastestLecturelist.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
       });

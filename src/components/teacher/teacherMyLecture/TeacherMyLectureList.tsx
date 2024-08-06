@@ -18,6 +18,7 @@ import {
 } from "../../../store/curriculaSlice";
 import { deleteCurriculaDetail } from "../../../store/curriculaSlice";
 import TeacherMyLectureListButton from "./TeacherMyLectureListButton";
+import Spinner from "../../main/spinner/Spinner";
 
 const TeacherMyLectureList: React.FC = () => {
   const navigate = useNavigate();
@@ -34,11 +35,15 @@ const TeacherMyLectureList: React.FC = () => {
   const lectures = useSelector(
     (state: RootState) => state.curriculum.selectlectures
   );
+  const status = useSelector(
+    (state: RootState) => state.curriculum.status
+  );
 
   // 단일 커리큘럼에 대한 강의 리스트 상태를 조회
   const lectureslist = useSelector(
     (state: RootState) => state.curriculum.lectureslist
   );
+
 
   // 페이지에 들어왔을때 curricula_id를 이용하여 함수 실행하기
   useEffect(() => {
@@ -102,7 +107,7 @@ const TeacherMyLectureList: React.FC = () => {
               </p>
             </main>
           </section>
-
+          {status === "loading" && <Spinner />}
           <section className="mx-3 mt-12 mb-3 border-gray-300 p-4">
             <h1 className="my-3 text-3xl text-lightNavy">강의목록</h1>
             <Accordion className="shadow-lg" defaultIndex={[]} allowMultiple>
@@ -117,6 +122,7 @@ const TeacherMyLectureList: React.FC = () => {
                     overflow: "hidden",
                   }}
                 >
+                  
                   <AccordionButton className="bg-gray-200 hover:bg-gray-300">
                     <Box as="span" flex="1" textAlign="left" className="p-2">
                       <Text className="text-2xl">
