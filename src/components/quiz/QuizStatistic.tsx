@@ -1,7 +1,7 @@
-// QuizChoiceButton.tsx
+// QuizStatistic.tsx
 import React from 'react';
 
-interface QuizChoiceButtonProps {
+interface QuizStatisticButtonProps {
   choice: string;
   isCorrectChoice: boolean;
   isClicked: boolean;
@@ -11,7 +11,7 @@ interface QuizChoiceButtonProps {
   index: number; // 숫자를 받아오기 위한 props
 }
 
-const QuizChoiceButton: React.FC<QuizChoiceButtonProps> = ({
+const QuizStatistic: React.FC<QuizStatisticButtonProps> = ({
   choice,
   isCorrectChoice,
   isClicked,
@@ -38,13 +38,13 @@ const QuizChoiceButton: React.FC<QuizChoiceButtonProps> = ({
   const getIcon = (index: number) => {
     switch (index) {
       case 0:
-        return '▲'; // 사각형
+        return '♥'; // 사각형
       case 1:
-        return '◆'; // 삼각형
+        return '♠'; // 삼각형
       case 2:
-        return '●'; // 원형
+        return '◆'; // 원형
       case 3:
-        return '■'; // 다이아몬드
+        return '♣'; // 다이아몬드
       default:
         return '';
     }
@@ -93,4 +93,4 @@ const QuizChoiceButton: React.FC<QuizChoiceButtonProps> = ({
   );
 };
 
-export default QuizChoiceButton;
+export default QuizStatistic;
