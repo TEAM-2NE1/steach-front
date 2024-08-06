@@ -15,6 +15,8 @@ import Spinner from "../../components/main/spinner/Spinner";
 const SearchPage: React.FC = () => {
   // params 가져오기
   let subject: string = "";
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
