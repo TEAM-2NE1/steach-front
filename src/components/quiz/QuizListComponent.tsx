@@ -52,66 +52,42 @@ const QuizListComponent: React.FC = () => {
   };
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="text-red-500">{error}</div>;
   }
 
   if (quizzes.length === 0) {
-    return <div>Loading...</div>;
+    return <div className="text-center text-gray-500">Loading...</div>;
   }
 
   return (
-    <div>
-      <style>
-        {`
-          .modal {
-            display: block;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
-            padding-top: 60px;
-          }
-
-          .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-          }
-
-          .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-          }
-
-          .close-button:hover,
-          .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-          }
-        `}
-      </style>
-
+    <div className="p-4">
       {quizzes.map((quiz) => (
-        <button key={quiz.quiz_id} onClick={() => handleButtonClick(quiz)}>
+        <button
+          key={quiz.quiz_id}
+          onClick={() => handleButtonClick(quiz)}
+          className="w-full text-left bg-blue-200 text-white p-2 mb-2 rounded hover:bg-blue-600 transition"
+        >
           Quiz {quiz.quiz_number} - {quiz.question}
         </button>
       ))}
 
       {isModalOpen && selectedQuiz && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close-button" onClick={handleCloseModal}>&times;</span>
-            <DetailQuiz initialQuizData={selectedQuiz} onClose={handleCloseModal} />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg w-[500px] relative">
+            {/* Close Button Overlapping DetailQuiz */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
+            >
+              &times;
+            </button>
+            
+            {/* DetailQuiz Component Centered */}
+            <div className="flex justify-center items-center">
+              <div className="rounded-lg overflow-hidden w-full">
+                <DetailQuiz initialQuizData={selectedQuiz} onClose={handleCloseModal} />
+              </div>
+            </div>
           </div>
         </div>
       )}

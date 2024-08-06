@@ -141,7 +141,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => 
 //파 초 노 주 빨
   return (
     <div id="quizContainer" className="relative w-[500px] h-[400px] text-center font-sans flex flex-col justify-start" style={{ backgroundColor: 'rgb(242, 242, 242)' }}>
-      <span className="close-button" onClick={onClose}>&times;</span>   {/* 빼도됨 */}
+      {/* <span className="close-button" onClick={onClose}>&times;</span>   빼도됨 */}
       <div className="relative h-[200px] flex-1">
         <div style={{ height: '50px' }} />
         <div id='quizEmoji' style={styles.quizEmoji}>
