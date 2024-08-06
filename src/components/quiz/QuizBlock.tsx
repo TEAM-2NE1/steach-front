@@ -40,8 +40,7 @@ const DetailQuiz: React.FC = () => {
   // const data: { data: number[] } = 
   // { data: [0, 10, 4, 1] }
   // ;
-  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjI5MTU0MDEsImV4cCI6MTcyMjkyNzQwMSwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.Ll2Cd4v0w__bgDDJegBM7SVGDa5DvuvMO1KsR1Vwuo8'
-
+  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxd2VyIiwiaWF0IjoxNzIyOTIyODI1LCJleHAiOjE3MjI5MzQ4MjUsInRva2VuX3R5cGUiOiJhY2Nlc3MifQ.PDVlpFeHAL6LixUQW8ijfqbr6yoEefwAK7QwXaGLYoM'
 
   useEffect(() => {
     axios.get<QuizData>(`${BASE_URL}/api/v1/quizzes/1290`, {
@@ -116,6 +115,20 @@ const DetailQuiz: React.FC = () => {
     // 타이머 시작 후 몇 초가 지났는지 계산
     const elapsedSeconds = 3 - timer; // 초기 타이머 값이 3이므로, 현재 타이머 값(timer)으로부터 경과 시간을 계산
     console.log(`타이머가 시작된 후 ${elapsedSeconds}초가 지났습니다.`);
+
+    //statistic axios
+    axios.post(`${BASE_URL}/api/v1/studentsQuizzes/1290`, {
+      score: 0,
+      student_choice: "X"
+    }, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .catch(error => {
+      console.error("There was an error sending the statistics data!", error);
+    });
   
     setIsClicked(true);
   };
@@ -179,7 +192,7 @@ const DetailQuiz: React.FC = () => {
             setTimeout(() => {
               setShowModal(false);
               
-              //statistic axios 불러오기
+              
               
               setShowStatstic(true);
             }, 1000)
