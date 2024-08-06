@@ -20,7 +20,7 @@ const StudentMyInfoForm: React.FC<StudentMyInfoProps> = ({
     (state: RootState) => state.studentProfile.info
   );
   return (
-    <div className="w-9/12 bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
+    <div className="w-9/12 h-screen bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
       <form>
         <h1 className="my-2 p-2 text-center text-4xl text-lightNavy">내정보</h1>
         <div className="my-4 p-2">

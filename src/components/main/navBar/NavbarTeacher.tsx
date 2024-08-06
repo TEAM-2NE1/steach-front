@@ -145,9 +145,9 @@ const NavbarTeacher: React.FC<Props> = ({ username }) => {
             </Link>
           </li>
           <li className="mx-4 lg: m-2 lg:px-2 lg:py-0">
-            <a href="#" className="hover:text-orange-300">
-              문의하기
-            </a>
+            <Link to={"/game"} className="hover:text-orange-300">
+              오락
+            </Link>
           </li>
         </ul>
       </div>

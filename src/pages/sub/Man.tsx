@@ -98,7 +98,7 @@ const ManGame: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-Beige" style={{ textAlign: 'center', padding: '20px' }}>
+    <div className="flex bg-white h-screen items-center justify-center" style={{ textAlign: 'center', padding: '20px' }}>
       <div id="ruffle-container">
         <embed src="/manGame_J.swf" width="800" height="600" />
       </div>

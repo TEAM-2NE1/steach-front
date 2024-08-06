@@ -9,7 +9,6 @@ import {
 import { RootState, AppDispatch } from "../../../store";
 import { PatchLecture } from "../../../interface/Curriculainterface";
 import dayjs from "dayjs";
-import { getCurriculaDetail } from "../../../store/curriculaSlice";
 
 // props 인터페이스
 interface TeacherMyLectureListModalProps {

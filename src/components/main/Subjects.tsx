@@ -7,7 +7,7 @@ import artsandphysical from "../../assets/subject/artsandphysical.png"
 import engineering from "../../assets/subject/engineering.png"
 import foreignlanguage from "../../assets/subject/foreignlanguage.png"
 import etc from "../../assets/subject/etc.png"
-import all from "../../assets/futureHokyung.jpg";
+import all from "../../assets/subject/booklist.png";
 
 
 // 김헌규 - 자바스크립트 코드를 타입스크립트 코드로 변경(컴포넌트 함수 및 interface와 Subject 타입으로 작성)

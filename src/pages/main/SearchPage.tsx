@@ -144,7 +144,6 @@ const SearchPage: React.FC = () => {
             </div>
           )}
         </main>
-
         <div className="col-span-1"></div>
       </div>
     </>
