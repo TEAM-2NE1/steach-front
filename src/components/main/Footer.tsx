@@ -1,9 +1,9 @@
-// 김헌규 제작
-// 이진송 수정 - 타입스크립트에 맞춰서 변경함
-// 김헌규 - footer에 플렉스를 이용하여 가운데 정렬 및 높이 조절
+// Footer.tsx
+import React from "react";
+
 const Footer: React.FC = () => {
   return (
-    <footer className="flex justify-center items-center h-24 py-2.5 bg-[#282c34] text-white text-center ">
+    <footer className="mt-auto flex justify-center items-center h-24 py-2.5 bg-[#282c34] text-white text-center w-full">
       <div className="container">
         <p className="my-2">&copy; 2024 MyWebsite. All Rights Reserved.</p>
         <ul className="list-none my-2">
