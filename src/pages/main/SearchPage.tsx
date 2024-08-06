@@ -4,24 +4,24 @@ import { SearchSendCurricula } from "../../interface/search/SearchInterface";
 import { searchCurricula } from "../../store/SearchSlice";
 import { useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
+import { useLocation } from "react-router-dom";
 import SearchCategoryMenu from "../../components/main/search/SearchCategoryMenu";
 import SearchOrderMenu from "../../components/main/search/SearchOrderMenu";
 import SearchSwitch from "../../components/main/search/SearchSwitch";
 import SearchCard from "../../components/main/search/SearchCard";
 import SearchNoResult from "../../components/main/search/SearchNoResult";
 import Spinner from "../../components/main/spinner/Spinner";
-import { useLocation } from 'react-router-dom'
 
 const SearchPage: React.FC = () => {
   // params 가져오기
-  let subject:string = ""
+  let subject: string = "";
   const location = useLocation();
-  const params = new URLSearchParams(location.search)
-  
+  const params = new URLSearchParams(location.search);
+
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.search.status);
   const curriculas = useSelector((state: RootState) => state.search.curricula);
-  
+
   // 검색 조건값 상태
   const [searchOption, setSearchOption] = useState<SearchSendCurricula>({
     curriculum_category: subject,
@@ -34,20 +34,18 @@ const SearchPage: React.FC = () => {
 
   // 홈페이지에서 클릭 후 넘어왔을때, params로 과목을 넘김
   useEffect(() => {
-    const paramSubject = params.get('subject');
+    const paramSubject = params.get("subject");
     if (paramSubject !== null) {
       subject = paramSubject;
     }
-  }, [location.search])
+  }, [location.search]);
 
-  
   useEffect(() => {
-    setSearchOption(prevState => ({
+    setSearchOption((prevState) => ({
       ...prevState,
       curriculum_category: subject,
     }));
     if (!subject) {
-
       dispatch(searchCurricula(searchOption));
     }
   }, []);
@@ -112,6 +110,7 @@ const SearchPage: React.FC = () => {
                 검색하기
               </button>
               <SearchSwitch
+                // setSearchOption={setSearchOption}
                 handleOptionChange={handleOptionChange}
                 handleSearch={handleSearch}
               />
