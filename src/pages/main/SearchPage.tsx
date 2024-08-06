@@ -18,8 +18,6 @@ const SearchPage: React.FC = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const dispatch = useDispatch<AppDispatch>();
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
   const status = useSelector((state: RootState) => state.search.status);
   const curriculas = useSelector((state: RootState) => state.search.curricula);
 
