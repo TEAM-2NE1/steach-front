@@ -2,25 +2,25 @@
 import React from 'react';
 
 interface QuizChoiceButtonProps {
-  choice: string;
   isCorrectChoice: boolean;
+  choiceSentence: string;
   isClicked: boolean;
-  selectedChoice: string | null;
+  selectedChoice: number | null;
   showAnswer: boolean;
-  onClick: (choice: string) => void;
+  onClick: (choice: number) => void;
   index: number; // 숫자를 받아오기 위한 props
 }
 
 const QuizChoiceButton: React.FC<QuizChoiceButtonProps> = ({
-  choice,
   isCorrectChoice,
+  choiceSentence,
   isClicked,
   selectedChoice,
   showAnswer,
   onClick,
   index,
 }) => {
-  const getChoiceColor = (choice: string) => {
+  const getChoiceColor = (choice: number) => {
     switch (index) {
       case 0:
         return { backgroundColor: 'rgb(208, 53, 66)' };
@@ -52,7 +52,7 @@ const QuizChoiceButton: React.FC<QuizChoiceButtonProps> = ({
 
   return (
     <button
-      onClick={() => onClick(choice)}
+      onClick={() => onClick(index)}
       style={{
         fontSize: '18px',
         padding: '10px 20px',
@@ -63,27 +63,35 @@ const QuizChoiceButton: React.FC<QuizChoiceButtonProps> = ({
         borderRadius: '3px',
         margin: '3px',
         backgroundColor: isClicked
-          ? selectedChoice !== choice
-            ? getChoiceColor(choice).backgroundColor
-            : getChoiceColor(choice).backgroundColor
-          : getChoiceColor(choice).backgroundColor,
+          ? selectedChoice !== index
+            ? getChoiceColor(index).backgroundColor
+            : getChoiceColor(index).backgroundColor
+          : getChoiceColor(index).backgroundColor,
         color: 'white',
-        opacity: !isClicked
-          ? 1
-          : !showAnswer
-          ? selectedChoice !== choice
-            ? 0.2
-            : 1
-          : selectedChoice !== choice && !isCorrectChoice
-          ? 0.2
-          : 1,
+
+        // 1. 아직 클릭 안했으면 1
+        // 2. 클릭했다면 
+          // 3. 아직 정답공개 안됐을 때
+            // 4. 내가 클릭한거면 1 클릭안한거면 0.2
+              // 5. 정답공개됐다면
+                // 6. 내가 클릭한거면 1, 정답이면 1, 아니면 0.2
+
+        opacity: (
+          !isClicked? 
+            1 : 
+            (
+              !showAnswer?
+                ((selectedChoice === index)? 1 : 0.2)
+                : ((selectedChoice === index || isCorrectChoice)? 1 : 0.2)
+            )
+        ),
         textAlign: 'left',
         paddingLeft: '10px',
       }}
       disabled={selectedChoice !== null}
     >
       <span style={{ marginRight: '10px' }}>{getIcon(index)}</span>
-      {choice}
+      {choiceSentence}
       {showAnswer && (
         <span className="absolute right-2 top-1/2 transform -translate-y-1/2 font-bold">
           {isCorrectChoice ? 'O' : 'X'}

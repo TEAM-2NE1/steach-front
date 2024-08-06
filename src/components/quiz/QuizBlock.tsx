@@ -30,7 +30,8 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => 
   const [showQuestion, setShowQuestion] = useState(false);
   const [startAnimation, setStartAnimation] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+  const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
+  // const [selectedChoiceIndex, setSelectedChoiceIndex] = useState<number | null>(null);
 
   const [statisticData, setStatisticData] = useState<StatisticData | null>(null);
   
@@ -108,7 +109,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => 
     }
   }, [showModal]);
 
-  const handleChoiceClick = (choice: string) => {
+  const handleChoiceClick = (choice: number) => {
     setSelectedChoice(choice);
   
     // 타이머 시작 후 몇 초가 지났는지 계산
@@ -183,9 +184,9 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => 
           id="result"
           className={`absolute top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 text-white text-center transition-opacity duration-500 w-[150px] h-[50px] rounded-lg flex items-center justify-center z-50 ${
             (showModal && showMyResult && !showStatistic) ? 'opacity-100' : 'opacity-0'
-          } ${(selectedChoice === initialQuizData.choices[initialQuizData.answers - 1]) ? 'bg-blue-300' : 'bg-red-300'}`}
+          } ${(selectedChoice === initialQuizData.answers - 1) ? 'bg-blue-300' : 'bg-red-300'}`}
         >
-          <p>{(selectedChoice === initialQuizData.choices[initialQuizData.answers - 1]) ? '맞았습니다' : '틀렸습니다'}</p>
+          <p>{(selectedChoice === initialQuizData.answers - 1) ? '맞았습니다' : '틀렸습니다'}</p>
         </div>
 
         <div
@@ -202,11 +203,13 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose }) => 
       </div>
       <div id='answer' style={{ ...styles.choices, ...(showChoices ? styles.show : styles.hide) }}>
         {initialQuizData.choices.map((choice, index) => {
-          const isCorrectChoice = index + 1 === initialQuizData.answers;
+          const isCorrectChoice = (index + 1 === initialQuizData.answers);
+
+          console.log("$$$$" + choice);
           return (
             <QuizChoiceButton
               key={choice}
-              choice={choice}
+              choiceSentence={choice}
               isCorrectChoice={isCorrectChoice}
               isClicked={isClicked}
               selectedChoice={selectedChoice}
