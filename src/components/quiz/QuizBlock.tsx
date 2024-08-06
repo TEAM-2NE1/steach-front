@@ -1,17 +1,66 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './goUp.css';
+import QuizChoiceButton from './QuizChoiceButton';
+import { BASE_URL } from "../../api/BASE_URL";
+import StatisticsChart from '../tmplime/StatisticsChart';
+import maruGif from './toktokmaru.gif';
 
-const DetailQuiz: React.FC = () => {
+interface QuizData {
+  quiz_id: number;
+  lecture_id: number;
+  quiz_number: number;
+  question: string;
+  choices: string[];
+  answers: number;
+  time: number;
+}
+
+interface StatisticData {
+  statistics: number[]
+}
+
+interface DetailQuizProps {
+  initialQuizData: QuizData;
+  onClose: () => void;
+  trialVersion: boolean;
+}
+
+const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trialVersion }) => {
+
   const [showChoices, setShowChoices] = useState(false);
   const [showQuestion, setShowQuestion] = useState(false);
   const [startAnimation, setStartAnimation] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
-  const [timer, setTimer] = useState<number>(3);
+  const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
+  // const [selectedChoiceIndex, setSelectedChoiceIndex] = useState<number | null>(null);
+
+  const [statisticData, setStatisticData] = useState<StatisticData | null>(null);
+  
+  const [timer, setTimer] = useState<number>(initialQuizData.time); //타이머 관련
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
+  const [showMyResult, setShowMyResult] = useState<boolean>(false);
+  const [showStatistic, setShowStatstic] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
-  const correctAnswer = '확실하다'; // 정답 설정
+  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjI5MzQ0ODQsImV4cCI6MTcyMjk0NjQ4NCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.b5SSl4QJdfUdsey2CxCt-0ZVB7iExIDEPb2zOh3Wogw'
+
+  useEffect(() => {
+    if (showStatistic) {
+      axios.get<StatisticData>(`${BASE_URL}/api/v1/quizzes/${initialQuizData?.quiz_id}/statistic`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // 필요한 경우 헤더에 인증 정보 추가
+        },
+      })
+        .then(response => {
+          setStatisticData(response.data); // 데이터 설정
+        })
+        .catch(error => {
+          console.error('Error fetching statistic data:', error);
+        });
+    }
+  }, [showStatistic, initialQuizData]); // showStatistic이 true가 될 때 요청을 보냄
 
   useEffect(() => {
     const emojiTimer = setTimeout(() => {
@@ -20,23 +69,23 @@ const DetailQuiz: React.FC = () => {
 
     const questionTimer = setTimeout(() => {
       setShowQuestion(true);
-    }, 3000);
+    }, 2500);
 
     const choicesTimer = setTimeout(() => {
       setIsVisible(false);
       setShowChoices(true);
+      
 
-      // 타이머 시작
       const countdownTimer = setInterval(() => {
         setTimer(prevTimer => {
           if (prevTimer > 1) {
             return prevTimer - 1;
           } else {
             clearInterval(countdownTimer);
-            // 타이머가 0이 되었을 때 정답을 공개
             setShowAnswer(true);
             setIsClicked(true);
-
+            setShowMyResult(true);
+            setShowModal(true);
             return 0;
           }
         });
@@ -50,116 +99,145 @@ const DetailQuiz: React.FC = () => {
     };
   }, []);
 
-  const handleChoiceClick = (choice: string) => {
+  useEffect(() => {
+    if (showModal) {
+      const timeoutId = setTimeout(() => {
+        setShowModal(false);
+        setShowStatstic(true);
+      }, 1000);
+
+      // 타이머 정리
+      return () => clearTimeout(timeoutId);
+    }
+  }, [showModal]);
+
+  const handleChoiceClick = (choice: number) => {
     setSelectedChoice(choice);
-    setIsClicked(true)
+  
+    // 타이머 시작 후 몇 초가 지났는지 계산
+    const elapsedSeconds = 3 - timer; // 초기 타이머 값이 3이므로, 현재 타이머 값(timer)으로부터 경과 시간을 계산
+    console.log(`타이머가 시작된 후 ${elapsedSeconds}초가 지났습니다.`);
+
+    //statistic axios
+    if (trialVersion) {
+      //pass
+    } else {
+      axios.post(`${BASE_URL}/api/v1/studentsQuizzes/1290`, {
+        score: 0,
+        student_choice: "X"
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .catch(error => {
+        console.error("There was an error sending the statistics data!", error);
+      });
+    }
+  
+    setIsClicked(true);
   };
 
+  if (!initialQuizData) {
+    return <div>Loading...</div>;
+  }
+
+  // 타이머에 따라 색상 결정
+  //: timer ===4 ? 'bg-lime-400'
+  const clockColor = timer <= 0 ? 'bg-zinc-500' : timer === 1 ? 'bg-red-600' : timer === 2 ? 'bg-amber-400' : timer ===3 ? 'bg-yellow-300'  : 'bg-blue-600';
+//파 초 노 주 빨
   return (
-    <div id="quizContainer" className="relative w-[500px] h-[400px] text-center font-sans flex flex-col justify-start" style={{backgroundColor: 'rgb(242, 242, 242)'}}>
+    <div id="quizContainer" className="relative w-[500px] h-[400px] text-center font-sans flex flex-col justify-start" style={{ backgroundColor: 'rgb(242, 242, 242)' }}>
+      {/* <span className="close-button" onClick={onClose}>&times;</span>   빼도됨 */}
       <div className="relative h-[200px] flex-1">
         <div style={{ height: '50px' }} />
         <div id='quizEmoji' style={styles.quizEmoji}>
           {isVisible && (
-            <img
-              src="https://item.kakaocdn.net/do/33e4233498cbdb8141bbb5e5b5a7fd59f43ad912ad8dd55b04db6a64cddaf76d"
-              alt="Animated GIF"
-              style={{
-                ...styles.emoji,
-                ...(startAnimation ? styles.animate : {})
-              }}
-            />
+            <div>
+              <img
+                src={maruGif}
+                alt="Animated GIF"
+                title='퀴즈가 시작됩니다!'
+                style={{
+                  ...styles.emoji,
+                  ...(startAnimation ? styles.animate : {})
+                }}
+              />
+            </div>
           )}
         </div>
 
         <div
           id="clock"
-          className={`absolute top-[20px] left-0 right-0 mx-auto opacity-0 text-white text-center transition-opacity duration-500 w-[40px] h-[40px] leading-[40px] rounded-full bg-purple-600 ${
-            showChoices ? 'opacity-100' : 'opacity-0'
+          className={`absolute top-[5%] right-1 ml-0 opacity-0 text-white text-center transition-opacity duration-500 w-[40px] h-[40px] leading-[40px] rounded-full ${clockColor} ${
+            (showChoices && !showStatistic) ? 'opacity-100' : 'opacity-0'
           }`}
+          style={{}}
         >
           <p>{timer}</p>
+        </div>
+
+        <div 
+          id="statistic"
+          className={`absolute top-[70%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 text-white text-center transition-opacity duration-500 w-full h-[50px] flex items-center justify-center ${
+            showStatistic ? 'opacity-70' : 'opacity-0'
+          }`}
+        >
+          {showStatistic && <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0,1,8,3]}} />}
+        </div>
+
+        <div
+          id="result"
+          className={`absolute top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 text-white text-center transition-opacity duration-500 w-[150px] h-[50px] rounded-lg flex items-center justify-center z-50 ${
+            (showModal && showMyResult && !showStatistic) ? 'opacity-100' : 'opacity-0'
+          } ${(selectedChoice === initialQuizData.answers - 1) ? 'bg-blue-300' : 'bg-red-300'}`}
+        >
+          <p>{(selectedChoice === initialQuizData.answers - 1) ? '맞았습니다' : '틀렸습니다'}</p>
         </div>
 
         <div
           id="question"
           className={`absolute inset-0 top-[50px] text-2xl transition-transform duration-500 ease-in-out flex justify-center items-end pb-2 ${
             showQuestion ? 'opacity-100' : 'opacity-0'
-          } ${showChoices ? 'transform translate-y-[-45px]' : 'transform translate-y-0'}`}
+          } transform ${
+            showStatistic ? 'translate-y-[-145px]' : showChoices ? 'translate-y-[-45px]' : 'translate-y-0'
+          }`}
         >
-          <p style={{ backgroundColor: '', padding: 10, width: '100%' }}>마루가 세상에서 제일 귀엽다?</p>
+          <p style={{ backgroundColor: '', padding: 10, width: '100%' }}>{initialQuizData.question}</p>
         </div>
+
       </div>
       <div id='answer' style={{ ...styles.choices, ...(showChoices ? styles.show : styles.hide) }}>
-        {['O', 'X', '모르겠다', '확실하다'].map(choice => {
-          const isCorrectChoice = choice === correctAnswer;
+        {initialQuizData.choices.map((choice, index) => {
+          const isCorrectChoice = (index + 1 === initialQuizData.answers);
+
+          console.log("$$$$" + choice);
           return (
-            <button
+            <QuizChoiceButton
               key={choice}
-              onClick={() => handleChoiceClick(choice)}
-              style={{
-                ...styles.button,
-                backgroundColor: isClicked? 
-                  ((selectedChoice !== choice)? getChoiceColor(choice).backgroundColor : getChoiceColor(choice).backgroundColor) :  
-                    (
-                      getChoiceColor(choice).backgroundColor
-                    ),
-                color: 'white',
-                opacity: !isClicked? 
-                  1 :
-                  (
-                    !showAnswer ? 
-                    ((selectedChoice !== choice ? 0.2 : 1)):
-                    (
-                      (selectedChoice !== choice) && !isCorrectChoice?
-                        0.2:
-                        1
-                    )
-                  ), // 타이머가 끝난 후 틀린 선택지는 투명하게
-                textAlign: 'left',
-                paddingLeft: '10px',
-                position: 'relative',
-              }}
-              disabled={selectedChoice !== null}
-            >
-              {choice}
-              {showAnswer && (
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 font-bold">
-                  {isCorrectChoice ? 'O' : 'X'}
-                </span>
-              )}
-            </button>
+              choiceSentence={choice}
+              isCorrectChoice={isCorrectChoice}
+              isClicked={isClicked}
+              selectedChoice={selectedChoice}
+              showAnswer={showAnswer}
+              onClick={handleChoiceClick}
+              index={index} // 1부터 시작하도록 전달
+            />
           );
         })}
       </div>
-      <div style={{ height: '50px' }} />
+      <div style={{ height: '10px' }} />
     </div>
   );
-};
-
-// 선택지에 따라 정답 여부에 따라 색상을 반환하는 함수
-const getChoiceColor = (choice: string) => {
-    switch (choice) {
-      case 'O':
-        return { backgroundColor: 'rgb(208, 53, 66)' };
-      case 'X':
-        return { backgroundColor: 'rgb(45, 106, 199)' };
-      case '모르겠다':
-        return { backgroundColor: 'rgb(208, 159, 54)' };
-      case '확실하다':
-        return { backgroundColor: 'rgb(67, 132, 38)' };
-      default:
-        return { backgroundColor: 'gray' };
-    }
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
   quizEmoji: {
     position: 'absolute',
-    top: 100,
+    top: 50,
     left: 0,
     right: 0,
-    bottom: 0,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -180,16 +258,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   hide: {
     opacity: 0,
   },
-  button: {
-    fontSize: '18px',
-    padding: '10px 20px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s',
-    height: '70px',
-    position: 'relative',
-    borderRadius: '3px',
-    margin: '3px'
-  },
   emoji: {
     width: '300px',
     height: '300px',
@@ -197,8 +265,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     transform: 'translateY(0)',
   },
   animate: {
-    transform: 'translateY(-80px) scale(0.4)'
+    transform: 'scale(0.2)',
+    opacity: 0,  // 추가된 부분: 애니메이션 시 투명해짐
+    transition: 'transform 1.5s ease-in-out, opacity 1s ease-in-out',  // 투명도에 대한 트랜지션 추가
   },
+  
 };
 
 export default DetailQuiz;

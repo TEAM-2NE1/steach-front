@@ -27,12 +27,14 @@ const FloatingEmoji: React.FC = () => {
 
   return (
     <div style={{ position: 'relative', height: '100px' }}>
-      <button onClick={addEmoji}>Emoji Up!</button>
-      {emojis.map((emoji) => (
-        <span key={emoji.id} className="emoji">
-          {emoji.emoji}
-        </span>
-      ))}
+      <div>
+        {emojis.map((emoji) => (
+          <span key={emoji.id} className="emoji">
+            {emoji.emoji}
+          </span>
+        ))}
+      </div>
+      <button onClick={addEmoji}  style={{ backgroundColor: 'rgb(150, 50, 50)' }}>Emoji Up!</button>
     </div>
   );
 };
