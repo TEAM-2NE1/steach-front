@@ -116,7 +116,7 @@ const LectureDetail: React.FC = () => {
               <div className="flex items-center">
                 <img src={img3} className="w-10 h-10 m-5" />
                 <span>
-                  {lectures?.teacher_name} 강사님 - 강사상세페이지, 만들어야함
+                  {lectures?.teacher_name} 선생님 - 강사상세페이지, 만들어야함
                 </span>
               </div>
             </Link>
@@ -164,20 +164,36 @@ const LectureDetail: React.FC = () => {
           </div>
           <h1 className='text-5xl pt-10' id="day">강의 요일</h1>
           <div className='flex justify-center p-5'>
-            {
-              bitday?.map((a:string, i:number) => {
-                return (
-                  <div key={i} className='px-2'>
-                    {
-                      a === '1'
-                      ? <img src={img1} className='w-20 h-20'/>
-                      : <img src={img2} className='w-20 h-20'/>
-                    }
-                  </div>
-                )
-              })
-            }
-          </div>
+          {
+            bitday?.map((a: string, i: number) => {
+              // 인덱스에 해당하는 요일 배열
+              const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
+              const day = daysOfWeek[i % 7]; // 인덱스를 요일로 변환
+
+              return (
+                <div key={i} className='px-2 relative inline-block'>
+                  {
+                    a === '1'
+                    ? <img src={img1} className='w-20 h-20' />
+                    : <img src={img2} className='w-20 h-20' />
+                  }
+                  <span style={{
+                    position: 'absolute',
+                    top: '55%',
+                    left: '48%',
+                    transform: 'translate(-50%, -50%)',
+                    color: 'black',
+                    fontWeight: 'bold',
+                    fontSize: '20px',
+                    pointerEvents: 'none'
+                  }}>
+                    {day}
+                  </span>
+                </div>
+              )
+            })
+          }
+        </div>
           <h1 className='text-5xl py-10' id="curriculum">커리큘럼</h1>
           <Accordion className="shadow-lg" defaultIndex={[]} allowMultiple>
               {
@@ -339,7 +355,7 @@ const LectureDetail: React.FC = () => {
             <div>
               <span className='hidden'>{startLecture = calculateDaysAgo(lectures?.start_date)}</span>
               <ul>
-                <li>{lectures?.teacher_name} 강사님</li>
+                <li>{lectures?.teacher_name} 선생님</li>
                 <li>{lectureslist?.lecture_count}개 강의</li>
                 <li>{lectures?.category}</li>
                 <li>

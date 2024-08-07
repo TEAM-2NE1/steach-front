@@ -24,7 +24,7 @@ const TeacherMyCurricula: React.FC = () => {
   const teacherCurriculas = useSelector(
     (state: RootState) => state.teacherProfile.curricula
   );
-
+  console.log(teacherCurriculas)
   // 한 페이지에 몇개의 커리큘럼을 나타낼지
   const ITEMS_PER_PAGE = 4;
 
@@ -69,7 +69,6 @@ const TeacherMyCurricula: React.FC = () => {
                 onError={(e) => {
                   e.currentTarget.src = defaultImg;
                 }}
-                // className="w-screen h-52"
               />
               <div className="p-4 flex flex-col justify-center">
                 <h2 className="text-3xl font-bold mb-2">{sample.title}</h2>
