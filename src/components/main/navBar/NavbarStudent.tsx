@@ -15,10 +15,10 @@ import { useLocation } from "react-router-dom";
 
 // Props 타입 정의
 interface Props {
-  username: string;
+  nickname: string;
 }
 
-const NavbarStudent: React.FC<Props> = ({ username }) => {
+const NavbarStudent: React.FC<Props> = ({ nickname }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -105,7 +105,6 @@ const NavbarStudent: React.FC<Props> = ({ username }) => {
   const logoutbtn = () => {
     dispatch(logout());
     navigate("/home");
-    window.location.reload();
   };
 
   return (
@@ -163,9 +162,9 @@ const NavbarStudent: React.FC<Props> = ({ username }) => {
       </div>
       {/* 로그인 및 회원가입 버튼 */}
       <div className="hidden mr-3 lg:flex items-center ml-4 lg:ml-0">
-        <button className="w-auto ml-2 p-2 border-2 border-hardBeige rounded-md">
-          {username} 학생
-        </button>
+        <p className="w-auto ml-2 p-2 border-2 border-hardBeige rounded-md">
+          {nickname} 학생
+        </p>
 
         <button
           className="w-auto ml-2 p-2 text-white bg-red-400 border-2 border-hardBeige rounded-md hover:bg-red-500"
@@ -206,9 +205,9 @@ const NavbarStudent: React.FC<Props> = ({ username }) => {
           </ul>
 
           <div className="flex flex-col items-center mt-4 mx-2">
-            <button className="w-full mb-2 p-2 border-2 border-hardBeige rounded-md">
-              {username} 학생
-            </button>
+            <p className="w-full mb-2 p-2 border-2 border-hardBeige rounded-md">
+              {nickname} 학생
+            </p>
             <button
               className="text-white bg-red-400 border-2 p-2 rounded-md hover:bg-red-500 w-full"
               onClick={logoutbtn}
