@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   Card,
   Heading,
@@ -43,6 +43,8 @@ const HotLectures: React.FC = () => {
       <Box className="container mx-16 px-16">
         <header className="m-3 text-4xl text-lightNavy font-bold">
           <h1>요즘 뜨는 강의</h1>
+      {status === "loading" && <Spinner />}
+      {status === "failed" && error}
         </header>
         <Box className="flex justify-center">
           <Swiper
@@ -114,8 +116,6 @@ const HotLectures: React.FC = () => {
             ) : (
                 <></>
             )}
-            {status === "loading" && <Spinner />}
-            {status === "failed" && error}
           </Swiper>
         </Box>
         </Box>
