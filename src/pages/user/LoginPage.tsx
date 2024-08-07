@@ -40,7 +40,6 @@ const Login: React.FC = () => {
 
     await dispatch(loginSteach(loginFormData));
     navigate("/home");
-    window.location.reload();
   };
 
   return (
