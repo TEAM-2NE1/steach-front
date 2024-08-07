@@ -13,22 +13,13 @@ const initialState: SearchCurriculaState = {
   order: "",
   only_available: false,
   search: "",
-  current_page_number: 0,
+  current_page_number: 1,
   total_page: 0,
-  page_size: 0,
+  page_size: 12,
   curricula: [],
   status: "idle",
   error: null,
 };
-
-// 상태 업데이트 함수
-export const updateSearchState = createAsyncThunk<
-  SearchSendCurricula,
-  SearchSendCurricula
->("curricula/search//update_state", async (searchData) => {
-  const data = searchData;
-  return data;
-});
 
 // 커리큘럼 검색
 export const searchCurricula = createAsyncThunk<
@@ -38,7 +29,7 @@ export const searchCurricula = createAsyncThunk<
   try {
     const data = await searchCurriculaApi(searchData);
 
-    console.log("검색 성공!");
+    console.log("검색 성공!", searchData);
     return data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -54,22 +45,6 @@ const searchSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // 커리큘럼 상태 업데이트
-      .addCase(updateSearchState.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(updateSearchState.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.curriculum_category = action.payload.curriculum_category;
-        state.order = action.payload.order;
-        state.search = action.payload.search;
-        state.current_page_number = action.payload.currentPageNumber;
-        state.page_size = action.payload.pageSize;
-      })
-      .addCase(updateSearchState.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message || "Failed to fetch lectures";
-      })
       // 커리큘럼 검색 조회
       .addCase(searchCurricula.pending, (state) => {
         state.status = "loading";
