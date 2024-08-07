@@ -2,42 +2,43 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import { SearchSendCurricula } from "../../../interface/search/SearchInterface";
-import { useDispatch } from "react-redux";
-import { searchCurricula } from "../../../store/SearchSlice";
-import { AppDispatch } from "../../../store";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface SearchPaginationProps {
-  handleSearch: (e: React.FormEvent | null) => void;
-  setSearchOption: React.Dispatch<React.SetStateAction<SearchSendCurricula>>;
   searchOption: SearchSendCurricula;
 }
 
 const SearchPagination: React.FC<SearchPaginationProps> = ({
-  setSearchOption,
   searchOption,
 }) => {
-  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+
+  // params에서 값 추출
+  const curriculum_category = params.get("curriculum_category");
+  const order = params.get("order");
+  const only_available = params.get("only_available");
+  const search = params.get("search");
+
   // 중앙 저장소에서 총 페이지 수 가져오기
   const total_page = useSelector((state: RootState) => state.search.total_page);
 
   // 전체 페이지 수를 활용하여 숫자 배열을 만들기
   const pages = Array.from({ length: total_page }, (_, i) => i + 1);
 
-  // 기존 상태를 변화시켜서 pagination을 구현하려고 하면 이전 상태 값으로 요청이 보내지기 때문에 (비동기적 처리)
-  // 페이지에 대한 올바른 정보가 출력되지 않기 때문에 새로운 상태 객체와 새로운 함수를 만들어서 요청을 보내는 방법을 선택하였음.
-  const handleSearchNewOption = (newSearchOption: SearchSendCurricula) => {
-    dispatch(searchCurricula(newSearchOption));
-  };
-
+  // 기존 params에서 현재 페이지 정보만 수정해서 navigate로 이동하기
   const handlePageChange = (page: number) => {
-    setSearchOption((prevState) => {
-      const updatedSearchOption = {
-        ...prevState,
-        currentPageNumber: page,
-      };
-      handleSearchNewOption(updatedSearchOption);
-      return updatedSearchOption;
-    });
+    const searchParams = new URLSearchParams();
+    searchParams.set("curriculum_category", curriculum_category || "");
+    searchParams.set("search", search || "");
+    searchParams.set("order", order || "LATEST");
+    searchParams.set("only_available", only_available?.toString() || "false");
+    searchParams.set("pageSize", "12");
+    searchParams.set("currentPageNumber", `${page}`);
+
+    navigate(`/search?${searchParams.toString()}`);
   };
 
   return (

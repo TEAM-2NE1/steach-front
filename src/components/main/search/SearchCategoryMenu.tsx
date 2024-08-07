@@ -50,10 +50,7 @@ const SearchCategoryMenu: React.FC<SearchCategoryMenuProps> = ({
     searchParams.set("order", searchOption.order);
     searchParams.set("only_available", searchOption.only_available.toString());
     searchParams.set("pageSize", searchOption.pageSize.toString());
-    searchParams.set(
-      "currentPageNumber",
-      searchOption.currentPageNumber.toString()
-    );
+    searchParams.set("currentPageNumber", "1");
     navigate(`/search?${searchParams.toString()}`);
   };
 
