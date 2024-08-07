@@ -1,5 +1,3 @@
-import noSearch from "../../../assets/noSearch.png";
-
 const SearchNoResult: React.FC = () => {
   return (
     <div className="flex justify-center items-center p-5">

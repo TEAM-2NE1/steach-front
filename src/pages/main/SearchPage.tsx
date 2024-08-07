@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SearchSendCurricula } from "../../interface/search/SearchInterface";
-import { searchCurricula, updateSearchState } from "../../store/SearchSlice";
+import { searchCurricula } from "../../store/SearchSlice";
 import { AppDispatch, RootState } from "../../store";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SearchCategoryMenu from "../../components/main/search/SearchCategoryMenu";
 import SearchOrderMenu from "../../components/main/search/SearchOrderMenu";
 import SearchSwitch from "../../components/main/search/SearchSwitch";
@@ -13,73 +13,50 @@ import SearchPagination from "../../components/main/search/SearchPagination";
 import Spinner from "../../components/main/spinner/Spinner";
 
 const SearchPage: React.FC = () => {
-  // SearchSendCurricula와 상태 값을 이용한 상태 구조
-  const searchData: SearchSendCurricula = {
-    curriculum_category: useSelector(
-      (state: RootState) => state.search.curriculum_category
-    ),
-    order: useSelector((state: RootState) => state.search.order),
-    only_available: useSelector(
-      (state: RootState) => state.search.only_available
-    ),
-    search: useSelector((state: RootState) => state.search.search),
-    currentPageNumber: useSelector(
-      (state: RootState) => state.search.current_page_number
-    ),
-    pageSize: useSelector((state: RootState) => state.search.page_size),
-  };
-
   // params 가져오기
-  let subject: string = "";
-  const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
+  const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.search.status);
   const curriculas = useSelector((state: RootState) => state.search.curricula);
 
+  // 검색 조건값 상태
   const [searchOption, setSearchOption] = useState<SearchSendCurricula>({
-    ...searchData,
+    curriculum_category: params.get("curriculum_category") || "",
+    order: params.get("order") || "LATEST",
+    only_available: params.get("only_available") === "true",
+    search: params.get("search") || "",
+    pageSize: parseInt(params.get("pageSize") || "12", 10),
+    currentPageNumber: parseInt(params.get("currentPageNumber") || "1", 10),
   });
 
   useEffect(() => {
-    const paramSubject = params.get("subject");
-    console.log(paramSubject);
+    const curriculum_category = params.get("curriculum_category") || "";
+    const order = params.get("order") || "LATEST";
+    const search = params.get("search") || "";
+    const only_available = params.get("only_available") === "true";
+    const pageSize = parseInt(params.get("pageSize") || "12", 10);
+    const currentPageNumber = parseInt(
+      params.get("currentPageNumber") || "1",
+      10
+    );
 
-    if (!paramSubject) {
-      // 메인 페이지에서 과목 버튼을 클릭하지 않고 들어올 경우
-      const initialSearchOption = {
-        curriculum_category: "",
-        order: "",
-        only_available: false,
-        search: "",
-        currentPageNumber: 1,
-        pageSize: 12,
-      };
-      setSearchOption(initialSearchOption);
-      const fetchData = async () => {
-        await dispatch(updateSearchState(initialSearchOption));
-        dispatch(searchCurricula(initialSearchOption));
-      };
+    const newSearchOption: SearchSendCurricula = {
+      curriculum_category,
+      order,
+      search,
+      only_available,
+      pageSize,
+      currentPageNumber,
+    };
 
-      fetchData();
-    } else {
-      // 메인 페이지에서 과목 버튼을 클릭하고 들어올 경우
-      const updatedSearchOption = {
-        ...searchData,
-        curriculum_category: paramSubject,
-        currentPageNumber: 1,
-      };
-      setSearchOption(updatedSearchOption);
-      const fetchData = async () => {
-        await dispatch(updateSearchState(updatedSearchOption));
-        dispatch(searchCurricula(updatedSearchOption));
-      };
+    console.log(newSearchOption);
+    setSearchOption(newSearchOption);
+    dispatch(searchCurricula(newSearchOption));
+  }, [location.search]);
 
-      fetchData();
-    }
-  }, [location.search, searchData.curriculum_category]);
-
-  // 검색 조건 값 변경 시 리덕스 상태와 로컬 상태를 함께 업데이트
+  // 검색 조건 값 양방향 바인딩
   const handleOptionChange = (e: {
     target: { name: string; value: string | boolean | number };
   }) => {
@@ -90,33 +67,26 @@ const SearchPage: React.FC = () => {
     }));
   };
 
-  // 과목 클릭 시 바로 데이터를 불러오기 위한 함수
-  const handleCategoryChange = (category: string) => {
-    setSearchOption((prevState) => ({
-      ...prevState,
-      curriculum_category: category,
-      currentPageNumber: 1,
-    }));
-    dispatch(
-      searchCurricula({ ...searchOption, curriculum_category: category })
-    );
-  };
-
   // 검색 핸들러 함수
-  const handleSearch = async (e: React.FormEvent | null) => {
+  const handleSearch = (e: React.FormEvent | null) => {
     if (e) {
       e.preventDefault();
     }
 
-    console.log(searchOption);
-    await dispatch(
-      updateSearchState({
-        // 리덕스 상태 업데이트
-        ...searchOption,
-      })
-    );
+    const newSearchOption: SearchSendCurricula = { ...searchOption };
 
-    dispatch(searchCurricula(searchOption));
+    setSearchOption(newSearchOption);
+    const searchParams = new URLSearchParams();
+    searchParams.set("search", searchOption.search);
+    searchParams.set("curriculum_category", searchOption.curriculum_category);
+    searchParams.set("order", searchOption.order);
+    searchParams.set("only_available", searchOption.only_available.toString());
+    searchParams.set("pageSize", searchOption.pageSize.toString());
+    searchParams.set(
+      "currentPageNumber",
+      searchOption.currentPageNumber.toString()
+    );
+    navigate(`/search?${searchParams.toString()}`);
   };
 
   return (
@@ -126,7 +96,7 @@ const SearchPage: React.FC = () => {
         <main className="col-span-10">
           <form className="my-4" onSubmit={(e) => handleSearch(e)}>
             <div className="flex justify-center">
-              <SearchCategoryMenu setSearchOption={setSearchOption} />
+              <SearchCategoryMenu searchOption={searchOption} />
             </div>
             <div className="flex justify-evenly items-center">
               <SearchOrderMenu handleOptionChange={handleOptionChange} />

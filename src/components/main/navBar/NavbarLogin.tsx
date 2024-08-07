@@ -10,17 +10,19 @@ import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { SearchSendCurricula } from "../../../interface/search/SearchInterface";
 import { useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../../store";
-import { searchCurricula } from "../../../store/SearchSlice";
 
 const NavbarLogin: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch<AppDispatch>();
 
   // 현재 경로 추출
   const currentPath = location.pathname;
+
+  // 현재 경로가 '/search'일 때 url params에서 값을 추출하기
+  const params = new URLSearchParams(location.search);
+  const curriculum_category = params.get("curriculum_category") || null;
+  const order = params.get("order") || null;
+  const only_available = params.get("only_available") || null;
 
   // 햄버거 메뉴 상태
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -62,27 +64,37 @@ const NavbarLogin: React.FC = () => {
     navigate("/user/login");
   };
 
-  // 검색 페이지에서 검색바로 검색하는 로직
-  const handleInsideSearch = (e: React.FormEvent) => {
+  // 검색 함수
+  const handleSearchBar = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(searchCurricula(searchData));
-  };
-
-  // 검색페이지가 아닌 곳에서 검색바에서 검색 기능 구현할 핸들러
-  const handleOutsideSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const searchParams = new URLSearchParams();
-    searchParams.set("search", inputSearch);
-    searchParams.set("order", searchData.order);
-    searchParams.set("only_available", searchData.only_available.toString());
-    searchParams.set("pageSize", searchData.pageSize.toString());
-    searchParams.set(
-      "currentPageNumber",
-      searchData.currentPageNumber.toString()
-    );
-
-    // 검색어와 옵션들을 URL 파라미터로 포함시켜 이동
-    navigate(`/search?${searchParams.toString()}`);
+    if (currentPath === "/search") {
+      const searchParams = new URLSearchParams();
+      searchParams.set("curriculum_category", curriculum_category || "");
+      searchParams.set("search", inputSearch);
+      searchParams.set("order", order || "LATEST");
+      searchParams.set("only_available", only_available?.toString() || "false");
+      searchParams.set("pageSize", searchData.pageSize.toString());
+      searchParams.set(
+        "currentPageNumber",
+        searchData.currentPageNumber.toString()
+      );
+      setInputSearch("");
+      // 검색어와 옵션들을 URL 파라미터로 포함시켜 이동
+      navigate(`/search?${searchParams.toString()}`);
+    } else {
+      const searchParams = new URLSearchParams();
+      searchParams.set("search", inputSearch);
+      searchParams.set("order", searchData.order);
+      searchParams.set("only_available", searchData.only_available.toString());
+      searchParams.set("pageSize", searchData.pageSize.toString());
+      searchParams.set(
+        "currentPageNumber",
+        searchData.currentPageNumber.toString()
+      );
+      setInputSearch("");
+      // 검색어와 옵션들을 URL 파라미터로 포함시켜 이동
+      navigate(`/search?${searchParams.toString()}`);
+    }
   };
 
   return (
@@ -97,9 +109,7 @@ const NavbarLogin: React.FC = () => {
       <div className="flex-1 flex items-center justify-between lg:justify-around">
         <form
           className="relative mx-2 lg:mx-4 flex-grow lg:flex-grow-0 lg:w-1/2"
-          onSubmit={
-            currentPath === "/search" ? handleInsideSearch : handleOutsideSearch
-          }
+          onSubmit={handleSearchBar}
         >
           <input
             type="text"
@@ -112,11 +122,7 @@ const NavbarLogin: React.FC = () => {
           <button
             type="button"
             className="absolute right-3 inset-y-2 hover:text-orange-300"
-            onClick={
-              currentPath === "/search"
-                ? handleInsideSearch
-                : handleOutsideSearch
-            }
+            onClick={handleSearchBar}
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} className="size-6" />
           </button>
