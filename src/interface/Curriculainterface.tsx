@@ -74,7 +74,7 @@ export interface PatchLecture {
   lecture_start_time: string | undefined;
 }
 
-// 학생 커리큘럼 신청 리스트 조회 폼
+// 인기 커리큘럼 리스트 조회 폼
 export interface returnHotCurriculaList {
   current_page_number: number;
   total_page: number;
@@ -82,6 +82,7 @@ export interface returnHotCurriculaList {
   curricula: Curricula[];
 }
 
+// 최신 커리큘럼 리스트 조회
 export interface returnLastestCurriculaList {
   current_page_number: number;
   total_page: number;
@@ -102,4 +103,9 @@ export interface returnTeacherCurriculaList {
   total_page: number;
   page_size: number;
   curricula: Curricula[];
+}
+
+export interface PageInterface{
+  page: number;
+  nowpage: number;
 }

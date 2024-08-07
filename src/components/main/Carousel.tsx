@@ -5,10 +5,10 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 const imageUrls = [
-  "https://cdn.m-i.kr/news/photo/202405/1119678_887147_344.jpg",
-  "https://mblogthumb-phinf.pstatic.net/MjAyNDAxMzFfMTE5/MDAxNzA2NjkwOTQ1NjY1.DE4CKXk67V-GF8veQ4uGeWY_oEbwBLgf2pCXCWDRDwkg.32FUNPUbJAfEuHGVlL0JAcfgoIdM75KBlOuv6EFg5HEg.PNG.bee4sunset/%EB%A7%88%EB%A3%A8_%EC%98%88%EC%8B%9C-01.png?type=w800",
-  "https://cdn.imweb.me/upload/a7c97c29da69a.png",
-  "https://pds.joongang.co.kr/news/component/htmlphoto_mmdata/202401/17/f1984fc9-dd96-4ccf-93e4-7b5064d1bebf.jpg",
+  "http://steach.ssafy.io:8082/img-upload/display/my/ttmdhvxbgb무제-3.png",
+  "http://steach.ssafy.io:8082/img-upload/display/my/gdqhhamtsh무제-2.png",
+  "http://steach.ssafy.io:8082/img-upload/display/my/iidswopebx무제-1.png",
+  "http://steach.ssafy.io:8082/img-upload/display/my/rlyahgomzo무제-4.png",
 ];
 
 const generateSlides = (urls: string[]) => {
