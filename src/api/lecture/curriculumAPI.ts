@@ -2,13 +2,12 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   Curricula,
   CurriculaFormData,
-  PageInterface,
 } from "../../interface/Curriculainterface";
 import axios from "axios";
 import { BASE_URL } from "../BASE_URL";
 import { SearchSendCurricula } from "../../interface/search/SearchInterface";
 
-const IMG_SERVER_URL = "https://steach.ssafy.io:8082";
+const IMG_SERVER_URL = "http://steach.ssafy.io:8082";
 const Auth = localStorage.getItem("auth");
 const token = Auth ? JSON.parse(Auth).token : null;
 
@@ -229,10 +228,17 @@ export const getStudentCurriculaList = async () => {
 
 // 선생님이 강의하는 자신의 커리큘럼 조회
 export const getTeacherCurriculaList = async () => {
+  const Auth = localStorage.getItem("auth");
+  const token = Auth ? JSON.parse(Auth).token : null;
+
+  if (!token) {
+    throw new Error("Token is missing");
+  }
+
   try {
     const response = await axios.get(`${BASE_URL}/api/v1/teachers/curricula`, {
       headers: {
-        Authorization: `Bearer ${AuthData.token}`,
+        Authorization: `Bearer ${token}`,
       },
       params: {
         pageSize: null,
@@ -246,26 +252,6 @@ export const getTeacherCurriculaList = async () => {
     throw error;
   }
 };
-
-
-// export const TeacherCurriculaList = async ({ page, nowpage } : PageInterface) => {
-//   try {
-//     const response = await axios.get(`${BASE_URL}/api/v1/teachers/curricula`, {
-//       headers: {
-//         Authorization: `Bearer ${AuthData.token}`,
-//       },
-//       params: {
-//         pageSize: page,
-//         currentPageNumber: nowpage,
-//       },
-//     });
-
-//     return response.data;
-//   } catch (error) {
-//     console.log(error);
-//     throw error;
-//   }
-// };
 
 // [학생] 학생이 커리큘럼을 수강 신청 여부 확인
 export const getCurriculimApply = async (curriculum_id: string) => {
