@@ -3,7 +3,6 @@ import { RootState } from "../../../store";
 import NavbarLogin from "./NavbarLogin";
 import NavbarStudent from "./NavbarStudent";
 import NavbarTeacher from "./NavbarTeacher";
-import { RootState } from "../../../store";
 
 // 김헌규 - Navbar 반응형 구현
 const Navbar: React.FC = () => {

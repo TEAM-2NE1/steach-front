@@ -19,7 +19,7 @@ const Editor: React.FC<EditorComponentProps> = ({ onChange }) => {
         theme="snow"
         value={value}
         onChange={handleModelChange}
-        className="h-full min-h-[300px]"
+        className="h-full min-h-[500px]"
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Froala from "../main/Editor.tsx";
+import Editor from "../main/Editor.tsx";
 import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { TbArrowsRight } from "react-icons/tb";
 import checkimg from "../../assets/checked.jpg";
@@ -383,7 +383,7 @@ const LectureUpdate: React.FC = () => {
             <FormLabel htmlFor="datetime" className="text-2xl">
               강의 상세 설명
             </FormLabel>
-            <Froala
+            <Editor
               data={formData?.information || ""}
               onChange={handleEditorChange}
             />
