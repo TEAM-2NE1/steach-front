@@ -9,11 +9,13 @@ const NoQuiz: React.FC = () => {
     curricula_id: string;
     lecture_id: string;
   }>();
+
   return (
-    <>
-      <div className="flex flex-col">
-        <img src={noQuizimg} alt="no-image" className="size-96" />
+    <section className="flex justify-center items-center h-screen">
+      <main className="text-center">
+        <img src={noQuizimg} alt="no-image" className="mx-auto mb-6" />
         <button
+          className="p-3 bg-red-200 text-white rounded-md hover:bg-red-300"
           onClick={() =>
             navigate(
               `/teacher/profile/${username}/curricula/${curricula_id}/lecture/${lecture_id}/createQuiz`
@@ -22,8 +24,8 @@ const NoQuiz: React.FC = () => {
         >
           퀴즈 생성하러가기
         </button>
-      </div>
-    </>
+      </main>
+    </section>
   );
 };
 

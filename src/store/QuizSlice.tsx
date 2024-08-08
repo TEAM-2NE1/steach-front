@@ -30,7 +30,6 @@ export const fetchLectureQuiz = createAsyncThunk<QuizFetchListForm, string>(
       // 강의에 대한 퀴즈 조회 api 호출
       const response = await fetchLectureQuizApi(lectureId);
 
-      console.log(response);
       return response;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

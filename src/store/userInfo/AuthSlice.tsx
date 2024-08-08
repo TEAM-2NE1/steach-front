@@ -2,14 +2,18 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { studentReset } from "./StudentProfileSlice";
 import { teacherReset } from "./TeacherProfileSlice";
-import { deleteMember, login } from "../../api/user/userAPI";
+import {
+  deleteMember,
+  login,
+  signUpStudentApi,
+  signUpTeacherApi,
+} from "../../api/user/userAPI";
 import {
   StudentSignUpForm,
   TeacherSignUpForm,
   LoginForm,
   LoginReturnForm,
 } from "../../interface/auth/AuthInterface";
-import { signUpStudentApi, signUpTeacherApi } from "../../api/user/userAPI";
 
 // 유저 상태 형식
 export interface UserState {

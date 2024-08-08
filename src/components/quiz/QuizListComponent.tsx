@@ -18,7 +18,7 @@ interface QuizListComponentProps {
   trialTimer?: number;
 }
 
-const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjMwODkzMjAsImV4cCI6MTcyMzEwMTMyMCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.6ROXw7gpkTMmDDcph0NcclEh9oXo61Oo2SdprDa0aP4'
+const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjMxMDUzMzksImV4cCI6MTcyOTEwNTMzOSwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.uyMfUDDiF46n296z2x4908K7U8Tmd6PYpmmnJJfdmZc';
 
 const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion, trialTimer}) => {
   const [quizzes, setQuizzes] = useState<QuizResponseDTO[]>([]);
@@ -29,7 +29,7 @@ const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion, tria
   useEffect(() => {
     const fetchQuizData = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/v1/quizzes/lecture/2240`, {
+        const response = await axios.get(`${BASE_URL}/api/v1/quizzes/lecture/5365`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": 'application/json'

@@ -7,7 +7,10 @@ import {
   TeacherInfo,
   TeacherUserInfo,
 } from "../../interface/profile/TeacherProfileInterface";
-import { TargetTeacherCurriculaList, getTeacherCurriculaList } from "../../api/lecture/curriculumAPI";
+import {
+  TargetTeacherCurriculaList,
+  getTeacherCurriculaList,
+} from "../../api/lecture/curriculumAPI";
 import { returnTeacherCurriculaList } from "../../interface/Curriculainterface";
 
 // 초기 상태
@@ -24,7 +27,6 @@ export const fetchTeacherInfo = createAsyncThunk<TeacherInfo>(
   async (_, thunkAPI) => {
     try {
       const response = await teacherInfoGet();
-
       return response;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -71,21 +73,20 @@ export const fetchTeacherCurriculaList =
   );
 
 // 학생이 볼 수 있는 선생님 과목
-export const targetTeacherCurriculaList =
-  createAsyncThunk<returnTeacherCurriculaList, string>(
-    "teacher/curricula/get",
-    async (id, thunkAPI) => {
-      try {
-        const response = await TargetTeacherCurriculaList(id);
-        return response;
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          return thunkAPI.rejectWithValue(error.response.data);
-        }
-        return thunkAPI.rejectWithValue(error);
-      }
+export const targetTeacherCurriculaList = createAsyncThunk<
+  returnTeacherCurriculaList,
+  string
+>("teacher/curricula/get", async (id, thunkAPI) => {
+  try {
+    const response = await TargetTeacherCurriculaList(id);
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return thunkAPI.rejectWithValue(error.response.data);
     }
-  );
+    return thunkAPI.rejectWithValue(error);
+  }
+});
 
 // 학생이 볼 수 있는 선생님 프로필
 export const targetTeacherInfo = createAsyncThunk<TeacherInfo, string>(
@@ -103,7 +104,6 @@ export const targetTeacherInfo = createAsyncThunk<TeacherInfo, string>(
     }
   }
 );
-
 
 // 선생님 프로필 슬라이스
 const teacherprofileSclice = createSlice({
