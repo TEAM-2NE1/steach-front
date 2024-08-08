@@ -3,7 +3,7 @@ import axios from 'axios';
 import './goUp.css';
 import QuizChoiceButton from './QuizChoiceButton';
 import { BASE_URL } from "../../api/BASE_URL";
-import StatisticsChart from '../tmplime/StatisticsChart';
+import StatisticsChart from './StatisticsChart';
 import maruGif from './toktokmaru.gif';
 
 interface QuizData {
@@ -23,10 +23,11 @@ interface StatisticData {
 interface DetailQuizProps {
   initialQuizData: QuizData;
   onClose: () => void;
-  trialVersion: boolean;
+  trialVersion?: boolean;
+  trialTimer?: number;
 }
 
-const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trialVersion }) => {
+const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trialVersion, trialTimer }) => {
 
   const [showChoices, setShowChoices] = useState(false);
   const [showQuestion, setShowQuestion] = useState(false);
@@ -36,15 +37,17 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
   // const [selectedChoiceIndex, setSelectedChoiceIndex] = useState<number | null>(null);
 
   const [statisticData, setStatisticData] = useState<StatisticData | null>(null);
-  
-  const [timer, setTimer] = useState<number>(initialQuizData.time); //타이머 관련
+
+  const realTime = (trialVersion === undefined || trialVersion === false) ? initialQuizData.time : trialTimer; //타이머관련, 연습판 여부!
+  const [timer, setTimer] = useState<number>(realTime !== undefined ? realTime : initialQuizData.time); // 타이머 시간
+
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const [showMyResult, setShowMyResult] = useState<boolean>(false);
   const [showStatistic, setShowStatstic] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjI5MzQ0ODQsImV4cCI6MTcyMjk0NjQ4NCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.b5SSl4QJdfUdsey2CxCt-0ZVB7iExIDEPb2zOh3Wogw'
+  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjMwODkzMjAsImV4cCI6MTcyMzEwMTMyMCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.6ROXw7gpkTMmDDcph0NcclEh9oXo61Oo2SdprDa0aP4'
 
   useEffect(() => {
     if (showStatistic) {
@@ -54,6 +57,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
         },
       })
         .then(response => {
+          console.log(response.data)
           setStatisticData(response.data); // 데이터 설정
         })
         .catch(error => {
@@ -113,18 +117,23 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
 
   const handleChoiceClick = (choice: number) => {
     setSelectedChoice(choice);
+    
+    //선택지 문자열
+    const choiceSentence = initialQuizData.choices[choice];
   
     // 타이머 시작 후 몇 초가 지났는지 계산
-    const elapsedSeconds = 3 - timer; // 초기 타이머 값이 3이므로, 현재 타이머 값(timer)으로부터 경과 시간을 계산
-    console.log(`타이머가 시작된 후 ${elapsedSeconds}초가 지났습니다.`);
+    // const elapsedSeconds = initialQuizData.time - timer; // 초기 타이머 값이 3이므로, 현재 타이머 값(timer)으로부터 경과 시간을 계산
+
+    const score = (timer * 100) / initialQuizData.time;
+    console.log("점수는 " + score + "점!")
 
     //statistic axios
     if (trialVersion) {
       //pass
     } else {
       axios.post(`${BASE_URL}/api/v1/studentsQuizzes/1290`, {
-        score: 0,
-        student_choice: "X"
+        score: score,
+        student_choice: "choiceSentence"
       }, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -184,7 +193,12 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
             showStatistic ? 'opacity-70' : 'opacity-0'
           }`}
         >
-          {showStatistic && <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0,1,8,3]}} />}
+          {showStatistic && (
+            <div className="w-full">
+              {/* <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0, 1, 8, 3]}} /> */}
+              <StatisticsChart dataset={{statistics: [0, 1, 8, 3]}} />
+            </div>
+          )}
         </div>
 
         <div
@@ -212,10 +226,9 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
         {initialQuizData.choices.map((choice, index) => {
           const isCorrectChoice = (index + 1 === initialQuizData.answers);
 
-          console.log("$$$$" + choice);
           return (
             <QuizChoiceButton
-              key={choice}
+              key={index}
               choiceSentence={choice}
               isCorrectChoice={isCorrectChoice}
               isClicked={isClicked}
