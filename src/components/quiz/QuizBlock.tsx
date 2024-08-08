@@ -3,7 +3,7 @@ import axios from 'axios';
 import './goUp.css';
 import QuizChoiceButton from './QuizChoiceButton';
 import { BASE_URL } from "../../api/BASE_URL";
-import StatisticsChart from '../tmplime/StatisticsChart';
+import StatisticsChart from './StatisticsChart';
 import maruGif from './toktokmaru.gif';
 
 interface QuizData {
@@ -47,7 +47,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
   const [showStatistic, setShowStatstic] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjI5MzQ0ODQsImV4cCI6MTcyMjk0NjQ4NCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.b5SSl4QJdfUdsey2CxCt-0ZVB7iExIDEPb2zOh3Wogw'
+  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjMwODkzMjAsImV4cCI6MTcyMzEwMTMyMCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.6ROXw7gpkTMmDDcph0NcclEh9oXo61Oo2SdprDa0aP4'
 
   useEffect(() => {
     if (showStatistic) {
@@ -57,6 +57,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
         },
       })
         .then(response => {
+          console.log(response.data)
           setStatisticData(response.data); // 데이터 설정
         })
         .catch(error => {
@@ -192,7 +193,12 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
             showStatistic ? 'opacity-70' : 'opacity-0'
           }`}
         >
-          {showStatistic && <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0,1,8,3]}} />}
+          {showStatistic && (
+            <div className="w-full">
+              {/* <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0, 1, 8, 3]}} /> */}
+              <StatisticsChart dataset={{statistics: [0, 1, 8, 3]}} />
+            </div>
+          )}
         </div>
 
         <div
@@ -220,10 +226,9 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
         {initialQuizData.choices.map((choice, index) => {
           const isCorrectChoice = (index + 1 === initialQuizData.answers);
 
-          console.log("$$$$" + choice);
           return (
             <QuizChoiceButton
-              key={choice}
+              key={index}
               choiceSentence={choice}
               isCorrectChoice={isCorrectChoice}
               isClicked={isClicked}

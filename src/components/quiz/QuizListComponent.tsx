@@ -18,7 +18,7 @@ interface QuizListComponentProps {
   trialTimer?: number;
 }
 
-const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjI5NTI5MDYsImV4cCI6MTcyMjk2NDkwNiwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.yt6I5twSVweDkotfGI-t4Wej42TcrOb7eVabOS5er54';
+const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjMwODkzMjAsImV4cCI6MTcyMzEwMTMyMCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.6ROXw7gpkTMmDDcph0NcclEh9oXo61Oo2SdprDa0aP4'
 
 const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion, trialTimer}) => {
   const [quizzes, setQuizzes] = useState<QuizResponseDTO[]>([]);
