@@ -29,7 +29,7 @@ const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion, tria
   useEffect(() => {
     const fetchQuizData = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/v1/quizzes/lecture/5365`, {
+        const response = await axios.get(`${BASE_URL}/api/v1/quizzes/lecture/2240`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": 'application/json'
