@@ -1,39 +1,30 @@
-import { useState } from "react";
-import student from "../../../assets/student.png";
-import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signUpStudent, loginSteach } from "../../../store/userInfo/AuthSlice";
 import { AppDispatch, RootState } from "../../../store";
+import {
+  checkUsernameDuplicateApi,
+  checkNicknameDuplicateApi,
+} from "../../../api/user/userAPI";
+import {
+  StudentSignUpForm,
+  LoginForm,
+  StudentCheckForm,
+} from "../../../interface/auth/AuthInterface";
+import student from "../../../assets/student.png";
 import SpinnerComponent from "../../main/spinner/Spinner";
 
-// 이진송
+// 학생 회원가입 컴포넌트
 const StudentSignUp: React.FC = () => {
-  // dispatch
   const dispatch = useDispatch<AppDispatch>();
-
-  // useNavigate
   const navigate = useNavigate();
 
   // 회원 인증 상태 및 에러
   const { status } = useSelector((state: RootState) => state.auth);
 
-  // FormData 타입 포함해서 만듦
-  interface FormData {
-    username: string;
-    password: string;
-    nickname: string;
-    email: string;
-    auth_code: string;
-  }
-
-  interface loginInfoData {
-    username: string;
-    password: string;
-  }
-
   // 데이터를 담기 위한 박스 개념, 함수를 위의 interface에 맞춰서 작성
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<StudentSignUpForm>({
     username: "",
     password: "",
     nickname: "",
@@ -41,8 +32,33 @@ const StudentSignUp: React.FC = () => {
     auth_code: "",
   });
 
-  // 비밀번호 확인 검증
+  // 비밀번호 확인
   const [confirmPassword, setComfirmPassword] = useState("");
+
+  // 각종 검증 데이터 상태
+  const [checkInfo, setCheckInfo] = useState<StudentCheckForm>({
+    usernameDuplicate: null,
+    nicknameDuplicate: null,
+    passwordCoincidence: false,
+  });
+
+  // 아이디 중복 체크 호출 핸들러 함수
+  const handleCheckUsernameDuplicate = async () => {
+    const response = await checkUsernameDuplicateApi(formData.username);
+    setCheckInfo((prevState) => ({
+      ...prevState,
+      usernameDuplicate: response.data.can_use,
+    }));
+  };
+
+  // 닉네임 중복 체크 호출 핸들러 함수
+  const handleCheckNicknameDuplicate = async () => {
+    const response = await checkNicknameDuplicateApi(formData.nickname);
+    setCheckInfo((prevState) => ({
+      ...prevState,
+      nicknameDuplicate: response.data.can_use,
+    }));
+  };
 
   //사용자가 값을 입력할 때 마다, onChange로 데이터가 입력됨.
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,27 +73,39 @@ const StudentSignUp: React.FC = () => {
   const handleComfirmPassword = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setComfirmPassword(event.target.value);
+    const value = event.target.value;
+    setComfirmPassword(value);
+
+    setCheckInfo((prevState) => ({
+      ...prevState,
+      passwordCoincidence: formData.password === value,
+    }));
   };
+
+  // 비밀번호 일치 상태를 실시간으로 추적
+  useEffect(() => {
+    console.log(checkInfo.passwordCoincidence);
+  }, [checkInfo.passwordCoincidence]);
 
   // 제출을 했을때 나타나는 이벤트
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     // 만약 8자이상 16자이하라면 axios요청 보내기
-    if (formData.password.length >= 8 && formData.password.length <= 16) {
+    if (
+      checkInfo.usernameDuplicate &&
+      checkInfo.nicknameDuplicate &&
+      checkInfo.passwordCoincidence
+    ) {
       requestSignUp();
-      // 아니면 경고 alert
     } else {
-      toast.warn("비밀번호를 다시 입력해주세요.", {
-        position: "top-center",
-      });
+      // 아니면 경고 alert
+      console.log("정보를 다시 입력해주세요");
     }
   };
 
   // 회원가입 요청 함수
   const requestSignUp = async () => {
-    // form의 id값 따라서 받은 값을 넣어줌
-    const formDataToSend: FormData = {
+    const formDataToSend: StudentSignUpForm = {
       username: formData.username,
       password: formData.password,
       nickname: formData.nickname,
@@ -85,41 +113,24 @@ const StudentSignUp: React.FC = () => {
       auth_code: formData.auth_code,
     };
 
+    // 회원 가입 api 요청
     const resultSignUpAction = await dispatch(signUpStudent(formDataToSend));
 
-    const loginInfo: loginInfoData = {
-      username: resultSignUpAction.meta.arg.username,
-      password: resultSignUpAction.meta.arg.password,
-    };
-
     if (signUpStudent.fulfilled.match(resultSignUpAction)) {
-      toast.success("회원가입에 성공하였습니다.", {
-        position: "top-center",
-      });
+      const loginInfo: LoginForm = {
+        username: resultSignUpAction.meta.arg.username,
+        password: resultSignUpAction.meta.arg.password,
+      };
 
-      // 회원가입과 동시에 로그인하러 가야함.
       const resultLoginAction = await dispatch(loginSteach(loginInfo));
       if (loginSteach.fulfilled.match(resultLoginAction)) {
-        toast.success("로그인에 성공하였습니다.", {
-          position: "top-center",
-        });
-      }
-
-      navigate("/");
-      window.location.reload();
-    } else {
-      if (resultSignUpAction.payload) {
-        toast.error(
-          `회원가입에 실패하였습니다: ${resultSignUpAction.payload}`,
-          {
-            position: "top-center",
-          }
-        );
+        // 로그인 성공 시 메인 페이지로 이동
+        navigate("/home");
       } else {
-        toast.error("회원가입에 실패하였습니다.", {
-          position: "top-center",
-        });
+        console.log("로그인에 실패하였습니다.");
       }
+    } else {
+      console.log("회원가입에 실패하였습니다.");
     }
   };
 
@@ -132,49 +143,69 @@ const StudentSignUp: React.FC = () => {
         <SpinnerComponent />
       ) : (
         <form
-          className="max-w-md mx-auto border-2 rounded-xl p-6 mb-28"
+          className="w-1/3 mx-auto border-2 rounded-xl p-6 mb-28"
           onSubmit={handleSubmit}
         >
           <section>
-            <label htmlFor="username" className="text-2xl">
-              아이디
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className="border-2 rounded-lg w-full p-2 mb-5"
-              required
-            />
+            <header className="flex items-center">
+              <label htmlFor="username" className="text-2xl">
+                아이디
+              </label>
+              <button
+                className="m-3 p-2 rounded-md bg-red-200 text-white hover:bg-red-300"
+                onClick={handleCheckUsernameDuplicate}
+              >
+                중복확인
+              </button>
+            </header>
+            <main className="mb-2">
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="border-2 rounded-lg w-full p-2 mb-3"
+                required
+              />
+              {checkInfo.usernameDuplicate && (
+                <p className="mb-3 text-blue-500 text-sm">
+                  사용 가능한 아이디입니다.
+                </p>
+              )}
+              {checkInfo.usernameDuplicate === false && (
+                <p className="mb-3 text-red-500 text-sm">
+                  이미 존재하는 아이디입니다.
+                </p>
+              )}
+            </main>
           </section>
           <section>
             <label htmlFor="password" className="text-2xl">
               비밀번호
             </label>
-            <div className="mb-5">
+            <main className="mb-5">
               <input
                 type="password"
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="border-2 rounded-lg w-full p-2 "
+                className="border-2 rounded-lg w-full p-2"
                 required
               />
               {
-                <p className="mt-2 text-sm">
-                  비밀번호는 8 ~ 16자리여야 합니다.
+                <p className="my-3 text-sm">
+                  비밀번호는 띄어쓰기 없이 8 ~ 16자리여야 합니다.
                 </p>
               }
-            </div>
+            </main>
           </section>
           <section>
             <label htmlFor="confirmPassword" className="text-2xl">
               비밀번호확인
             </label>
-            <div className="mb-5">
+            <main className="mb-5">
               <input
                 type="password"
                 id="confirmPassword"
@@ -184,10 +215,10 @@ const StudentSignUp: React.FC = () => {
                 className="border-2 rounded-lg w-full p-2"
                 required
               />
-              {formData.password.length >= 8 &&
-                confirmPassword.length >= 8 &&
-                (formData.password === confirmPassword ? (
-                  <p className="mt-2 text-sm text-red-500">
+              {confirmPassword.length >= 8 &&
+                16 >= confirmPassword.length &&
+                (checkInfo.passwordCoincidence ? (
+                  <p className="mt-2 text-sm text-blue-500">
                     비밀번호가 일치합니다.
                   </p>
                 ) : (
@@ -195,53 +226,82 @@ const StudentSignUp: React.FC = () => {
                     비밀번호가 일치하지 않습니다.
                   </p>
                 ))}
-            </div>
+              {confirmPassword.length > 16 && (
+                <p className="mt-2 text-sm text-red-500">
+                  비밀번호는 최대 16자리 이하여야 합니다.
+                </p>
+              )}
+            </main>
           </section>
           <section>
-            <label htmlFor="email" className="text-2xl">
-              닉네임
-            </label>
-            <input
-              type="text"
-              id="nickname"
-              name="nickname"
-              value={formData.nickname}
-              onChange={handleChange}
-              className="border-2 rounded-lg w-full p-2 mb-5"
-              required
-            />
+            <header className="flex items-center">
+              <label htmlFor="nickname" className="text-2xl">
+                닉네임
+              </label>
+              <button
+                className="m-3 p-2 rounded-md bg-red-200 text-white hover:bg-red-300"
+                onClick={handleCheckNicknameDuplicate}
+              >
+                중복확인
+              </button>
+            </header>
+            <main className="mb-2">
+              <input
+                type="text"
+                id="nickname"
+                name="nickname"
+                value={formData.nickname}
+                onChange={handleChange}
+                className="border-2 rounded-lg w-full p-2 mb-3"
+                required
+              />
+              {checkInfo.nicknameDuplicate && (
+                <p className="mb-3 text-blue-500 text-sm">
+                  사용 가능한 닉네임입니다.
+                </p>
+              )}
+              {checkInfo.nicknameDuplicate === false && (
+                <p className="mb-3 text-red-500 text-sm">
+                  이미 존재하는 닉네임입니다.
+                </p>
+              )}
+            </main>
           </section>
           <section>
             <label htmlFor="email" className="text-2xl">
               이메일
             </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="border-2 rounded-lg w-full p-2 mb-5"
-              required
-            />
+            <main className="mb-2">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="border-2 rounded-lg w-full p-2 mb-3"
+                required
+              />
+            </main>
           </section>
           <section>
             <label htmlFor="auth_code" className="text-2xl">
               인증코드
             </label>
-            <input
-              type="text"
-              id="auth_code"
-              name="auth_code"
-              value={formData.auth_code}
-              onChange={handleChange}
-              className="border-2 rounded-lg w-full p-2 mb-5"
-              required
-            />
+            <main className="mb-2">
+              <input
+                type="text"
+                id="auth_code"
+                name="auth_code"
+                value={formData.auth_code}
+                onChange={handleChange}
+                className="border-2 rounded-lg w-full p-2 mb-3"
+                required
+              />
+            </main>
           </section>
           <button
             type="submit"
-            className="w-full text-center bg-orange-300 p-2 rounded-lg hover:bg-orange-400 hover:text-white"
+            className="mt-3 w-full text-center bg-orange-300 p-2 rounded-lg hover:bg-orange-400 hover:text-white"
           >
             회원가입
           </button>

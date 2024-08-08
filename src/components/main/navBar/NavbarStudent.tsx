@@ -12,20 +12,25 @@ import { logout } from "../../../store/userInfo/AuthSlice";
 import { AppDispatch } from "../../../store";
 import { SearchSendCurricula } from "../../../interface/search/SearchInterface";
 import { useLocation } from "react-router-dom";
-import { searchCurricula } from "../../../store/SearchSlice";
 
 // Props 타입 정의
 interface Props {
-  username: string;
+  nickname: string;
 }
 
-const NavbarStudent: React.FC<Props> = ({ username }) => {
+const NavbarStudent: React.FC<Props> = ({ nickname }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
 
   // 현재 경로 추출
   const currentPath = location.pathname;
+
+  // 현재 경로가 '/search'일 때 url params에서 값을 추출하기
+  const params = new URLSearchParams(location.search);
+  const curriculum_category = params.get("curriculum_category") || null;
+  const order = params.get("order") || null;
+  const only_available = params.get("only_available") || null;
 
   // 햄버거 메뉴 상태
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -63,34 +68,43 @@ const NavbarStudent: React.FC<Props> = ({ username }) => {
     }));
   };
 
-  // 검색 페이지에서 검색바로 검색하는 로직
-  const handleInsideSearch = (e: React.FormEvent) => {
+  // 검색 함수
+  const handleSearchBar = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(searchCurricula(searchData));
-  };
-
-  // 검색페이지가 아닌 곳에서 검색바에서 검색 기능 구현할 핸들러
-  const handleOutsideSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const searchParams = new URLSearchParams();
-    searchParams.set("search", inputSearch);
-    searchParams.set("order", searchData.order);
-    searchParams.set("only_available", searchData.only_available.toString());
-    searchParams.set("pageSize", searchData.pageSize.toString());
-    searchParams.set(
-      "currentPageNumber",
-      searchData.currentPageNumber.toString()
-    );
-
-    // 검색어와 옵션들을 URL 파라미터로 포함시켜 이동
-    navigate(`/search?${searchParams.toString()}`);
+    if (currentPath === "/search") {
+      const searchParams = new URLSearchParams();
+      searchParams.set("curriculum_category", curriculum_category || "");
+      searchParams.set("search", inputSearch);
+      searchParams.set("order", order || "LATEST");
+      searchParams.set("only_available", only_available?.toString() || "false");
+      searchParams.set("pageSize", searchData.pageSize.toString());
+      searchParams.set(
+        "currentPageNumber",
+        searchData.currentPageNumber.toString()
+      );
+      setInputSearch("");
+      // 검색어와 옵션들을 URL 파라미터로 포함시켜 이동
+      navigate(`/search?${searchParams.toString()}`);
+    } else {
+      const searchParams = new URLSearchParams();
+      searchParams.set("search", inputSearch);
+      searchParams.set("order", searchData.order);
+      searchParams.set("only_available", searchData.only_available.toString());
+      searchParams.set("pageSize", searchData.pageSize.toString());
+      searchParams.set(
+        "currentPageNumber",
+        searchData.currentPageNumber.toString()
+      );
+      setInputSearch("");
+      // 검색어와 옵션들을 URL 파라미터로 포함시켜 이동
+      navigate(`/search?${searchParams.toString()}`);
+    }
   };
 
   // 로그아웃 요청 함수
   const logoutbtn = () => {
     dispatch(logout());
     navigate("/home");
-    window.location.reload();
   };
 
   return (
@@ -105,9 +119,7 @@ const NavbarStudent: React.FC<Props> = ({ username }) => {
       <div className="flex-1 flex items-center justify-between lg:justify-around">
         <form
           className="relative mx-2 lg:mx-4 flex-grow lg:flex-grow-0 lg:w-1/2"
-          onSubmit={
-            currentPath === "/search" ? handleInsideSearch : handleOutsideSearch
-          }
+          onSubmit={handleSearchBar}
         >
           <input
             type="text"
@@ -120,11 +132,7 @@ const NavbarStudent: React.FC<Props> = ({ username }) => {
           <button
             type="button"
             className="absolute right-3 inset-y-2 hover:text-orange-300"
-            onClick={
-              currentPath === "/search"
-                ? handleInsideSearch
-                : handleOutsideSearch
-            }
+            onClick={handleSearchBar}
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} className="size-6" />
           </button>
@@ -154,9 +162,9 @@ const NavbarStudent: React.FC<Props> = ({ username }) => {
       </div>
       {/* 로그인 및 회원가입 버튼 */}
       <div className="hidden mr-3 lg:flex items-center ml-4 lg:ml-0">
-        <button className="w-auto ml-2 p-2 border-2 border-hardBeige rounded-md">
-          {username} 학생
-        </button>
+        <p className="w-auto ml-2 p-2 border-2 border-hardBeige rounded-md">
+          {nickname} 학생
+        </p>
 
         <button
           className="w-auto ml-2 p-2 text-white bg-red-400 border-2 border-hardBeige rounded-md hover:bg-red-500"
@@ -197,9 +205,9 @@ const NavbarStudent: React.FC<Props> = ({ username }) => {
           </ul>
 
           <div className="flex flex-col items-center mt-4 mx-2">
-            <button className="w-full mb-2 p-2 border-2 border-hardBeige rounded-md">
-              {username} 학생
-            </button>
+            <p className="w-full mb-2 p-2 border-2 border-hardBeige rounded-md">
+              {nickname} 학생
+            </p>
             <button
               className="text-white bg-red-400 border-2 p-2 rounded-md hover:bg-red-500 w-full"
               onClick={logoutbtn}

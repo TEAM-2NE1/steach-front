@@ -6,8 +6,8 @@ import { StudentInfoUpdateForm } from "../../components/student/studentMyInfo/St
 import {
   LoginForm,
   LoginReturnForm,
-  StudentFormData,
-  TeacherFormData,
+  StudentSignUpForm,
+  TeacherSignUpForm,
 } from "../../interface/auth/AuthInterface";
 import { BASE_URL } from "../BASE_URL";
 
@@ -16,7 +16,7 @@ const jsontokenData = tokenData ? JSON.parse(tokenData) : null;
 const token = jsontokenData ? jsontokenData.token : "";
 
 // 학생 회원가입
-export const signUpStudentApi = async (formDataToSend: StudentFormData) => {
+export const signUpStudentApi = async (formDataToSend: StudentSignUpForm) => {
   try {
     const response = await axios.post(
       `${BASE_URL}/api/v1/student/join`,
@@ -36,17 +36,20 @@ export const signUpStudentApi = async (formDataToSend: StudentFormData) => {
 };
 
 // 선생님 회원가입
-export const signUpTeacherApi = async (formData: TeacherFormData) => {
+export const signUpTeacherApi = async (formData: TeacherSignUpForm) => {
   try {
-    const response = await axios.post(
-      `${BASE_URL}/api/v1/teacher/join`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const data = new FormData();
+    // file이 있는 경우에만 추가
+    if (formData.file) {
+      data.append("file", formData.file);
+    }
+    data.append("teacherSignUpDto", JSON.stringify(formData));
+
+    const response = await axios.post(`${BASE_URL}/api/v1/teacher/join`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     return response;
   } catch (error) {
@@ -55,7 +58,22 @@ export const signUpTeacherApi = async (formData: TeacherFormData) => {
   }
 };
 
-// 비밀번호 체크
+// 아이디 중복 확인
+export const checkUsernameDuplicateApi = (username: string) => {
+  const response = axios.get(`${BASE_URL}/api/v1/check-username/${username}`);
+  return response;
+};
+
+// 닉네임 중복 확인
+export const checkNicknameDuplicateApi = (nickname: string) => {
+  const response = axios.get(
+    `${BASE_URL}/api/v1/student/check-nickname/${nickname}`
+  );
+
+  return response;
+};
+
+// 내정보 수정 비밀번호 체크
 export const passwordCheck = async (password: string) => {
   try {
     const response = await axios.post(

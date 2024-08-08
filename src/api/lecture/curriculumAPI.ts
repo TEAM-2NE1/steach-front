@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   Curricula,
   CurriculaFormData,
+  PageInterface,
 } from "../../interface/Curriculainterface";
 import axios from "axios";
 import { BASE_URL } from "../BASE_URL";
@@ -245,6 +246,26 @@ export const getTeacherCurriculaList = async () => {
     throw error;
   }
 };
+
+
+// export const TeacherCurriculaList = async ({ page, nowpage } : PageInterface) => {
+//   try {
+//     const response = await axios.get(`${BASE_URL}/api/v1/teachers/curricula`, {
+//       headers: {
+//         Authorization: `Bearer ${AuthData.token}`,
+//       },
+//       params: {
+//         pageSize: page,
+//         currentPageNumber: nowpage,
+//       },
+//     });
+
+//     return response.data;
+//   } catch (error) {
+//     console.log(error);
+//     throw error;
+//   }
+// };
 
 // [학생] 학생이 커리큘럼을 수강 신청 여부 확인
 export const getCurriculimApply = async (curriculum_id: string) => {

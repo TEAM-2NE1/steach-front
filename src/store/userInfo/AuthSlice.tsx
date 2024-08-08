@@ -4,8 +4,8 @@ import { studentReset } from "./StudentProfileSlice";
 import { teacherReset } from "./TeacherProfileSlice";
 import { deleteMember, login } from "../../api/user/userAPI";
 import {
-  StudentFormData,
-  TeacherFormData,
+  StudentSignUpForm,
+  TeacherSignUpForm,
   LoginForm,
   LoginReturnForm,
 } from "../../interface/auth/AuthInterface";
@@ -32,7 +32,7 @@ export const initialState: UserState = {
 // createAsyncThunk 첫번째 인수 Returned - 비동기 작업이 성공적으로 완료된 후 반환되는 값의 타입
 // 두번째 인수 ThunkArg - 비동기 작업을 시작할 때 액션 생성 함수에 전달되는 인수의 타입.
 // 학생 회원가입
-export const signUpStudent = createAsyncThunk<UserState, StudentFormData>(
+export const signUpStudent = createAsyncThunk<UserState, StudentSignUpForm>(
   "student/signup",
   async (userFormData, thunkAPI) => {
     try {
@@ -57,28 +57,18 @@ export const signUpStudent = createAsyncThunk<UserState, StudentFormData>(
 );
 
 // 선생님 회원가입
-export const signUpTeacher = createAsyncThunk<UserState, TeacherFormData>(
+export const signUpTeacher = createAsyncThunk<UserState, TeacherSignUpForm>(
   "teacher/signup",
   async (newUserData, thunkAPI) => {
     try {
-      const formData: TeacherFormData = {
+      const formData: TeacherSignUpForm = {
         username: newUserData.username,
         password: newUserData.password,
         nickname: newUserData.nickname,
         email: newUserData.email,
+        file: newUserData.file,
       };
-      // formData.append(
-      //   "teacherSignUpDto",
-      //   JSON.stringify({
-      //     username: newUserData.username,
-      //     password: newUserData.password,
-      //     nickname: newUserData.nickname,
-      //     email: newUserData.email,
-      //   })
-      // );
-      // if (newUserData.file) {
-      //   formData.append("file", newUserData.file);
-      // }
+
       // FormData에 잘 추가되었는지 확인
       const response = await signUpTeacherApi(formData);
 

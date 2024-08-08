@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { SearchSendCurricula } from "../../../interface/search/SearchInterface";
 import all from "../../../assets/subject/booklist.png";
 import korean from "../../../assets/subject/korean.png";
 import math from "../../../assets/subject/math.png";
@@ -10,8 +12,9 @@ import engineering from "../../../assets/subject/engineering.png";
 import etc from "../../../assets/subject/etc.png";
 
 interface SearchCategoryMenuProps {
-  handleCategoryChange: (category: string) => void;
-  initialCategory: string;
+  // handleCategoryChange: (category: string) => void;
+  // initialCategory: string;
+  searchOption: SearchSendCurricula;
 }
 
 interface Subject {
@@ -21,9 +24,11 @@ interface Subject {
 }
 
 const SearchCategoryMenu: React.FC<SearchCategoryMenuProps> = ({
-  handleCategoryChange,
-  initialCategory,
+  searchOption,
+  //initialCategory,
 }) => {
+  const navigate = useNavigate();
+
   // 배열의 타입을 Subject 배열로 정의
   const subjects: Subject[] = [
     { name: "#전체", icon: all, value: "" },
@@ -37,22 +42,17 @@ const SearchCategoryMenu: React.FC<SearchCategoryMenuProps> = ({
     { name: "#기타", icon: etc, value: "ETC" },
   ];
 
-  // 현재 선택된 subject value를 저장할 상태
-  const [selectedValue, setSelectedValue] = useState<string>(
-    initialCategory || ""
-  );
-
   // 아이콘 클릭시 값을 변화시키는 핸들러 함수
   const handleChange = (value: string) => {
-    setSelectedValue(value);
-    handleCategoryChange(value);
+    const searchParams = new URLSearchParams();
+    searchParams.set("search", searchOption.search);
+    searchParams.set("curriculum_category", value);
+    searchParams.set("order", searchOption.order);
+    searchParams.set("only_available", searchOption.only_available.toString());
+    searchParams.set("pageSize", searchOption.pageSize.toString());
+    searchParams.set("currentPageNumber", "1");
+    navigate(`/search?${searchParams.toString()}`);
   };
-
-  useEffect(() => {
-    if (initialCategory) {
-      handleChange(initialCategory);
-    }
-  }, [initialCategory]);
 
   return (
     <section className="flex justify-center">
@@ -62,7 +62,9 @@ const SearchCategoryMenu: React.FC<SearchCategoryMenuProps> = ({
             key={index}
             type="button"
             className={`mx-6 my-12 p-2 rounded-md ${
-              selectedValue === subject.value ? "bg-orange-200" : ""
+              searchOption.curriculum_category === subject.value
+                ? "bg-orange-200"
+                : ""
             }`}
             onClick={() => handleChange(subject.value)}
           >
