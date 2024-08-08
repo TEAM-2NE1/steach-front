@@ -10,14 +10,31 @@ interface QuizData {
   quiz_id: number;
   lecture_id: number;
   quiz_number: number;
+  time: number;
   question: string;
   choices: string[];
   answers: number;
-  time: number;
 }
 
 interface StatisticData {
   statistics: number[]
+}
+
+export interface RankData {
+  rank: number;
+  score: number;
+  name: string;
+}
+
+export interface StatisticRankData {
+  prev: RankData[];
+  current: RankData[];
+}
+
+export interface ApiResponse {
+  statistics: number[];
+  prev: RankData[];
+  current: RankData[];
 }
 
 interface DetailQuizProps {
@@ -37,6 +54,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
   // const [selectedChoiceIndex, setSelectedChoiceIndex] = useState<number | null>(null);
 
   const [statisticData, setStatisticData] = useState<StatisticData | null>(null);
+  const [statisticRankData, setStatisticRankData] = useState<StatisticRankData | null>(null);
 
   const realTime = (trialVersion === undefined || trialVersion === false) ? initialQuizData.time : trialTimer; //타이머관련, 연습판 여부!
   const [timer, setTimer] = useState<number>(realTime !== undefined ? realTime : initialQuizData.time); // 타이머 시간
@@ -47,18 +65,18 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
   const [showStatistic, setShowStatstic] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjMwODkzMjAsImV4cCI6MTcyMzEwMTMyMCwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.6ROXw7gpkTMmDDcph0NcclEh9oXo61Oo2SdprDa0aP4'
-
+  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjMxMDUzMzksImV4cCI6MTcyOTEwNTMzOSwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.uyMfUDDiF46n296z2x4908K7U8Tmd6PYpmmnJJfdmZc';
   useEffect(() => {
     if (showStatistic) {
-      axios.get<StatisticData>(`${BASE_URL}/api/v1/quizzes/${initialQuizData?.quiz_id}/statistic`, {
+      axios.get<ApiResponse>(`${BASE_URL}/api/v1/quizzes/${initialQuizData?.quiz_id}/statistic`, {
         headers: {
           Authorization: `Bearer ${token}`, // 필요한 경우 헤더에 인증 정보 추가
         },
       })
         .then(response => {
           console.log(response.data)
-          setStatisticData(response.data); // 데이터 설정
+          setStatisticData({statistics: response.data.statistics}); // 데이터 설정
+          setStatisticRankData({prev: response.data.prev, current: response.data.current})
         })
         .catch(error => {
           console.error('Error fetching statistic data:', error);
@@ -195,8 +213,8 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
         >
           {showStatistic && (
             <div className="w-full">
-              {/* <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0, 1, 8, 3]}} /> */}
-              <StatisticsChart dataset={{statistics: [0, 1, 8, 3]}} />
+              <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0, 1, 8, 3]}} rankData = {statisticRankData} />
+              {/* <StatisticsChart dataset={{statistics: [0, 1, 8, 3]}} /> */}
             </div>
           )}
         </div>
