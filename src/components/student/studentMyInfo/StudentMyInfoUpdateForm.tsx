@@ -18,9 +18,7 @@ const StudentMyInfoUpdateForm: React.FC = () => {
   const temporaryToken = localStorage.getItem("passwordAuthToken");
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const Data = localStorage.getItem("auth");
-  const studentData = Data ? JSON.parse(Data) : "";
-  console.log(studentData)
+
   const teacherData = useSelector(
     (state: RootState) => state.studentProfile.info
   );
@@ -57,7 +55,6 @@ const StudentMyInfoUpdateForm: React.FC = () => {
 
   // 회원 탈퇴 요청
   const handleDelete = async () => {
-    
     dispatch(logout());
     // 회원 탈퇴
     await dispatch(deleteUserSteach());
@@ -104,19 +101,19 @@ const StudentMyInfoUpdateForm: React.FC = () => {
           />
         </div>
         <div className="absolute bottom-0 right-0 p-6 flex justify-end">
-        <button
-          onClick={(e) => handleUpdateSubmit(e)}
-          className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300 mr-4"
+          <button
+            onClick={(e) => handleUpdateSubmit(e)}
+            className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300 mr-4"
           >
-          수정하기
-        </button>
-        <button
-          onClick={handleDelete}
-          className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
+            수정하기
+          </button>
+          <button
+            onClick={handleDelete}
+            className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
           >
-          회원탈퇴
-        </button>
-          </div>
+            회원탈퇴
+          </button>
+        </div>
       </form>
     </div>
   );

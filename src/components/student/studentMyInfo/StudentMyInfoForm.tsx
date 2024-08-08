@@ -13,12 +13,13 @@ const StudentMyInfoForm: React.FC<StudentMyInfoProps> = ({
   handleIsUpdateInfoSubmit,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  useEffect(() => {
-    dispatch(fetchStudentInfo());
-  }, [dispatch]);
   const teacherData = useSelector(
     (state: RootState) => state.studentProfile.info
   );
+  useEffect(() => {
+    dispatch(fetchStudentInfo());
+  }, []);
+
   return (
     <div className="w-9/12 h-screen bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
       <form>
