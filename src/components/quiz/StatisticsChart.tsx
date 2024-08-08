@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import ChartRow from './ChartRow';
 import { Button } from 'antd';
 import RankingsList from './RankingList';
+import { StatisticRankData } from './QuizBlock';
 
 interface StatisticsChartProps {
   dataset: { statistics: number[] };
+  rankData: StatisticRankData | null
 }
 
 const data = {
@@ -54,7 +56,7 @@ const data = {
   ]
 };
 
-const StatisticsChart: React.FC<StatisticsChartProps> = ({ dataset }) => {
+const StatisticsChart: React.FC<StatisticsChartProps> = ({ dataset, rankData }) => {
   const [showRankings, setShowRankings] = useState(false);
   const [showNext, setShowNext] = useState(false);
 
@@ -88,7 +90,7 @@ const StatisticsChart: React.FC<StatisticsChartProps> = ({ dataset }) => {
         {!showRankings ? (
           <ChartRow data={dataset.statistics} />
         ) : (
-          <RankingsList key={Date.now()} data={data} />
+          <RankingsList key={Date.now()} data={rankData ? rankData : data} />
         )}
       </div>
       {showNext && !showRankings && (
