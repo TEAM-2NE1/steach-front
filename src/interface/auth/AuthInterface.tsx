@@ -11,6 +11,7 @@ export interface StudentSignUpForm {
 export interface StudentCheckForm {
   usernameDuplicate: boolean | null;
   nicknameDuplicate: boolean | null;
+  emailDuplicate: boolean | null;
   passwordCoincidence: boolean;
 }
 
@@ -26,6 +27,7 @@ export interface TeacherSignUpForm {
 // 선생님 인증 사항 체크 형식
 export interface TeacherCheckForm {
   usernameDuplicate: boolean | null;
+  emailDuplicate: boolean | null;
   passwordCoincidence: boolean;
 }
 

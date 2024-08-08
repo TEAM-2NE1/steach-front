@@ -38,8 +38,12 @@ const Login: React.FC = () => {
       password: formData.password,
     };
 
-    await dispatch(loginSteach(loginFormData));
-    navigate("/home");
+    const loginResult = await dispatch(loginSteach(loginFormData));
+    if (loginResult.type === "login/fulfilled") {
+      navigate("/home");
+    } else {
+      alert("비밀번호가 틀렸습니다.");
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Froala from "../main/FroalaEditor.tsx";
+import Froala from "../main/Editor.tsx";
 import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { TbArrowsRight } from "react-icons/tb";
 import checkimg from "../../assets/checked.jpg";

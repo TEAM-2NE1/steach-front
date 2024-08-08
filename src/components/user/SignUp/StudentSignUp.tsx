@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from "../../../store";
 import {
   checkUsernameDuplicateApi,
   checkNicknameDuplicateApi,
+  checkStudentEmailDuplicateApi,
 } from "../../../api/user/userAPI";
 import {
   StudentSignUpForm,
@@ -39,6 +40,7 @@ const StudentSignUp: React.FC = () => {
   const [checkInfo, setCheckInfo] = useState<StudentCheckForm>({
     usernameDuplicate: null,
     nicknameDuplicate: null,
+    emailDuplicate: null,
     passwordCoincidence: false,
   });
 
@@ -57,6 +59,16 @@ const StudentSignUp: React.FC = () => {
     setCheckInfo((prevState) => ({
       ...prevState,
       nicknameDuplicate: response.data.can_use,
+    }));
+    console.log(response);
+  };
+
+  // 이메일 중복 체크 호출 핸들러 함수
+  const handleCheckEmailDuplicate = async () => {
+    const response = await checkStudentEmailDuplicateApi(formData.email);
+    setCheckInfo((prevState) => ({
+      ...prevState,
+      emailDuplicate: response.data.can_use,
     }));
   };
 
@@ -94,6 +106,7 @@ const StudentSignUp: React.FC = () => {
     if (
       checkInfo.usernameDuplicate &&
       checkInfo.nicknameDuplicate &&
+      checkInfo.emailDuplicate &&
       checkInfo.passwordCoincidence
     ) {
       requestSignUp();
@@ -146,7 +159,7 @@ const StudentSignUp: React.FC = () => {
           className="w-1/3 mx-auto border-2 rounded-xl p-6 mb-28"
           onSubmit={handleSubmit}
         >
-          <section>
+          <section className="mb-3">
             <header className="flex items-center">
               <label htmlFor="username" className="text-2xl">
                 아이디
@@ -239,6 +252,7 @@ const StudentSignUp: React.FC = () => {
                 닉네임
               </label>
               <button
+                type="button"
                 className="m-3 p-2 rounded-md bg-red-200 text-white hover:bg-red-300"
                 onClick={handleCheckNicknameDuplicate}
               >
@@ -267,10 +281,19 @@ const StudentSignUp: React.FC = () => {
               )}
             </main>
           </section>
-          <section>
-            <label htmlFor="email" className="text-2xl">
-              이메일
-            </label>
+          <section className="mb-3">
+            <header>
+              <label htmlFor="email" className="text-2xl">
+                이메일
+              </label>
+              <button
+                type="button"
+                className="m-3 p-2 rounded-md bg-red-200 text-white hover:bg-red-300"
+                onClick={handleCheckEmailDuplicate}
+              >
+                중복확인
+              </button>
+            </header>
             <main className="mb-2">
               <input
                 type="email"
@@ -281,6 +304,16 @@ const StudentSignUp: React.FC = () => {
                 className="border-2 rounded-lg w-full p-2 mb-3"
                 required
               />
+              {checkInfo.emailDuplicate && (
+                <p className="mb-3 text-blue-500 text-sm">
+                  사용 가능한 이메일입니다.
+                </p>
+              )}
+              {checkInfo.emailDuplicate === false && (
+                <p className="mb-3 text-red-500 text-sm">
+                  이미 존재하는 이메일입니다.
+                </p>
+              )}
             </main>
           </section>
           <section>

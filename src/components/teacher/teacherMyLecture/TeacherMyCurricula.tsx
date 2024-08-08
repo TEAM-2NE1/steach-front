@@ -24,7 +24,7 @@ const TeacherMyCurricula: React.FC = () => {
   const teacherCurriculas = useSelector(
     (state: RootState) => state.teacherProfile.curricula
   );
-  console.log(teacherCurriculas)
+  console.log(teacherCurriculas);
   // 한 페이지에 몇개의 커리큘럼을 나타낼지
   const ITEMS_PER_PAGE = 4;
 
