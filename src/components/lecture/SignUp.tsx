@@ -266,19 +266,39 @@ const LectureSignUp: React.FC = () => {
               </div>
               <hr className='my-3'></hr>
               <FormLabel htmlFor="datetime" className="mt-3 mx-3 text-2xl">수업 요일</FormLabel>
-              <div className='flex justify-center'>
-                {Object.keys(WEEKDAY_VALUES).map((day) => (
-                  <label key={day}>
-                    <img
-                      src={activeDays[day as Weekday] ? checkimg : uncheckimg}
-                      onClick={() => handleCheckboxChange(day as Weekday)}
-                      style={{ cursor: 'pointer', width: '80px', height: '80px', marginRight: '8px' }}
-                      alt={day}
-                    />
+              <div className="flex justify-center">
+              {Object.keys(activeDays).map((day, i) => (
+                <label
+                  key={i}
+                  style={{
+                    position: "relative",
+                    display: "inline-block",
+                    marginRight: "8px",
+                  }}
+                >
+                  <img
+                    src={activeDays[day as Weekday] ? checkimg : uncheckimg}
+                    onClick={() => handleCheckboxChange(day as Weekday)}
+                    style={{ cursor: "pointer", width: "80px", height: "80px" }}
+                    alt={day}
+                  />
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "55%",
+                      left: "45%",
+                      transform: "translate(-50%, -50%)",
+                      color: "black", // 필요에 따라 텍스트 색상 변경
+                      fontWeight: "bold", // 필요에 따라 텍스트 스타일 변경
+                      fontSize: "20px", // 필요에 따라 텍스트 크기 변경
+                      pointerEvents: "none", // 텍스트가 클릭 이벤트를 방해하지 않도록 설정
+                    }}
+                  >
                     {day}
-                  </label>
-                ))}
-              </div>
+                  </span>
+                </label>
+              ))}
+            </div>
               
               <FormLabel htmlFor="datetime" className="text-2xl">최대 수강 정원</FormLabel>
               <select

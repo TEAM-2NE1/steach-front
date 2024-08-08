@@ -248,24 +248,22 @@ export const getTeacherCurriculaList = async () => {
 };
 
 
-// export const TeacherCurriculaList = async ({ page, nowpage } : PageInterface) => {
-//   try {
-//     const response = await axios.get(`${BASE_URL}/api/v1/teachers/curricula`, {
-//       headers: {
-//         Authorization: `Bearer ${AuthData.token}`,
-//       },
-//       params: {
-//         pageSize: page,
-//         currentPageNumber: nowpage,
-//       },
-//     });
+// 학생이 볼 수 있는 선생님 수업리스트
+export const TargetTeacherCurriculaList = async (teachers_id: string) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/v1/teachers/curricula/${teachers_id}`, {
+      params: {
+        pageSize: null,
+        currentPageNumber: null,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
 
-//     return response.data;
-//   } catch (error) {
-//     console.log(error);
-//     throw error;
-//   }
-// };
 
 // [학생] 학생이 커리큘럼을 수강 신청 여부 확인
 export const getCurriculimApply = async (curriculum_id: string) => {

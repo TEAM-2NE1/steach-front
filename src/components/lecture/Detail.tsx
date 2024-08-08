@@ -46,6 +46,8 @@ const LectureDetail: React.FC = () => {
   const isApply = useSelector((state: RootState) => state.curriculum.isApply);
   const status = useSelector((state: RootState) => state.curriculum.status);
   const error = useSelector((state: RootState) => state.curriculum.error);
+  console.log(lectures)
+  console.log(lectureslist)
 
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
@@ -113,7 +115,7 @@ const LectureDetail: React.FC = () => {
             <h1 className="text-7xl p-3">{lectures?.title}</h1>
             <p className="p-1">{lectures?.sub_title}</p>
             <p className="p-1">{lectures?.intro}</p>
-            <Link to={"/teacher/profiledetail"}>
+            <Link to={`/teacher/profiledetail/${lectures?.teacher_id}`}>
               <div className="flex items-center">
                 <img src={img3} className="w-10 h-10 m-5" />
                 <span>

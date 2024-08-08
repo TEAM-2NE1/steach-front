@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
-import { fetchTeacherCurriculaList, fetchTeacherInfo } from "../../store/userInfo/TeacherProfileSlice";
+import { targetTeacherCurriculaList, targetTeacherInfo } from "../../store/userInfo/TeacherProfileSlice";
 import defaultImg from "../../assets/default.png";
 import Spinner from "../main/spinner/Spinner";
 
@@ -11,19 +11,19 @@ import Spinner from "../main/spinner/Spinner";
 
 
 const TeacherInfoDetail: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const { id } = useParams();
 
   useEffect(() => {
-    dispatch(fetchTeacherInfo());
-    dispatch(fetchTeacherCurriculaList());
+    if (id) {
+      dispatch(targetTeacherInfo(id));
+      dispatch(targetTeacherCurriculaList(id));
+    }
   }, [dispatch]);
 
   const teacherData = useSelector((state: RootState) => state.teacherProfile.info);
-  console.log(teacherData)
-
   const teacherCurriculas = useSelector((state: RootState) => state.teacherProfile.curricula);
-  console.log(teacherCurriculas)
 
 
   const status = useSelector((state: RootState) => state.teacherProfile.status);
@@ -34,8 +34,9 @@ const TeacherInfoDetail: React.FC = () => {
     ? JSON.parse(localStorageUserData)
     : null;
   
+  
     // 한 페이지에 몇개의 커리큘럼을 나타낼지
-    const ITEMS_PER_PAGE = 4;
+    const ITEMS_PER_PAGE = 5;
 
     // 현재 페이지의 상태와 페이지를 변경하는 상태 함수
     const [currentPage, setCurrentPage] = useState(1);
@@ -61,26 +62,26 @@ const TeacherInfoDetail: React.FC = () => {
     
     return (
       <div className="w-9/12 bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
-      <h1 className="my-2 p-2 text-center text-4xl text-lightNavy">{teacherData?.nickname} 선생님 정보</h1>
+      <h1 className="my-2 p-2 text-center text-6xl text-lightNavy">{teacherData?.nickname} 선생님 정보</h1>
           {status === "loading" && <Spinner />}
           {status === "failed" && error}
       <div className="my-4 p-2">
-        <label className="my-2 text-3xl text-lightNavy">닉네임</label>
-        <p className="text-xl">{teacherData?.nickname}</p>
+        <label className="my-2 text-5xl text-lightNavy">닉네임</label>
+        <p className="text-4xl">{teacherData?.nickname}</p>
       </div>
       <div className="my-4 p-2">
-        <label className="my-2 text-3xl text-lightNavy">
+        <label className="my-2 text-5xl text-lightNavy">
           간단한 소개 문구
         </label>
-        <p className="text-xl">{teacherData?.brief_introduction || "nothing"}</p>
+        <p className="text-4xl">{teacherData?.brief_introduction || "nothing"}</p>
       </div>
       <div className="my-4 p-2">
-        <label className="my-2 text-3xl text-lightNavy">학력</label>
-        <p className="text-xl">{teacherData?.academic_background || "nothing"}</p>
+        <label className="my-2 text-5xl text-lightNavy">학력</label>
+        <p className="text-4xl">{teacherData?.academic_background || "nothing"}</p>
       </div>
       <div className="my-4 p-2">
-        <label className="my-2 text-3xl text-lightNavy">전공분야</label>
-        <p className="text-xl">{teacherData?.specialization || "nothing"}</p>
+        <label className="my-2 text-5xl text-lightNavy">전공분야</label>
+        <p className="text-4xl">{teacherData?.specialization || "nothing"}</p>
       </div>
         <div className="flex my-4 p-2 space-x-7">
           {selectedSamples.map((sample, index) => (

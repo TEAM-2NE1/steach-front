@@ -24,7 +24,7 @@ const IntroductionSignUp: React.FC = () => {
           className={`mx-auto p-10 transition-opacity duration-500 ease-out ${animate ? 'opacity-100' : 'opacity-0'}`}
         />
         <p className='text-center pb-10'>
-        <span className='text-5xl'>우리 스티치와 함께 한다면 <span className='bg-yellow-200 inline-block px-1'>다음과 같은 혜택을 무료로 </span> 누릴 수 있습니다</span></p>
+        <span className='text-5xl '>우리 스티치와 함께 한다면 <span className='bg-yellow-200 inline-block px-1 whitespace-nowrap'>다음과 같은 혜택을 무료로 </span> 누릴 수 있습니다</span></p>
         <div className={`w-full h-auto p-5 transform transition-transform duration-1000 ease-out ${animate ? 'translate-x-0' : 'translate-x-full'}`}>
         <span className='text-5xl whitespace-nowrap'>맞춤형 학습 경험</span>
         <div className='flex'>

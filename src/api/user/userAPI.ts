@@ -222,3 +222,30 @@ export const deleteMember = async () => {
     throw error;
   }
 };
+
+
+// 학생이 볼 수 있는 선생님 정보 조회
+export const targetTeacherInfoGet = async (teacher_id:string) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/v1/teachers/${teacher_id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data: TeacherInfo = {
+      username: response.data.username,
+      nickname: response.data.nickname,
+      email: response.data.email,
+      volunteer_time: response.data.volunteer_time,
+      brief_introduction: response.data.brief_introduction,
+      academic_background: response.data.academic_background,
+      specialization: response.data.specialization,
+    };
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

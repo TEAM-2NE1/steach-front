@@ -4,6 +4,7 @@ import { AppDispatch, RootState } from "../../../store";
 import { fetchTeacherCurriculaList } from "../../../store/userInfo/TeacherProfileSlice";
 import { useNavigate } from "react-router-dom";
 import defaultImg from "../../../assets/default.png";
+import Spinner from "../../main/spinner/Spinner";
 
 const TeacherMyCurricula: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +25,9 @@ const TeacherMyCurricula: React.FC = () => {
   const teacherCurriculas = useSelector(
     (state: RootState) => state.teacherProfile.curricula
   );
+  const status = useSelector((state: RootState) => state.teacherProfile.status);
+  const error = useSelector((state: RootState) => state.teacherProfile.error);
+
   console.log(teacherCurriculas)
   // 한 페이지에 몇개의 커리큘럼을 나타낼지
   const ITEMS_PER_PAGE = 4;
@@ -52,6 +56,8 @@ const TeacherMyCurricula: React.FC = () => {
 
   return (
     <>
+      {status === "loading" && <Spinner />}
+      {status === "failed" && error}
       <div className="p-6 bg-white min-h-screen flex flex-col justify-between">
         <h1 className="mx-20 my-4 text-4xl text-lightNavy">
           내가 강의하는 커리큘럼
