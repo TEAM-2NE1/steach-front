@@ -8,7 +8,7 @@ import TeacherMyCurricula from "../../components/teacher/teacherMyLecture/Teache
 
 // 선생님 페이지
 const TeacherProfilePage: React.FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState(0);
   const [scrollPosition, setScrollPosition] = useState(20);
 
@@ -28,13 +28,11 @@ const TeacherProfilePage: React.FC = () => {
     setSelectedTab(tab);
   };
 
-
-
   return (
     <div className="grid grid-cols-12">
       <div className="col-span-1"></div>
       <div className="relative">
-        <div className="p-2 bg-Beige shadow relative flex">
+        <div className="p-2 relative flex">
           <div
             className="top-auto w-auto h-auto border-2 border-hardBeige rounded-3xl font-semibold flex flex-col items-center mr-2 p-2 bg-white"
             style={{
@@ -46,42 +44,42 @@ const TeacherProfilePage: React.FC = () => {
             <button
               className={`my-2 text-lg p-3 ${
                 selectedTab === 0
-                ? "bg-orange-200 text-white rounded-3xl"
-                : "text-lightNavy hover:text-hoverNavy"
+                  ? "bg-orange-200 text-white rounded-3xl"
+                  : "text-lightNavy hover:text-hoverNavy"
               } flex flex-col items-center`}
               onClick={() => handleTabClick(0)}
             >
-            <FaPencilAlt className="size-8 my-2" />
-            <h2 className="whitespace-nowrap">내 커리큘럼</h2>
+              <FaPencilAlt className="size-8 my-2" />
+              <h2 className="whitespace-nowrap">내 커리큘럼</h2>
             </button>
             <button
               className={`my-2 text-lg p-3 ${
                 selectedTab === 1
-                ? "bg-orange-200 text-white rounded-3xl"
-                : "text-lightNavy hover:text-hoverNavy"
+                  ? "bg-orange-200 text-white rounded-3xl"
+                  : "text-lightNavy hover:text-hoverNavy"
               } flex flex-col items-center`}
               onClick={() => handleTabClick(1)}
             >
-            <FaHistory className="size-8 my-2" />
-            <h2 className="whitespace-nowrap">강의 히스토리</h2>
+              <FaHistory className="size-8 my-2" />
+              <h2 className="whitespace-nowrap">강의 히스토리</h2>
             </button>
             <button
               className={`my-2 text-lg p-3 ${
                 selectedTab === 2
-                ? "bg-orange-200 text-white rounded-3xl"
-                : "text-lightNavy hover:text-hoverNavy"
+                  ? "bg-orange-200 text-white rounded-3xl"
+                  : "text-lightNavy hover:text-hoverNavy"
               } flex flex-col items-center`}
               onClick={() => handleTabClick(2)}
-            >   
-          <CgProfile className="size-8 my-2" />
-          <h2 className="whitespace-nowrap">내 정보</h2>
-          </button>
-          <button
-            onClick={() => navigate("/lecture/signup")}
-            className="my-2 text-lg p-3 bg-red-200 rounded-md shadow-md text-white hover:bg-red-300 flex flex-col items-center whitespace-nowrap"
-          >
-            커리큘럼 생성
-          </button>
+            >
+              <CgProfile className="size-8 my-2" />
+              <h2 className="whitespace-nowrap">내 정보</h2>
+            </button>
+            <button
+              onClick={() => navigate("/lecture/signup")}
+              className="my-2 text-lg p-3 bg-red-200 rounded-md shadow-md text-white hover:bg-red-300 flex flex-col items-center whitespace-nowrap"
+            >
+              커리큘럼 생성
+            </button>
           </div>
         </div>
       </div>

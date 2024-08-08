@@ -9,11 +9,7 @@ import {
   StudentSignUpForm,
   TeacherSignUpForm,
 } from "../../interface/auth/AuthInterface";
-import { BASE_URL } from "../BASE_URL";
-
-const tokenData = localStorage.getItem("auth");
-const jsontokenData = tokenData ? JSON.parse(tokenData) : null;
-const token = jsontokenData ? jsontokenData.token : "";
+import { BASE_URL, getAuthToken } from "../BASE_URL";
 
 // 학생 회원가입
 export const signUpStudentApi = async (formDataToSend: StudentSignUpForm) => {
@@ -89,22 +85,19 @@ export const checkTeacherEmailDuplicateApi = (email: string) => {
 
 // 내정보 수정 비밀번호 체크
 export const passwordCheck = async (password: string) => {
-  try {
-    const response = await axios.post(
-      `${BASE_URL}/api/v1/check/password`,
-      { password },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  const token = getAuthToken();
 
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
+  const response = await axios.post(
+    `${BASE_URL}/api/v1/check/password`,
+    { password },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
 };
 
 // 로그인
@@ -138,6 +131,7 @@ export const login = async (formDataToSend: LoginForm) => {
 // 선생님 정보 조회
 export const teacherInfoGet = async () => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${BASE_URL}/api/v1/teachers`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -164,6 +158,7 @@ export const teacherInfoGet = async () => {
 // 선생님 정보 수정
 export const teacherInfoUpdate = async (formData: TeacherInfoUpdateForm) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.patch(
       `${BASE_URL}/api/v1/teachers`,
       formData,
@@ -183,6 +178,7 @@ export const teacherInfoUpdate = async (formData: TeacherInfoUpdateForm) => {
 // 학생 정보 조회
 export const studentInfoGet = async () => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${BASE_URL}/api/v1/students`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -205,6 +201,7 @@ export const studentInfoGet = async () => {
 // 학생 정보 수정
 export const studentInfoUpdate = async (formData: StudentInfoUpdateForm) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.patch(
       `${BASE_URL}/api/v1/students`,
       formData,
@@ -224,6 +221,7 @@ export const studentInfoUpdate = async (formData: StudentInfoUpdateForm) => {
 // 회원 탈퇴
 export const deleteMember = async () => {
   try {
+    const token = await getAuthToken();
     const response = await axios.delete(`${BASE_URL}/api/v1/member`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -237,15 +235,18 @@ export const deleteMember = async () => {
   }
 };
 
-
 // 학생이 볼 수 있는 선생님 정보 조회
-export const targetTeacherInfoGet = async (teacher_id:string) => {
+export const targetTeacherInfoGet = async (teacher_id: string) => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/v1/teachers/${teacher_id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const token = await getAuthToken();
+    const response = await axios.get(
+      `${BASE_URL}/api/v1/teachers/${teacher_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     const data: TeacherInfo = {
       username: response.data.username,
