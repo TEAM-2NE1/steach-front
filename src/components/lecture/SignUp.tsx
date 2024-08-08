@@ -4,7 +4,6 @@ import { TbArrowsRight } from "react-icons/tb";
 import checkimg from "../../assets/checked.jpg";
 import uncheckimg from "../../assets/unchecked.jpg";
 import banner from "../../assets/banner2.jpg";
-// import { SignUpLecture } from '../../store/curriculaSlice.tsx'
 import { SignUpLecture } from "../../api/lecture/curriculumAPI.ts";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store.tsx";
@@ -76,7 +75,6 @@ const LectureSignUp: React.FC = () => {
       ...prevFormData,
       information: data,
     }));
-    console.log(data);
   };
 
   const handleCheckboxChange = (day: Weekday) => {
@@ -128,7 +126,7 @@ const LectureSignUp: React.FC = () => {
       information: stripHtmlTags(formData.information),
       weekdays_bitmask: formatBitmask(formData.weekdays_bitmask),
     };
-
+    console.log('a')
     dispatch(SignUpLecture(formDataToSend));
   };
 

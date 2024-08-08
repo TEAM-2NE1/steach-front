@@ -35,12 +35,13 @@ const LatestLectures: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <section className="flex justify-center py-6">
+    <>
+      {status === "failed" && error}
+      {status === "succeeded" && (
+        <section className="flex justify-center py-6">
       <Box className="container mx-16 px-16">
         <header className="text-4xl text-lightNavy font-bold m-3">
           <h1>최근 등록된 강의</h1>
-          {status === "loading" && <Spinner />}
-          {status === "failed" && error}
         </header>
         <Box className="flex justify-center">
           <Swiper
@@ -64,7 +65,7 @@ const LatestLectures: React.FC = () => {
               },
             }}
             className="flex justify-center grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-          >
+            >
             {curricula && curricula.length > 0 ? (
               curricula.map((curriculum) => (
                 <SwiperSlide key={curriculum.curriculum_id}>
@@ -78,7 +79,7 @@ const LatestLectures: React.FC = () => {
                               `/curricula/detail/${curriculum.curriculum_id}`
                             );
                           }}
-                        >
+                          >
                           <div className="flex flex-col h-full p-2">
                             <div>
                               <Text className="text-white text-2xl text-left pb-2">
@@ -97,8 +98,8 @@ const LatestLectures: React.FC = () => {
                         <Image
                           src={
                             curriculum.banner_img_url
-                              ? curriculum.banner_img_url
-                              : defaultImg
+                            ? curriculum.banner_img_url
+                            : defaultImg
                           }
                           alt={curriculum.title}
                           borderRadius="lg"
@@ -106,7 +107,7 @@ const LatestLectures: React.FC = () => {
                             e.currentTarget.src = defaultImg;
                           }}
                           className="w-60 h-40"
-                        />
+                          />
                         <Stack mt="6" spacing="3" className="p-2">
                           <Heading className="font-bold text-2xl overflow-hidden whitespace-nowrap text-overflow-ellipsis">
                             {curriculum.title}
@@ -119,7 +120,7 @@ const LatestLectures: React.FC = () => {
                               WebkitLineClamp: 1, // 원하는 줄 수로 설정 (여기서는 3줄)
                               whiteSpace: "normal",
                             }}
-                          >
+                            >
                             {curriculum.intro}
                           </Text>
                           <Text className="text-slate-500">
@@ -137,7 +138,9 @@ const LatestLectures: React.FC = () => {
           </Swiper>
         </Box>
       </Box>
-    </section>
+      </section>
+    )}
+  </>
   );
 };
 export default LatestLectures;

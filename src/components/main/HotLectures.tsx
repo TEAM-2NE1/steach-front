@@ -37,15 +37,16 @@ const HotLectures: React.FC = () => {
   useEffect(() => {
     dispatch(getpopLecturelist());
   }, [dispatch]);
-  // const [curricula, setCurricula] = useState<Curriculum[]>([]);
 
   return (
-    <section className="flex justify-center py-6">
+    <>
+      {status === "loading" && <Spinner/>}
+      {status === "failed" && error}
+      {status === "succeeded" && (
+        <section className="flex justify-center py-6">
       <Box className="container mx-16 px-16">
         <header className="m-3 text-4xl text-lightNavy font-bold">
           <h1>요즘 뜨는 강의</h1>
-          {status === "loading" && <Spinner />}
-          {status === "failed" && error}
         </header>
         <Box className="flex justify-center">
           <Swiper
@@ -142,7 +143,10 @@ const HotLectures: React.FC = () => {
           </Swiper>
         </Box>
       </Box>
-    </section>
+      </section>)}
+
+    
+      </>
   );
 };
 export default HotLectures;
