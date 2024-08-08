@@ -69,9 +69,10 @@ const NavbarTeacher: React.FC<Props> = ({ nickname }) => {
   };
 
   // 로그아웃 요청 함수
-  const logoutbtn = () => {
-    dispatch(logout());
+  const logoutbtn = async () => {
+    await dispatch(logout());
     navigate("/home");
+    window.location.reload();
   };
 
   // 검색 함수

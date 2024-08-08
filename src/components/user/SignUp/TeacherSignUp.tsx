@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import teacher from "../../../assets/teacher.png";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -13,6 +12,7 @@ import {
   TeacherCheckForm,
 } from "../../../interface/auth/AuthInterface.tsx";
 import { checkUsernameDuplicateApi } from "../../../api/user/userAPI.ts";
+import teacher from "../../../assets/teacher.png";
 import SpinnerComponent from "../../main/spinner/Spinner";
 
 // 선생님 회원가입
