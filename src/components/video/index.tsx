@@ -26,7 +26,6 @@ const UserLabel = styled.p`
 `;
 
 const UserRoleLabel = styled.p`
-	//position: absolute;
 	top: 255px;
 	left: 0;
 	width: 100%;
@@ -52,26 +51,41 @@ interface Props {
 	videoEnabled: boolean;
 	audioEnabled: boolean;
 	audioDisabledByTeacher?: boolean;
+	screenShareEnabled: boolean;
+	screenShareDisabledByTeacher?: boolean;
 	muted?: boolean;
 }
 
-const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audioDisabledByTeacher, muted }: Props) => {
+const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audioDisabledByTeacher, screenShareEnabled, screenShareDisabledByTeacher, muted }: Props) => {
 	const ref = useRef<HTMLVideoElement>(null);
 
 	useEffect(() => {
 		if (ref.current) ref.current.srcObject = stream;
 	}, [stream]);
 
-	return (
-		<Container>
-			<VideoContainer ref={ref} muted={muted} autoPlay />
-			<UserLabel>{email}</UserLabel>
-			<UserRoleLabel>{userRole}</UserRoleLabel>
-			<Indicator>Video: {videoEnabled ? 'On' : 'Off'}</Indicator>
-			<Indicator>Audio: {audioEnabled && !audioDisabledByTeacher ? 'On' : 'Off'}</Indicator>
-			<Indicator>Teacher Allowed: {audioDisabledByTeacher ? 'No' : 'Yes'}</Indicator>
-		</Container>
-	);
+	if(userRole.endsWith('_screen')){
+		return (
+			<Container>
+				<p>[email : {email.substring(0, email.length-7)}의 화면공유]</p>
+				<VideoContainer ref={ref} muted={muted} autoPlay />
+				<UserLabel>{email}</UserLabel>
+			</Container>
+		);
+	}else{
+		return (
+			<Container>
+				<VideoContainer ref={ref} muted={muted} autoPlay />
+				<UserLabel>{email}</UserLabel>
+				<UserRoleLabel>{userRole}</UserRoleLabel>
+				<Indicator>Video: {videoEnabled ? 'On' : 'Off'}</Indicator>
+				<Indicator>Audio: {audioEnabled && !audioDisabledByTeacher ? 'On' : 'Off'}</Indicator>
+				<Indicator>Teacher Allowed: {audioDisabledByTeacher ? 'No' : 'Yes'}</Indicator>
+				<Indicator>화면공유 상태: {screenShareEnabled ? 'On' : 'Off'}</Indicator>
+				<Indicator>화면공유 권한: {screenShareDisabledByTeacher ? 'No' : 'Yes'}</Indicator>
+			</Container>
+		);
+
+	}
 };
 
 export default WebRTCVideo;

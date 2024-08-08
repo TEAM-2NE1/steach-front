@@ -27,12 +27,8 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 	const localScreenShareRef = useRef<HTMLVideoElement>(null);
 	const localScreenShareStreamRef = useRef<MediaStream>();
 	const [users, setUsers] = useState<WebRTCUser[]>([]);
-	// const [screenShareStream, setScreenShareStream] = useState<MediaStream | null>(null);
-	// let gotFirstMediaStream = false;
 	useEffect(() => {
-		console.log(`goScreenShare 변경됨. ${screenShareStopSignal}가 됨`);
-		if(screenShareStopSignal){ // 지금 끈거면
-			console.log('Signal ON 감지 -> videoTrack 종료');
+		if(screenShareStopSignal){
 			const videoTrack = localScreenShareStreamRef.current?.getVideoTracks()[0];
 			if(videoTrack){
 				videoTrack.stop();
@@ -44,7 +40,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 
 	const getLocalStream = useCallback(async () => {
 		try {
-			console.log('[화면공유 컴포넌트] 선생님 화면공유 시도함');
 			const localScreenShareStream = await navigator.mediaDevices.getDisplayMedia({
 				video: {
 					width: 240,
@@ -62,7 +57,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 			const videoTrack = localScreenShareStreamRef.current?.getVideoTracks()[0];
 
 			videoTrack.addEventListener('ended', () => {
-				console.log('[화면공유 컴포넌트] 선생님 화면공유 종료 감지됨!!');
 				toggleScreenShareFunc();
 			});
 
@@ -80,7 +74,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 			});
 
 		} catch (err) {
-			console.error('[화면공유 컴포넌트] Error sharing screen:', err);
 			toggleScreenShareFunc();
 		}
 	}, [roomId, userEmail, userRole]);
@@ -91,7 +84,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 
 			pc.onicecandidate = (e) => {
 				if (socketRef.current && e.candidate) {
-					console.log('[화면공유 컴포넌트] onicecandidate');
 					socketRef.current.emit('candidate', {
 						candidate: e.candidate,
 						candidateSendID: socketRef.current.id,
@@ -99,12 +91,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 					});
 				}
 			};
-
-			pc.oniceconnectionstatechange = (e) => {
-				console.log("[화면공유 컴포넌트] iceConnectionStateChanged");
-				console.log('[화면공유 컴포넌트] ' + e);
-			};
-
 			pc.ontrack = (e) => {
 				setUsers((oldUsers) =>
 					oldUsers
@@ -127,14 +113,11 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 			};
 
 			if (localScreenShareStreamRef.current) {
-				console.log('[화면공유 컴포넌트] localstream add');
 				localScreenShareStreamRef.current.getTracks().forEach((track) => {
 					if (localScreenShareStreamRef.current) {
 						pc.addTrack(track, localScreenShareStreamRef.current);
 					}
 				});
-			} else {
-				console.log('[화면공유 컴포넌트] no local stream');
 			}
 			return pc;
 		} catch (e) {
@@ -158,7 +141,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 							offerToReceiveAudio: true,
 							offerToReceiveVideo: true,
 						});
-						console.log('[화면공유 컴포넌트] create offer success');
 						await pc.setLocalDescription(new RTCSessionDescription(localSdp));
 						socketRef.current.emit('offer', {
 							sdp: localSdp,
@@ -188,14 +170,12 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 				offerSendScreenShareDisabledByTeacher: boolean;
 			}) => {
 				const { sdp, offerSendID, offerSendEmail, offerSendRole, offerSendVideoEnabled, offerSendAudioEnabled, offerSendAudioDisabledByTeacher, offerSendScreenShareEnabled, offerSendScreenShareDisabledByTeacher} = data;
-				console.log('[화면공유 컴포넌트] get offer');
 				if (!localScreenShareStreamRef.current) return;
 				const pc = createPeerConnection(offerSendID, offerSendEmail, offerSendRole, offerSendVideoEnabled, offerSendAudioEnabled, offerSendAudioDisabledByTeacher, offerSendScreenShareEnabled, offerSendScreenShareDisabledByTeacher);
 				if (pc && socketRef.current) {
 					pcsRef.current = { ...pcsRef.current, [offerSendID]: pc };
 					try {
 						await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-						console.log('[화면공유 컴포넌트] answer set remote description success');
 						const localSdp = await pc.createAnswer({
 							offerToReceiveVideo: true,
 							offerToReceiveAudio: true,
@@ -217,7 +197,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 			'getAnswer',
 			(data: { sdp: RTCSessionDescription; answerSendID: string }) => {
 				const { sdp, answerSendID } = data;
-				console.log('[화면공유 컴포넌트] get answer');
 				const pc: RTCPeerConnection = pcsRef.current[answerSendID];
 				if (pc) {
 					pc.setRemoteDescription(new RTCSessionDescription(sdp));
@@ -228,17 +207,14 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 		socketRef.current.on(
 			'getCandidate',
 			async (data: { candidate: RTCIceCandidateInit; candidateSendID: string }) => {
-				console.log('[화면공유 컴포넌트] get candidate');
 				const pc: RTCPeerConnection = pcsRef.current[data.candidateSendID];
 				if (pc) {
 					await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-					console.log('[화면공유 컴포넌트] candidate add success');
 				}
 			},
 		);
 
 		socketRef.current.on('user_exit', (data: { id: string }) => {
-			console.log('[화면공유 컴포넌트] EXIT EXIT EXIT EXIT ');
 			if (pcsRef.current[data.id]) {
 				pcsRef.current[data.id].close();
 				delete pcsRef.current[data.id];
@@ -247,7 +223,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 		});
 
 		socketRef.current.on('update_media', (data: { userId: string; videoEnabled: boolean; audioEnabled: boolean; audioDisabledByTeacher: boolean, screenShareEnabled: boolean, screenShareDisabledByTeacher: boolean }) => {
-			console.log(`[화면공유 컴포넌트] Updating media for user ${data.userId}: videoEnabled=${data.videoEnabled}, audioEnabled=${data.audioEnabled}, audioDisabledByTeacher=${data.audioDisabledByTeacher}, 화면공유: ${data.screenShareEnabled}, 화면공유banned: ${data.screenShareDisabledByTeacher}`);
 			setUsers((oldUsers) =>
 				oldUsers.map((user) =>
 					user.id === data.userId
@@ -258,7 +233,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 		});
 
 		socketRef.current.on('update_allow_mic', (data: { userId: string; audioEnabled: boolean; audioDisabledByTeacher: boolean }) => {
-			console.log(`[화면공유 컴포넌트] Updating media for user ${data.userId}: audioEnabled=${data.audioEnabled}, audioDisabledByTeacher=${data.audioDisabledByTeacher}`);
 			setUsers((oldUsers) =>
 				oldUsers.map((user) =>
 					user.id === data.userId
@@ -269,7 +243,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 		});
 
 		socketRef.current.on('toggle_student_mic', (data: { userId: string; audioDisabledByTeacher: boolean }) => {
-			console.log(`[화면공유 컴포넌트] Teacher toggled student's mic ${data.userId}: audioDisabledByTeacher=${data.audioDisabledByTeacher}`);
 
 			setUsers((oldUsers) =>
 				oldUsers.map((user) =>
@@ -291,7 +264,6 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 				}
 			});
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [createPeerConnection, getLocalStream]);
 
 	return (
