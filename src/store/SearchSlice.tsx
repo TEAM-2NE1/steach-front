@@ -9,13 +9,7 @@ import axios from "axios";
 
 // 커리큘럼 검색 초기 상태
 const initialState: SearchCurriculaState = {
-  curriculum_category: "",
-  order: "",
-  only_available: false,
-  search: "",
-  current_page_number: 1,
   total_page: 0,
-  page_size: 12,
   curricula: [],
   status: "idle",
   error: null,
@@ -52,8 +46,6 @@ const searchSlice = createSlice({
       .addCase(searchCurricula.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.curricula = action.payload.curricula;
-        state.current_page_number = action.payload.current_page_number;
-        state.page_size = action.payload.page_size;
         state.total_page = action.payload.total_page;
       })
       .addCase(searchCurricula.rejected, (state, action) => {
