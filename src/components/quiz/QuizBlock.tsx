@@ -51,7 +51,6 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
   const [startAnimation, setStartAnimation] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
-  // const [selectedChoiceIndex, setSelectedChoiceIndex] = useState<number | null>(null);
 
   const [statisticData, setStatisticData] = useState<StatisticData | null>(null);
   const [statisticRankData, setStatisticRankData] = useState<StatisticRankData | null>(null);
@@ -213,8 +212,8 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({ initialQuizData, onClose, trial
         >
           {showStatistic && (
             <div className="w-full">
-              <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0, 1, 8, 3]}} rankData = {statisticRankData} />
-              {/* <StatisticsChart dataset={{statistics: [0, 1, 8, 3]}} /> */}
+              <StatisticsChart dataset={statisticData ? {statistics: [0, 1, 8, 3]} : {statistics: [0, 1, 8, 3]}} rankData = {statisticRankData} />
+              {/* <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0, 1, 8, 3]}} rankData = {statisticRankData} /> //연동코드 */}
             </div>
           )}
         </div>
