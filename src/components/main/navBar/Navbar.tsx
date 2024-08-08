@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
 import NavbarLogin from "./NavbarLogin";
 import NavbarStudent from "./NavbarStudent";
 import NavbarTeacher from "./NavbarTeacher";
@@ -8,7 +9,7 @@ import { RootState } from "../../../store";
 const Navbar: React.FC = () => {
   const userDataString = localStorage.getItem("auth");
   const userData = userDataString ? JSON.parse(userDataString) : null;
-  useSelector((state: RootState) => state.auth)
+  useSelector((state: RootState) => state.auth);
 
   return (
     <>

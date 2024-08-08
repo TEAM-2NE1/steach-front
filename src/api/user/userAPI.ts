@@ -73,6 +73,20 @@ export const checkNicknameDuplicateApi = (nickname: string) => {
   return response;
 };
 
+// 학생 이메일 중복 확인
+export const checkStudentEmailDuplicateApi = (email: string) => {
+  const response = axios.get(`${BASE_URL}/api/v1/student/check-email/${email}`);
+
+  return response;
+};
+
+// 선생님 이메일 중복 확인
+export const checkTeacherEmailDuplicateApi = (email: string) => {
+  const response = axios.get(`${BASE_URL}/api/v1/teacher/check-email/${email}`);
+
+  return response;
+};
+
 // 내정보 수정 비밀번호 체크
 export const passwordCheck = async (password: string) => {
   try {

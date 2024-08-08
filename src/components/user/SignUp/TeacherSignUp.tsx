@@ -11,7 +11,10 @@ import {
   LoginForm,
   TeacherCheckForm,
 } from "../../../interface/auth/AuthInterface.tsx";
-import { checkUsernameDuplicateApi } from "../../../api/user/userAPI.ts";
+import {
+  checkUsernameDuplicateApi,
+  checkTeacherEmailDuplicateApi,
+} from "../../../api/user/userAPI.ts";
 import teacher from "../../../assets/teacher.png";
 import SpinnerComponent from "../../main/spinner/Spinner";
 
@@ -36,6 +39,7 @@ const TeacherSignUp: React.FC = () => {
   // 각종 검증 데이터 상태
   const [checkInfo, setCheckInfo] = useState<TeacherCheckForm>({
     usernameDuplicate: null,
+    emailDuplicate: null,
     passwordCoincidence: false,
   });
 
@@ -83,11 +87,24 @@ const TeacherSignUp: React.FC = () => {
     }));
   };
 
+  // 선생님 이메일 중복 확인
+  const handleCheckEmailDuplicate = async () => {
+    const response = await checkTeacherEmailDuplicateApi(formData.email);
+    setCheckInfo((prevState) => ({
+      ...prevState,
+      emailDuplicate: response.data.can_use,
+    }));
+  };
+
   // 회원가입 버튼 눌렀을때 onChange로 실시간으로 폼에 들어감
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // 만약 8자이상 16자이하라면 axios요청 보내기
-    if (checkInfo.usernameDuplicate && checkInfo.passwordCoincidence) {
+    if (
+      checkInfo.usernameDuplicate &&
+      checkInfo.emailDuplicate &&
+      checkInfo.passwordCoincidence
+    ) {
       requestSignUp();
     } else {
       // 아니면 경고 alert
@@ -246,9 +263,18 @@ const TeacherSignUp: React.FC = () => {
             </main>
           </section>
           <section>
-            <label htmlFor="email" className="text-2xl">
-              이메일
-            </label>
+            <header>
+              <label htmlFor="email" className="text-2xl">
+                이메일
+              </label>
+              <button
+                type="button"
+                className="m-3 p-2 rounded-md bg-red-200 text-white hover:bg-red-300"
+                onClick={handleCheckEmailDuplicate}
+              >
+                중복확인
+              </button>
+            </header>
             <main className="mb-2">
               <input
                 type="email"
@@ -260,6 +286,16 @@ const TeacherSignUp: React.FC = () => {
                 required
               />
             </main>
+            {checkInfo.emailDuplicate && (
+              <p className="mb-3 text-blue-500 text-sm">
+                사용 가능한 이메일입니다.
+              </p>
+            )}
+            {checkInfo.emailDuplicate === false && (
+              <p className="mb-3 text-red-500 text-sm">
+                이미 존재하는 이메일입니다.
+              </p>
+            )}
           </section>
           <section>
             <label htmlFor="file" className="text-2xl">
