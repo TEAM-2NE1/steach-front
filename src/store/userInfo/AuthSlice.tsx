@@ -45,7 +45,7 @@ export const signUpStudent = createAsyncThunk<UserState, StudentSignUpForm>(
       };
 
       const response = await signUpStudentApi(formDataToSend);
-
+      console.log();
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -133,11 +133,13 @@ export const logout = createAsyncThunk("user/logout", async (_, thunkAPI) => {
   if (userData.role === "TEACHER") {
     // 로컬 스토리지에서 사용자 정보 삭제
     localStorage.removeItem("auth");
+
     // 선생님 프로필 상태 초기화
     thunkAPI.dispatch(teacherReset());
   } else {
     // 로컬 스토리지에서 사용자 정보 삭제
     localStorage.removeItem("auth");
+
     // 학생 프로필 상태 초기화
     thunkAPI.dispatch(studentReset());
   }
