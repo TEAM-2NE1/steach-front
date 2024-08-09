@@ -1,3 +1,11 @@
+import { useNavigate, useParams } from "react-router-dom";
+import defaultImg from "../../../assets/default.png";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../../store";
+import TeacherMyLectureListButton from "./TeacherMyLectureListButton";
+import Spinner from "../../main/spinner/Spinner";
+import { Lecture } from "../../../interface/Curriculainterface";
 import {
   AccordionPanel,
   Accordion,
@@ -7,17 +15,14 @@ import {
   Box,
   Text,
 } from "@chakra-ui/react";
-import { useNavigate, useParams } from "react-router-dom";
-import defaultImg from "../../../assets/default.png";
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { AppDispatch, RootState } from "../../../store";
 import {
   getCurriculaDetail,
   getCurriculaLectureList,
-} from "../../../store/curriculaSlice";
-import { deleteCurriculaDetail } from "../../../store/curriculaSlice";
+  deleteCurriculaDetail,
+  CurriculasState,
+} from "../../../store/CurriculaSlice.tsx";
 import TeacherMyLectureListButton from "./TeacherMyLectureListButton";
+import DeleteModal from "../../main/modal/DeleteModal";
 import Spinner from "../../main/spinner/Spinner";
 
 const TeacherMyLectureList: React.FC = () => {
@@ -33,13 +38,13 @@ const TeacherMyLectureList: React.FC = () => {
 
   // 커리큘럼 단일 상태를 조회
   const lectures = useSelector(
-    (state: RootState) => state.curriculum.selectlectures
+    (state: RootState) => (state.curriculum as CurriculasState).selectlectures
   );
-  const status = useSelector((state: RootState) => state.curriculum.status);
+  const status = useSelector((state: RootState) => (state.curriculum as CurriculasState).status);
 
   // 단일 커리큘럼에 대한 강의 리스트 상태를 조회
   const lectureslist = useSelector(
-    (state: RootState) => state.curriculum.lectureslist
+    (state: RootState) => (state.curriculum as CurriculasState).lectureslist
   );
 
   // 페이지에 들어왔을때 curricula_id를 이용하여 함수 실행하기
@@ -56,13 +61,6 @@ const TeacherMyLectureList: React.FC = () => {
     const today = new Date(new Date().toISOString().slice(0, 10));
     const difference = today.getTime() - targetDate.getTime();
     return Math.floor(difference / (1000 * 60 * 60 * 24)); // 밀리초를 일 단위로 변환
-  };
-
-  // 커리큘럼 삭제
-  const handleCurriculaDelete = (curricula_id: string) => {
-    dispatch(deleteCurriculaDetail(curricula_id));
-    navigate(`/teacher/profile/${username}`);
-    window.location.reload();
   };
 
   return (
@@ -82,12 +80,8 @@ const TeacherMyLectureList: React.FC = () => {
             >
               커리큘럼 수정
             </button>
-            <button
-              onClick={() => handleCurriculaDelete(curricula_id!)}
-              className="mx-2 p-3 rounded-md bg-red-200 text-white shadow-md hover:bg-red-300"
-            >
-              커리큘럼 삭제
-            </button>
+            {/* 모달을 이용하여 삭제 */}
+            <DeleteModal purpose="curricula" />
           </div>
           <section className="flex items-center my-7">
             <img
@@ -126,15 +120,13 @@ const TeacherMyLectureList: React.FC = () => {
                   >
                     <AccordionButton className="bg-gray-200 hover:bg-gray-300">
                       <Box as="span" flex="1" textAlign="left" className="p-2">
-                        <Text className="text-2xl">
-                          [{lectures?.title}] {index + 1}주차 강의
-                        </Text>
+                        <Text className="text-2xl">&nbsp; {index + 1}주차 강의</Text>
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>
                     <AccordionPanel pb={4} className="p-3 bg-white">
                       {lectureslist?.lectures[index + 1].map(
-                        (lecture, index2) => {
+                        (lecture:Lecture, index2:number) => {
                           const daysAgo = calculateDaysAgo(
                             lecture.lecture_start_time.slice(0, 10)
                           );

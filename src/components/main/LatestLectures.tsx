@@ -16,8 +16,12 @@ import { useNavigate } from "react-router-dom";
 import defaultImg from "../../assets/default.png";
 import { AppDispatch, RootState } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
-import { getLastestLecturelist } from "../../store/curriculaSlice";
+import {
+  CurriculasState,
+  getLastestLecturelist,
+} from "../../store/CurriculaSlice.tsx";
 import Spinner from "./spinner/Spinner";
+import { Curricula } from "../../interface/Curriculainterface";
 
 const LatestLectures: React.FC = () => {
   SwiperCore.use([Navigation, Pagination]);
@@ -25,10 +29,16 @@ const LatestLectures: React.FC = () => {
   const navigate = useNavigate();
 
   const curricula = useSelector(
-    (state: RootState) => state.curriculum.returnLastestCurriculaList?.curricula
+    (state: RootState) =>
+      (state.curriculum as CurriculasState).returnLastestCurriculaList
+        ?.curricula
   );
-  const status = useSelector((state: RootState) => state.curriculum.status);
-  const error = useSelector((state: RootState) => state.curriculum.error);
+  const status = useSelector(
+    (state: RootState) => (state.curriculum as CurriculasState).status
+  );
+  const error = useSelector(
+    (state: RootState) => (state.curriculum as CurriculasState).error
+  );
 
   useEffect(() => {
     dispatch(getLastestLecturelist());
@@ -67,7 +77,7 @@ const LatestLectures: React.FC = () => {
                 className="flex justify-center grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
               >
                 {curricula && curricula.length > 0 ? (
-                  curricula.map((curriculum) => (
+                  curricula.map((curriculum: Curricula) => (
                     <SwiperSlide key={curriculum.curriculum_id}>
                       <Card className="m-3 bg-white rounded-xl shadow overflow-hidden">
                         <CardBody>

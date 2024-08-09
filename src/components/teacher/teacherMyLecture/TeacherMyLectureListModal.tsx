@@ -3,9 +3,10 @@ import { Modal, TimePicker } from "antd";
 import { Button } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  LecturesState,
   getLectureDetail,
   patchLectureDetail,
-} from "../../../store/LectureSlice";
+} from "../../../store/LectureSlice.tsx";
 import { RootState, AppDispatch } from "../../../store";
 import { PatchLecture } from "../../../interface/Curriculainterface";
 import dayjs from "dayjs";
@@ -23,7 +24,7 @@ const TeacherMyLectureListModal: React.FC<TeacherMyLectureListModalProps> = ({
   const format = "HH:mm";
 
   // 강의 상태 정보를 가져오기
-  const lecture = useSelector((state: RootState) => state.lectures.lecture);
+  const lecture = useSelector((state: RootState) => (state.lectures as LecturesState).lecture);
 
   // 모달 여닫는 상태
   const [isModalOpen, setIsModalOpen] = useState(false);

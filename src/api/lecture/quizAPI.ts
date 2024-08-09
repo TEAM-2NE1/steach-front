@@ -80,5 +80,7 @@ export const deleteQuizApi = async (quizId: number) => {
       Authorization: `Bearer ${token}`,
     },
   });
+
+  console.log("퀴즈 삭제 완료!");
   return response;
 };

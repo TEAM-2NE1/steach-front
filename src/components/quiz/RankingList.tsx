@@ -16,6 +16,7 @@ interface RankingsProps {
 const RankingsList: React.FC<RankingsProps> = ({ data }) => {
   const [displayedList, setDisplayedList] = useState<Ranking[]>(data.prev);
   const [animatedScores, setAnimatedScores] = useState<number[]>(data.prev.map(item => item.score));
+  const [animatedRanks, setAnimatedRanks] = useState<number[]>(data.prev.map(item => item.rank));
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isTranslationg2, setIsTransitioning2] = useState(false);
 
@@ -38,32 +39,66 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
           prevScores.map((score, index) => {
             const targetScore = data.current[index].score;
             const difference = targetScore - score;
-            const step = difference / totalSteps; // 각 프레임에서 변화할 양
+            let step = Math.ceil(difference / totalSteps); // 각 프레임에서 변화할 양
+  
+            // step이 너무 작아서 갱신이 안되는 경우를 방지하기 위해 최소값을 설정
+            if (Math.abs(step) < 1) {
+              step = difference >= 0 ? 1 : -1;
+            }
 
+            // 마지막 단계에서 정확하게 목표 점수로 맞추기 위한 조건
             if (Math.abs(difference) < Math.abs(step)) {
               return targetScore; // 마지막 단계에서는 정확하게 목표 점수로 맞춤
             }
-
+  
             return score + step;
           })
         );
       }, intervalTime); // 프레임 간격 50ms
+  
+      const interval2 = setInterval(() => {
+        setAnimatedRanks((prevRank) =>
+          prevRank.map((rank, index) => {
+            const targetRank = data.current[index].rank;
+            const difference = targetRank - rank;
+            let step = Math.ceil(difference / totalSteps); // 각 프레임에서 변화할 양
 
-      setTimeout(() => {
-        clearInterval(interval)
-        setIsTransitioning2(true)
+            // step이 너무 작아서 갱신이 안되는 경우를 방지하기 위해 최소값을 설정
+            if (Math.abs(step) < 1) {
+              step = difference >= 0 ? 1 : -1;
+            }
+
+            // 마지막 단계에서 정확하게 목표 점수로 맞추기 위한 조건
+            if (Math.abs(difference) < Math.abs(step)) {
+              return targetRank; // 마지막 단계에서는 정확하게 목표 점수로 맞춤
+            }
+  
+            return rank + step;
+          })
+        );
+      }, intervalTime); // 프레임 간격 50ms
+  
+      const timeoutId = setTimeout(() => {
+        clearInterval(interval);
+        clearInterval(interval2);
+        setIsTransitioning2(true); // 애니메이션이 종료된 후 상태 업데이트
       }, duration); // 1초 후 애니메이션 종료
-
-      return () => clearInterval(interval); // 인터벌 정리
+  
+      return () => {
+        clearInterval(interval);
+        clearInterval(interval2);
+        clearTimeout(timeoutId); // 타이머도 클리어하여 메모리 누수 방지
+      };
     }
   }, [isTransitioning, data.current]);
 
   return (
     <div style={{width: '70%'}}>
       <ul style={{ listStyle: 'none', padding: 0 }}>
-        {displayedList.map((item, index) => {
-          const prevRank = data.current.find(currentItem => currentItem.name === item.name)?.rank;
-          const currentRank = item.rank
+        {displayedList.map((item, index) => { //item은 prev
+          const currentRank = data.current.find(currentItem => currentItem.name === item.name)?.rank;
+          const currentScore = data.current.find(currentItem => currentItem.name === item.name)?.score;
+          const prevRank = item.rank
 
           return (
             <li
@@ -72,10 +107,10 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
                 style={{
                     transition: 'all 0.5s ease',
                     transform: (
-                        isTranslationg2 && item.rank !== prevRank && prevRank !== undefined ? 
-                        (item.rank - prevRank > 0) ?
-                        `translateY(${35 * (item.rank - prevRank)}px)`  :
-                        `translateY(${35 * (item.rank - prevRank)}px)`
+                        isTranslationg2 && item.rank !== currentRank && currentRank !== undefined ? 
+                          (item.rank - currentRank > 0) ?
+                          `translateY(${34 * (currentRank - prevRank)}px)`  :
+                          `translateY(${34 * (currentRank - prevRank)}px)`
                         : 'translateY(0)'
                     ),
                     color: 'black',
@@ -83,10 +118,10 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
             >
                 <div className="flex items-center justify-between w-full">
                     <div className="text-lg font-semibold">
-                        {item.rank}. {item.name}
+                        {isTranslationg2 ? currentRank : Math.round(animatedRanks[index])}. {item.name}
                     </div>
                     <div className="text-sm font-semibold text-black text-right">
-                        {Math.round(animatedScores[index])}
+                        {isTranslationg2 ? currentScore : Math.round(animatedScores[index])}
                     </div>
                 </div>
             </li>
