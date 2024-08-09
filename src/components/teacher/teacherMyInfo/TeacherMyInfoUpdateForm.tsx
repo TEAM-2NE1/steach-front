@@ -56,7 +56,7 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
     e.preventDefault();
     await dispatch(updateTeacherInfo(formData));
     localStorage.removeItem("passwordAuthToken");
-    navigate("/teacher/profile");
+    window.location.reload();
   };
 
   // 회원 탈퇴 요청

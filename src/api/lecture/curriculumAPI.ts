@@ -4,12 +4,11 @@ import {
   CurriculaFormData,
 } from "../../interface/Curriculainterface";
 import axios from "axios";
-import { BASE_URL } from "../BASE_URL";
+import { BASE_URL, getAuthToken } from "../BASE_URL";
 import { SearchSendCurricula } from "../../interface/search/SearchInterface";
 
-const IMG_SERVER_URL = "https://steach.ssafy.io:8082";
+const IMG_SERVER_URL = "http://steach.ssafy.io:8082";
 const Auth = localStorage.getItem("auth");
-const token = Auth ? JSON.parse(Auth).token : null;
 
 let AuthData: any;
 if (Auth) {
@@ -46,6 +45,8 @@ export const fetchCurricula = async (params: {
 export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
   "curricula/signup",
   async (newLectureData) => {
+    const token = await getAuthToken();
+
     const formData = new FormData();
     formData.append("userName", AuthData.username);
     formData.append("file", newLectureData.banner_img_url);
@@ -79,7 +80,7 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${AuthData.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -90,13 +91,13 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
 // [학생] 커리큘럼 수강신청
 export const applyToCurriculum = async (curricula_id: string) => {
   try {
-    console.log(AuthData.token);
+    const token = await getAuthToken();
     const response = await axios.post(
       `${BASE_URL}/api/v1/curricula/${curricula_id}/apply`,
       {},
       {
         headers: {
-          Authorization: `Bearer ${AuthData.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -126,6 +127,7 @@ export const petchCurriculumDetails = createAsyncThunk<
   Curricula,
   { newLectureData: any; id: any }
 >("curricula/update", async ({ newLectureData, id }) => {
+  const token = await getAuthToken();
   let bannerImgUrl;
 
   const formData = new FormData();
@@ -167,7 +169,7 @@ export const petchCurriculumDetails = createAsyncThunk<
     {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${AuthData.token}`,
+        Authorization: `Bearer ${token}`,
       },
     }
   );
@@ -190,11 +192,12 @@ export const fetchCurriculumLectures = async (curriculum_id: string) => {
 // 단일 커리큘럼 삭제
 export const deleteCurricula = async (curriculum_id: string) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.delete(
       `${BASE_URL}/api/v1/curricula/${curriculum_id}`,
       {
         headers: {
-          Authorization: `Bearer ${AuthData.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -209,9 +212,10 @@ export const deleteCurricula = async (curriculum_id: string) => {
 // 학생이 수강하는 커리큘럼 조회
 export const getStudentCurriculaList = async () => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${BASE_URL}/api/v1/students/curricula`, {
       headers: {
-        Authorization: `Bearer ${AuthData.token}`,
+        Authorization: `Bearer ${token}`,
       },
       params: {
         pageSize: 10,
@@ -229,9 +233,10 @@ export const getStudentCurriculaList = async () => {
 // 선생님이 강의하는 자신의 커리큘럼 조회
 export const getTeacherCurriculaList = async () => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${BASE_URL}/api/v1/teachers/curricula`, {
       headers: {
-        Authorization: `Bearer ${AuthData.token}`,
+        Authorization: `Bearer ${token}`,
       },
       params: {
         pageSize: null,
@@ -239,6 +244,25 @@ export const getTeacherCurriculaList = async () => {
       },
     });
 
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+// 학생이 볼 수 있는 선생님 수업리스트
+export const TargetTeacherCurriculaList = async (teachers_id: string) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/v1/teachers/curricula/${teachers_id}`,
+      {
+        params: {
+          pageSize: null,
+          currentPageNumber: null,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.log(error);
@@ -267,12 +291,14 @@ export const getCurriculimApply = async (curriculum_id: string) => {
 // [학생] 학생이 커리큘럼 수강 취소하기
 export const postCurriculimCancel = async (curriculum_id: string) => {
   try {
+    const token = await getAuthToken();
+
     const response = await axios.post(
       `${BASE_URL}/api/v1/curricula/${curriculum_id}/cancel`,
       {},
       {
         headers: {
-          Authorization: `Bearer ${AuthData.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -294,9 +320,6 @@ export const searchCurriculaApi = async (searchData: SearchSendCurricula) => {
       search: searchData.search,
       pageSize: searchData.pageSize,
       currentPageNumber: searchData.currentPageNumber,
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
     },
   });
 

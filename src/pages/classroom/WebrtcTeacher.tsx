@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import WebRTCVideo from '../../components/video';
 import { WebRTCUser } from '../../types';
+import WebrtcTeacherScreenShare from "./WebrtcTeacherScreenShare.tsx";
 
 const pc_config = {
 	iceServers: [
@@ -29,8 +30,53 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 	const [isVideoEnabled, setIsVideoEnabled] = useState(false);
 	const [isAudioEnabled, setIsAudioEnabled] = useState(false);
 	const [isAudioDisabledByTeacher, setIsAudioDisabledByTeacher] = useState(false);
+	const [isScreenShareEnabled, setIsScreenShareEnabled] = useState(false);
 	const [messages, setMessages] = useState<string[]>([]);
 	const [newMessage, setNewMessage] = useState('');
+	const [goScreenShare, setGoScreenShare] = useState(false);
+	const [screenShareStopSignal, setScreenShareStopSignal] = useState(false);
+
+	const toggleScreenShare = () => {
+		if(!goScreenShare){
+			setScreenShareStopSignal(false);
+			toggleScreenShareFunc();
+		}else{
+			setScreenShareStopSignal(true);
+		}
+	}
+
+	const toggleScreenShareFunc = () => {
+		if(goScreenShare){
+			setGoScreenShare(false);
+			setIsScreenShareEnabled(false);
+			if (socketRef.current) {
+				socketRef.current.emit('toggle_media', {
+					userId: socketRef.current.id,
+					email: userEmail,
+					videoEnabled: isVideoEnabled,
+					audioEnabled: isAudioEnabled,
+					audioDisabledByTeacher: isAudioDisabledByTeacher,
+					screenShareEnabled: false,
+					screenShareDisabledByTeacher: false
+				});
+			}
+		}else{
+			setGoScreenShare(true);
+			setIsScreenShareEnabled(true);
+			if (socketRef.current) {
+				socketRef.current.emit('toggle_media', {
+					userId: socketRef.current.id,
+					email: userEmail,
+					videoEnabled: isVideoEnabled,
+					audioEnabled: isAudioEnabled,
+					audioDisabledByTeacher: isAudioDisabledByTeacher,
+					screenShareEnabled: true,
+					screenShareDisabledByTeacher: false
+				});
+			}
+		}
+	}
+
 
 	const getLocalStream = useCallback(async () => {
 		try {
@@ -56,20 +102,22 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 				userRole: userRole,
 				videoEnabled: false,
 				audioEnabled: false,
-				audioDisabledByTeacher: false
+				audioDisabledByTeacher: false,
+				screenShareEnabled: false,
+				screenShareDisabledByTeacher: false
 			});
 		} catch (e) {
 			console.log(`getUserMedia error: ${e}`);
 		}
 	}, [roomId, userEmail, userRole]);
 
-	const createPeerConnection = useCallback((socketID: string, email: string, role: string, videoEnabled: boolean, audioEnabled: boolean, audioDisabledByTeacher: boolean) => {
+	const createPeerConnection = useCallback((socketID: string, email: string, role: string, videoEnabled: boolean, audioEnabled: boolean, audioDisabledByTeacher: boolean, screenShareEnabled: boolean, screenShareDisabledByTeacher: boolean) => {
 		try {
 			const pc = new RTCPeerConnection(pc_config);
+			if(email === userEmail + '_screen') return;
 
 			pc.onicecandidate = (e) => {
 				if (socketRef.current && e.candidate) {
-					console.log('onicecandidate');
 					socketRef.current.emit('candidate', {
 						candidate: e.candidate,
 						candidateSendID: socketRef.current.id,
@@ -83,7 +131,6 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			};
 
 			pc.ontrack = (e) => {
-				console.log('ontrack success');
 				setUsers((oldUsers) =>
 					oldUsers
 						.filter((user) => user.id !== socketID)
@@ -94,13 +141,14 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 							stream: e.streams[0],
 							videoEnabled: videoEnabled,
 							audioEnabled: audioEnabled,
-							audioDisabledByTeacher: audioDisabledByTeacher
+							audioDisabledByTeacher: audioDisabledByTeacher,
+							screenShareEnabled: screenShareEnabled,
+							screenShareDisabledByTeacher: screenShareDisabledByTeacher
 						}),
 				);
 			};
 
 			if (localStreamRef.current) {
-				console.log('localstream add');
 				localStreamRef.current.getTracks().forEach((track) => {
 					if (localStreamRef.current) {
 						pc.addTrack(track, localStreamRef.current);
@@ -125,8 +173,10 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			if (socketRef.current) {
 				socketRef.current.emit('toggle_media', {
 					userId: socketRef.current.id,
+					email: userEmail,
 					videoEnabled: videoTrack.enabled,
 					audioEnabled: isAudioEnabled,
+					screenShareEnabled: isScreenShareEnabled
 				});
 			}
 		}
@@ -140,24 +190,30 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			if (socketRef.current) {
 				socketRef.current.emit('toggle_media', {
 					userId: socketRef.current.id,
+					email: userEmail,
 					videoEnabled: isVideoEnabled,
 					audioEnabled: audioTrack.enabled,
+					screenShareEnabled: isScreenShareEnabled
 				});
 			}
 		}
 	};
 
 	const toggleStudentMic = (studentId: string, currentState: boolean | undefined) => {
-		console.log(`Toggling mic for student ${studentId}, current state: ${currentState}`);
 		if (socketRef.current) {
 			socketRef.current.emit('toggle_student_mic', { studentId, state: !currentState });
+		}
+	};
+
+	const toggleStudentScreenShare = (studentId: string, userEmail: string, currentState: boolean | undefined) => {
+		if (socketRef.current) {
+			socketRef.current.emit('toggle_student_screen_share', { studentId, userEmail: userEmail, state : !currentState });
 		}
 	};
 
 	const handleSendMessage = () => {
 		if (newMessage.trim() !== '') {
 			if (socketRef.current) {
-				console.log(`[SEND CHAT] ${userRole} / ${userEmail} / ${newMessage}`);
 				socketRef.current.emit('send_chat', {
 					senderRole: userRole,
 					senderEmail: userEmail,
@@ -172,10 +228,10 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 		socketRef.current = io.connect(SOCKET_SERVER_URL);
 		getLocalStream();
 
-		socketRef.current.on('all_users', (allUsers: Array<{ id: string; email: string; userRole: string; videoEnabled: boolean; audioEnabled: boolean; audioDisabledByTeacher: boolean }>) => {
+		socketRef.current.on('all_users', (allUsers: Array<{ id: string; email: string; userRole: string; videoEnabled: boolean; audioEnabled: boolean; audioDisabledByTeacher: boolean; offerSendScreenShareEnabled: boolean; offerSendScreenShareDisabledByTeacher: boolean; }>) => {
 			allUsers.forEach(async (user) => {
 				if (!localStreamRef.current) return;
-				const pc = createPeerConnection(user.id, user.email, user.userRole, user.videoEnabled, user.audioEnabled, user.audioDisabledByTeacher);
+				const pc = createPeerConnection(user.id, user.email, user.userRole, user.videoEnabled, user.audioEnabled, user.audioDisabledByTeacher, user.offerSendScreenShareEnabled, user.offerSendScreenShareDisabledByTeacher);
 				if (pc && socketRef.current) {
 					pcsRef.current = { ...pcsRef.current, [user.id]: pc };
 					try {
@@ -183,7 +239,6 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 							offerToReceiveAudio: true,
 							offerToReceiveVideo: true,
 						});
-						console.log('create offer success');
 						await pc.setLocalDescription(new RTCSessionDescription(localSdp));
 						socketRef.current.emit('offer', {
 							sdp: localSdp,
@@ -209,16 +264,16 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 				offerSendVideoEnabled: boolean;
 				offerSendAudioEnabled: boolean;
 				offerSendAudioDisabledByTeacher: boolean;
+				offerSendScreenShareEnabled: boolean;
+				offerSendScreenShareDisabledByTeacher: boolean;
 			}) => {
-				const { sdp, offerSendID, offerSendEmail, offerSendRole, offerSendVideoEnabled, offerSendAudioEnabled, offerSendAudioDisabledByTeacher } = data;
-				console.log('get offer');
+				const { sdp, offerSendID, offerSendEmail, offerSendRole, offerSendVideoEnabled, offerSendAudioEnabled, offerSendAudioDisabledByTeacher, offerSendScreenShareEnabled, offerSendScreenShareDisabledByTeacher} = data;
 				if (!localStreamRef.current) return;
-				const pc = createPeerConnection(offerSendID, offerSendEmail, offerSendRole, offerSendVideoEnabled, offerSendAudioEnabled, offerSendAudioDisabledByTeacher);
+				const pc = createPeerConnection(offerSendID, offerSendEmail, offerSendRole, offerSendVideoEnabled, offerSendAudioEnabled, offerSendAudioDisabledByTeacher, offerSendScreenShareEnabled, offerSendScreenShareDisabledByTeacher);
 				if (pc && socketRef.current) {
 					pcsRef.current = { ...pcsRef.current, [offerSendID]: pc };
 					try {
 						await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-						console.log('answer set remote description success');
 						const localSdp = await pc.createAnswer({
 							offerToReceiveVideo: true,
 							offerToReceiveAudio: true,
@@ -240,7 +295,6 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			'getAnswer',
 			(data: { sdp: RTCSessionDescription; answerSendID: string }) => {
 				const { sdp, answerSendID } = data;
-				console.log('get answer');
 				const pc: RTCPeerConnection = pcsRef.current[answerSendID];
 				if (pc) {
 					pc.setRemoteDescription(new RTCSessionDescription(sdp));
@@ -251,11 +305,9 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 		socketRef.current.on(
 			'getCandidate',
 			async (data: { candidate: RTCIceCandidateInit; candidateSendID: string }) => {
-				console.log('get candidate');
 				const pc: RTCPeerConnection = pcsRef.current[data.candidateSendID];
 				if (pc) {
 					await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-					console.log('candidate add success');
 				}
 			},
 		);
@@ -268,29 +320,17 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			}
 		});
 
-		socketRef.current.on('update_media', (data: { userId: string; videoEnabled: boolean; audioEnabled: boolean; audioDisabledByTeacher: boolean }) => {
-			console.log(`Updating media for user ${data.userId}: videoEnabled=${data.videoEnabled}, audioEnabled=${data.audioEnabled}, audioDisabledByTeacher=${data.audioDisabledByTeacher}`);
+		socketRef.current.on('update_media', (data: { userId: string; videoEnabled: boolean; audioEnabled: boolean; audioDisabledByTeacher: boolean, screenShareEnabled: boolean, screenShareDisabledByTeacher: boolean }) => {
 			setUsers((oldUsers) =>
 				oldUsers.map((user) =>
 					user.id === data.userId
-						? { ...user, videoEnabled: data.videoEnabled, audioEnabled: data.audioEnabled, audioDisabledByTeacher: data.audioDisabledByTeacher }
+						? { ...user, videoEnabled: data.videoEnabled, audioEnabled: data.audioEnabled, audioDisabledByTeacher: data.audioDisabledByTeacher, screenShareEnabled: data.screenShareEnabled, screenShareDisabledByTeacher: data.screenShareDisabledByTeacher}
 						: user,
 				),
 			);
-
-			// if (data.userId === socketRef.current?.id) {
-			// 	// setIsAudioDisabledByTeacher(!!data.audioDisabledByTeacher);
-			// 	if(data.audioDisabledByTeacher != null){
-			// 		setIsAudioDisabledByTeacher(data.audioDisabledByTeacher);
-			// 	}
-			// 	if (data.audioDisabledByTeacher) {
-			// 		setIsAudioEnabled(false);
-			// 	}
-			// }
 		});
 
 		socketRef.current.on('update_allow_mic', (data: { userId: string; audioEnabled: boolean; audioDisabledByTeacher: boolean }) => {
-			console.log(`Updating media for user ${data.userId}: audioEnabled=${data.audioEnabled}, audioDisabledByTeacher=${data.audioDisabledByTeacher}`);
 			setUsers((oldUsers) =>
 				oldUsers.map((user) =>
 					user.id === data.userId
@@ -301,7 +341,6 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 		});
 
 		socketRef.current.on('toggle_student_mic', (data: { userId: string; audioDisabledByTeacher: boolean }) => {
-			console.log(`Teacher toggled student's mic ${data.userId}: audioDisabledByTeacher=${data.audioDisabledByTeacher}`);
 
 			setUsers((oldUsers) =>
 				oldUsers.map((user) =>
@@ -317,13 +356,32 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 					setIsAudioEnabled(false);
 				}
 			}
+		});
 
-			// if (socketRef.current) {
-			// 	socketRef.current.emit('toggle_student_mic', {
-			// 		userId: socketRef.current.id,
-			// 		audioDisabledByTeacher: data.audioDisabledByTeacher
-			// 	});
-			// }
+
+		socketRef.current.on('toggle_student_screen_share', (data: { userId: string; screenShareDisabledByTeacher: boolean }) => {
+
+			setUsers((oldUsers) =>
+				oldUsers.map((user) =>
+					user.id === data.userId
+						? {...user, screenShareDisabledByTeacher: data.screenShareDisabledByTeacher}
+						: user,
+				),
+			);
+
+		});
+
+
+		socketRef.current.on('toggle_student_screen_share_complete', (data: { userId: string; screenShareDisabledByTeacher: boolean }) => {
+
+			setUsers((oldUsers) =>
+				oldUsers.map((user) =>
+					user.id === data.userId
+						? {...user, screenShareDisabledByTeacher: data.screenShareDisabledByTeacher}
+						: user,
+				),
+			);
+
 		});
 
 		socketRef.current.on('receive_chat', (data: { senderRole: string; senderEmail: string; receivedChat: string }) => {
@@ -341,34 +399,43 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 				}
 			});
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [createPeerConnection, getLocalStream]);
 
 	return (
 		<div>
 			<p>선생님 화면!!!</p>
-			<video
-				style={{
-					width: 240,
-					height: 240,
-					margin: 5,
-					backgroundColor: 'black',
-				}}
-				muted
-				ref={localVideoRef}
-				autoPlay
-			/>
-			<p>당신은 {userRole} 입니다.</p>
-			<p>카메라 상태: {isVideoEnabled ? 'ON' : 'OFF'} </p>
-			<p>마이크 상태: {isAudioEnabled ? 'ON' : 'OFF'} </p>
+			<div>
+				<div style={{display: 'inline-block'}}>
+					<video
+						style={{
+							width: 240,
+							height: 240,
+							margin: 5,
+							backgroundColor: 'lightyellow',
+						}}
+						muted
+						ref={localVideoRef}
+						autoPlay
+					/>
+					<p>당신은 {userRole} 입니다.</p>
+					<p>카메라 상태: {isVideoEnabled ? 'ON' : 'OFF'} </p>
+					<p>마이크 상태: {isAudioEnabled ? 'ON' : 'OFF'} </p>
+					<p>화면공유 상태: {isScreenShareEnabled ? 'ON' : 'OFF'} </p>
 
-			<button onClick={toggleVideo}>
-				{isVideoEnabled ? 'Turn Off Video' : 'Turn On Video'}
-			</button>
-			<button onClick={toggleAudio} disabled={isAudioDisabledByTeacher}>
-				{isAudioEnabled ? 'Turn Off Audio' : 'Turn On Audio'}
-			</button>
-			<p>Teacher Allowed: {isAudioDisabledByTeacher ? 'No' : 'Yes'}</p>
+					<button onClick={toggleVideo}>
+						{isVideoEnabled ? 'Turn Off Video' : 'Turn On Video'}
+					</button>
+					<button onClick={toggleAudio} disabled={isAudioDisabledByTeacher}>
+						{isAudioEnabled ? 'Turn Off Audio' : 'Turn On Audio'}
+					</button>
+				</div>
+				<div style={{display: 'inline-block'}}>
+					<button id="btn_start_screen_share" onClick={toggleScreenShare}>{isScreenShareEnabled ? '화면공유 중지하기' : '화면공유 시작하기'}</button>
+					{goScreenShare && (
+						<WebrtcTeacherScreenShare roomId={roomId} userEmail={userEmail + '_screen'} userRole={userRole + '_screen'} toggleScreenShareFunc={toggleScreenShareFunc} screenShareStopSignal={screenShareStopSignal}/>
+					)}
+				</div>
+			</div>
 			{users.map((user, index) => (
 				<div key={index}>
 					<WebRTCVideo
@@ -378,11 +445,18 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 						videoEnabled={user.videoEnabled}
 						audioEnabled={user.audioEnabled}
 						audioDisabledByTeacher={user.audioDisabledByTeacher}
+						screenShareEnabled={user.screenShareEnabled}
+						screenShareDisabledByTeacher={user.screenShareDisabledByTeacher}
 						muted={userRole !== 'teacher' && user.userRole !== 'teacher'} // Students can only see the teacher's video
 					/>
 					{userRole === 'teacher' && user.userRole === 'student' && (
 						<button onClick={() => toggleStudentMic(user.id, user.audioDisabledByTeacher)}>
 							{user.audioDisabledByTeacher ? 'Enable Mic' : 'Disable Mic'}
+						</button>
+					)}
+					{userRole === 'teacher' && user.userRole === 'student' && (
+						<button onClick={() => toggleStudentScreenShare(user.id, user.email, user.screenShareDisabledByTeacher)}>
+							{user.screenShareDisabledByTeacher ? '화면공유 허용시키기' : '화면공유 금지시키기'}
 						</button>
 					)}
 				</div>

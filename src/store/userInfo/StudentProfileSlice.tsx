@@ -24,7 +24,6 @@ export const fetchStudentInfo = createAsyncThunk<StudentInfo>(
   async (_, thunkAPI) => {
     try {
       const response = await studentInfoGet();
-
       return response;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

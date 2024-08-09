@@ -1,8 +1,7 @@
 import TeacherUpdateInfoModal from "./TeacherUpdateInfoModal";
 import { AppDispatch, RootState } from "../../../store";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { fetchTeacherInfo } from "../../../store/userInfo/TeacherProfileSlice";
 
 interface TeacherMyInfoProps {
@@ -13,12 +12,15 @@ const TeacherMyInfoForm: React.FC<TeacherMyInfoProps> = ({
   handleIsUpdateInfoSubmit,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
+
   useEffect(() => {
     dispatch(fetchTeacherInfo());
-  }, [dispatch]);
+  }, []);
+
   const teacherData = useSelector(
     (state: RootState) => state.teacherProfile.info
   );
+
   return (
     <div className="w-9/12 bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
       <form>

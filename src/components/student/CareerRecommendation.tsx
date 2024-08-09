@@ -8,7 +8,7 @@ import {
   Box,
   StackDivider,
 } from "@chakra-ui/react";
-import noteImage from "../../assets/noteImage.jpg";
+import noteImage from "../../assets/noteImage.png";
 
 const CareerRecommendation: React.FC = () => {
   return (

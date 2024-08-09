@@ -5,11 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getLectureDetail,
   patchLectureDetail,
-} from "../../../store/lectureSlice";
+} from "../../../store/LectureSlice";
 import { RootState, AppDispatch } from "../../../store";
 import { PatchLecture } from "../../../interface/Curriculainterface";
 import dayjs from "dayjs";
-import { getCurriculaDetail } from "../../../store/curriculaSlice";
 
 // props 인터페이스
 interface TeacherMyLectureListModalProps {

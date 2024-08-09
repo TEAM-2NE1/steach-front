@@ -3,7 +3,10 @@ export type WebRTCUser = {
 	email: string;
 	userRole: string;
 	stream: MediaStream;
+	screenShareStream?: MediaStream | undefined;
 	videoEnabled: boolean;
 	audioEnabled: boolean;
 	audioDisabledByTeacher: boolean;
+	screenShareEnabled: boolean;
+	screenShareDisabledByTeacher: boolean;
 };

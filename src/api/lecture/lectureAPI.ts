@@ -1,13 +1,12 @@
 import axios from "axios";
 import { Lecture, PatchLecture } from "../../interface/Curriculainterface";
 import { BASE_URL } from "../BASE_URL";
-
-// 토큰 가져오기
-const userData = localStorage.getItem("auth");
-const token = userData ? JSON.parse(userData).token : null;
+import { getAuthToken } from "../BASE_URL";
 
 // 강의 상세 조회
 export const getLectureDetailApi = async (lectureId: number) => {
+  const token = getAuthToken();
+
   const response = await axios.get(`${BASE_URL}/api/v1/lectures/${lectureId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -26,6 +25,8 @@ export const getLectureDetailApi = async (lectureId: number) => {
 
 // 강의 상세 업데이트
 export const patchLectureDetailApi = async (lectureData: PatchLecture) => {
+  const token = getAuthToken();
+
   // 강의 id 추출
   const lectureId = lectureData.lecture_id;
 

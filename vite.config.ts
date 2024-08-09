@@ -35,6 +35,9 @@ const handleMissingSourceMap: Plugin = {
 
 export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
   return {  
+    define: {
+      global: 'globalThis',
+    },
     optimizeDeps: {
       exclude: ['@ruffle-rs/ruffle'],
       esbuildOptions: {
