@@ -350,7 +350,7 @@ const LectureSignUp: React.FC = () => {
               강의 상세 설명
             </FormLabel>
             {/*  에디터 */}
-            <Editor data={formData.information} onChange={handleEditorChange} />
+            {/* <Editor data={formData.information} onChange={handleEditorChange} /> */}
             <div className="p-5 border my-5">
               <h1 className="text-6xl">강의 등록시 주의사항</h1>
               <ul>

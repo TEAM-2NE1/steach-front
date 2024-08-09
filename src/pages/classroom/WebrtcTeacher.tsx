@@ -36,6 +36,10 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 	const [goScreenShare, setGoScreenShare] = useState(false);
 	const [screenShareStopSignal, setScreenShareStopSignal] = useState(false);
 
+	const localStorageUserData = localStorage.getItem('auth');
+	const userData = localStorageUserData ? JSON.parse(localStorageUserData) : null;
+	console.log(userData)
+
 	const toggleScreenShare = () => {
 		if(!goScreenShare){
 			setScreenShareStopSignal(false);

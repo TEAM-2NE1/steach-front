@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams, useNavigate, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import {
   getCurriculaLectureList,
@@ -8,9 +8,10 @@ import {
   applyCurricula,
   applyCurriculaCheck,
   CurriculaCancel,
-} from "../../store/CurriculaSlice";
-import { getLecturelist } from "../../store/LectureSlice";
-import { useDispatch } from "react-redux";
+  CurriculasState,
+} from "../../store/CurriculaSlice.tsx";
+import { Lecture } from "../../interface/Curriculainterface.tsx";
+import { getLecturelist } from "../../store/LectureSlice.tsx";
 import img1 from "../../../src/assets/checked.jpg";
 import img2 from "../../../src/assets/unchecked.jpg";
 import img3 from "../../../src/assets/human.png";
@@ -36,18 +37,12 @@ const LectureDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const lectures = useSelector(
-    (state: RootState) => state.curriculum.selectlectures
-  );
-  const lectureslist = useSelector(
-    (state: RootState) => state.curriculum.lectureslist
-  );
+  const lectures = useSelector((state: RootState) => (state.curriculum as CurriculasState).selectlectures);
+  const lectureslist = useSelector((state: RootState) => (state.curriculum as CurriculasState).lectureslist);
 
-  const isApply = useSelector((state: RootState) => state.curriculum.isApply);
-  const status = useSelector((state: RootState) => state.curriculum.status);
-  const error = useSelector((state: RootState) => state.curriculum.error);
-  console.log(lectures)
-  console.log(lectureslist)
+  const isApply = useSelector((state: RootState) => (state.curriculum as CurriculasState).isApply);
+  const status = useSelector((state: RootState) => (state.curriculum as CurriculasState).status);
+  const error = useSelector((state: RootState) => (state.curriculum as CurriculasState).error);
 
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
@@ -97,12 +92,12 @@ const LectureDetail: React.FC = () => {
   }
 
   let startLecture: any;
-  function calculateDaysAgo(dateString: any) {
+  const calculateDaysAgo = (dateString: string): number => {
     const targetDate = new Date(dateString);
     const today = new Date(new Date().toISOString().slice(0, 10));
     const difference = today.getTime() - targetDate.getTime();
     return Math.floor(difference / (1000 * 60 * 60 * 24)); // 밀리초를 일 단위로 변환
-  }
+  };
 
   return (
     <>
@@ -231,7 +226,7 @@ const LectureDetail: React.FC = () => {
                   </AccordionButton>
                   <AccordionPanel pb={4} className="p-3 bg-white">
                     {lectureslist?.lectures[index + 1].map(
-                      (lecture, index2) => {
+                      (lecture:Lecture, index2:number) => {
                         const daysAgo = calculateDaysAgo(
                           lecture.lecture_start_time.slice(0, 10)
                         );
@@ -353,7 +348,7 @@ const LectureDetail: React.FC = () => {
               </div>
               <div>
                 <span className="hidden">
-                  {(startLecture = calculateDaysAgo(lectures?.start_date))}
+                  {(startLecture = calculateDaysAgo(lectures?.start_date ?? "default-date"))}
                 </span>
                 <ul>
                   <li>{lectures?.teacher_name} 강사님</li>
@@ -379,7 +374,7 @@ const LectureDetail: React.FC = () => {
             </div>
             <div>
               <span className="hidden">
-                {(startLecture = calculateDaysAgo(lectures?.start_date))}
+                {(startLecture = calculateDaysAgo(lectures?.start_date ?? "default-date"))}
               </span>
               <ul>
                 <li>{lectures?.teacher_name} 선생님</li>

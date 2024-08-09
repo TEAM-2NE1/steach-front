@@ -1,3 +1,11 @@
+import { useNavigate, useParams } from "react-router-dom";
+import defaultImg from "../../../assets/default.png";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../../store";
+import TeacherMyLectureListButton from "./TeacherMyLectureListButton";
+import Spinner from "../../main/spinner/Spinner";
+import { Lecture } from "../../../interface/Curriculainterface";
 import {
   AccordionPanel,
   Accordion,
@@ -7,18 +15,12 @@ import {
   Box,
   Text,
 } from "@chakra-ui/react";
-import { useNavigate, useParams } from "react-router-dom";
-import defaultImg from "../../../assets/default.png";
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { AppDispatch, RootState } from "../../../store";
 import {
   getCurriculaDetail,
   getCurriculaLectureList,
-} from "../../../store/CurriculaSlice";
-import { deleteCurriculaDetail } from "../../../store/CurriculaSlice";
-import TeacherMyLectureListButton from "./TeacherMyLectureListButton";
-import Spinner from "../../main/spinner/Spinner";
+  deleteCurriculaDetail,
+  CurriculasState,
+} from "../../../store/CurriculaSlice.tsx";
 
 const TeacherMyLectureList: React.FC = () => {
   const navigate = useNavigate();
@@ -33,13 +35,13 @@ const TeacherMyLectureList: React.FC = () => {
 
   // 커리큘럼 단일 상태를 조회
   const lectures = useSelector(
-    (state: RootState) => state.curriculum.selectlectures
+    (state: RootState) => (state.curriculum as CurriculasState).selectlectures
   );
-  const status = useSelector((state: RootState) => state.curriculum.status);
+  const status = useSelector((state: RootState) => (state.curriculum as CurriculasState).status);
 
   // 단일 커리큘럼에 대한 강의 리스트 상태를 조회
   const lectureslist = useSelector(
-    (state: RootState) => state.curriculum.lectureslist
+    (state: RootState) => (state.curriculum as CurriculasState).lectureslist
   );
 
   // 페이지에 들어왔을때 curricula_id를 이용하여 함수 실행하기
@@ -134,7 +136,7 @@ const TeacherMyLectureList: React.FC = () => {
                     </AccordionButton>
                     <AccordionPanel pb={4} className="p-3 bg-white">
                       {lectureslist?.lectures[index + 1].map(
-                        (lecture, index2) => {
+                        (lecture:Lecture, index2:number) => {
                           const daysAgo = calculateDaysAgo(
                             lecture.lecture_start_time.slice(0, 10)
                           );
