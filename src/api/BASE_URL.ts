@@ -1,4 +1,4 @@
-export const BASE_URL = "http://steach.ssafy.io:8083";
+export const BASE_URL = "http://localhost:8083";
 
 // 토큰을 가져오는 함수
 export const getAuthToken = () => {

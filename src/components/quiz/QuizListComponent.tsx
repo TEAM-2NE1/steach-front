@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BASE_URL } from "../../api/BASE_URL.ts";
 import DetailQuiz from './QuizBlock.tsx';
+import { getAuthToken } from "../../api/BASE_URL";
 
 export interface QuizResponseDTO {
   quiz_id: number;
@@ -18,8 +19,6 @@ interface QuizListComponentProps {
   trialTimer?: number;
 }
 
-const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjMxMDUzMzksImV4cCI6MTcyOTEwNTMzOSwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.uyMfUDDiF46n296z2x4908K7U8Tmd6PYpmmnJJfdmZc';
-
 const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion, trialTimer}) => {
   const [quizzes, setQuizzes] = useState<QuizResponseDTO[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<QuizResponseDTO | null>(null);
@@ -28,6 +27,8 @@ const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion, tria
 
   useEffect(() => {
     const fetchQuizData = async () => {
+      const token = getAuthToken();
+
       try {
         const response = await axios.get(`${BASE_URL}/api/v1/quizzes/lecture/2240`, {
           headers: {

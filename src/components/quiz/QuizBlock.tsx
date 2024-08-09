@@ -6,6 +6,9 @@ import { BASE_URL } from "../../api/BASE_URL";
 import StatisticsChart from "./StatisticsChart";
 import maruGif from "./toktokmaru.gif";
 import { QuizResponseDTO } from "./QuizListComponent";
+import { getToken } from "@chakra-ui/react";
+import { getAuthToken } from "../../api/BASE_URL";
+import { QuizDetailForm } from "../../interface/quiz/QuizInterface";
 
 // interface QuizData {
 //   quiz_id: number;
@@ -39,7 +42,7 @@ export interface ApiResponse {
 }
 
 interface DetailQuizProps {
-  initialQuizData: QuizResponseDTO;
+  initialQuizData: QuizDetailForm;
   onClose: () => void;
   trialVersion?: boolean;
   trialTimer?: number;
@@ -77,8 +80,8 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
   const [showStatistic, setShowStatstic] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const token =
-    "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjMxMDUzMzksImV4cCI6MTcyOTEwNTMzOSwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.uyMfUDDiF46n296z2x4908K7U8Tmd6PYpmmnJJfdmZc";
+  const token = getAuthToken();
+  
   useEffect(() => {
     if (showStatistic) {
       //통계불러오기
@@ -162,7 +165,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
     // 타이머 시작 후 몇 초가 지났는지 계산
     // const elapsedSeconds = initialQuizData.time - timer; // 초기 타이머 값이 3이므로, 현재 타이머 값(timer)으로부터 경과 시간을 계산
 
-    const score = (timer * 100) / initialQuizData.time;
+    const score = Math.round((timer * 100) / initialQuizData.time);
     console.log("점수는 " + score + "점!");
 
     //statistic axios
@@ -170,12 +173,13 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
       //pass
     } else {
       //선택지 클릭했을 때
+      console.log("lowvw: " + choiceSentence)
       axios
         .post(
-          `${BASE_URL}/api/v1/studentsQuizzes/1290`,
+          `${BASE_URL}/api/v1/studentsQuizzes/` + initialQuizData.quiz_id,
           {
             score: score,
-            student_choice: "choiceSentence",
+            student_choice: {choiceSentence},
           },
           {
             headers: {

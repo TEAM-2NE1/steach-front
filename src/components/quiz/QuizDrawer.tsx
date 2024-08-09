@@ -11,6 +11,7 @@ import {
 } from "@ant-design/icons";
 import DetailQuiz from "./QuizBlock";
 import { QuizResponseDTO } from "./QuizListComponent";
+import { QuizDetailForm } from "../../interface/quiz/QuizInterface";
 
 const QuizDrawer: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -29,7 +30,7 @@ const QuizDrawer: React.FC = () => {
 
   // 퀴즈 모달
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedQuiz, setSelectedQuiz] = useState<QuizResponseDTO | null>(
+  const [selectedQuiz, setSelectedQuiz] = useState<QuizDetailForm | null>(
     null
   );
 
@@ -85,14 +86,14 @@ const QuizDrawer: React.FC = () => {
   };
 
   //모달켜지기
-  const handleButtonClick = () => {
-    // setSelectedQuiz(quiz);
+  const handleButtonClick = (quiz: QuizDetailForm) => {
+    setSelectedQuiz(quiz);
     setIsModalOpen(true);
   };
 
   // 이 drawer을 켰을 때 퀴즈 리스트를 불러오기
   useEffect(() => {
-    dispatch(fetchLectureQuiz("5248"));
+    dispatch(fetchLectureQuiz("5536"));
   }, []);
 
   return (
@@ -233,18 +234,19 @@ const QuizDrawer: React.FC = () => {
           {/* 퀴즈 목록 */}
           <section>
             {quzzies?.map((quiz, index) => {
+              console.log(quiz)
               return (
                 <>
                   {
                     <button
                       key={quiz.quiz_id}
-                      onClick={() => handleButtonClick()}
+                      onClick={() => handleButtonClick(quiz)}
                       className="w-full text-left bg-blue-200 text-white p-2 mb-2 rounded hover:bg-blue-600 transition"
                     >
                       Quiz {quiz.quiz_number} - {quiz.question}
                     </button>
                   }
-                  {isModalOpen && (
+                  {isModalOpen && selectedQuiz && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                       <div className="bg-white rounded-lg shadow-lg w-[500px] relative">
                         {/* Close Button Overlapping DetailQuiz */}
@@ -260,7 +262,7 @@ const QuizDrawer: React.FC = () => {
                           <div className="rounded-lg overflow-hidden w-full">
                             <DetailQuiz
                               key={index}
-                              initialQuizData={{ ...quiz, time: 5 }}
+                              initialQuizData={selectedQuiz}
                               onClose={handleCloseModal}
                               trialVersion={false}
                               {...{ trialTimer: 5 }}
