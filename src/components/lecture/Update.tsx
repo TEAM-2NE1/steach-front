@@ -8,13 +8,13 @@ import banner from "../../assets/banner2.jpg";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store.tsx";
 import { petchCurriculumDetails } from "../../api/lecture/curriculumAPI.ts";
-import { getCurriculaDetail } from "../../store/CurriculaSlice.tsx";
+import { CurriculasState, getCurriculaDetail } from "../../store/CurriculaSlice.tsx";
 import { Curricula } from "../../interface/Curriculainterface.tsx";
 import { useParams, useNavigate } from "react-router-dom";
 
 const LectureUpdate: React.FC = () => {
   const lectures = useSelector(
-    (state: RootState) => state.curriculum.selectlectures
+    (state: RootState) => (state.curriculum as CurriculasState).selectlectures
   );
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
@@ -383,10 +383,10 @@ const LectureUpdate: React.FC = () => {
             <FormLabel htmlFor="datetime" className="text-2xl">
               강의 상세 설명
             </FormLabel>
-            <Editor
+            {/* <Editor
               data={formData?.information || ""}
               onChange={handleEditorChange}
-            />
+            /> */}
             <div className="p-5 border my-5">
               <h1 className="text-6xl">강의 등록시 주의사항</h1>
               <ul>
