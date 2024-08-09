@@ -1,11 +1,9 @@
 import { AppDispatch, RootState } from "../../../store";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { updateStudentInfo } from "../../../store/userInfo/StudentProfileSlice";
 import { fetchStudentInfo } from "../../../store/userInfo/StudentProfileSlice";
-import { deleteUserSteach } from "../../../store/userInfo/AuthSlice";
-import { logout } from "../../../store/userInfo/AuthSlice";
+import DeleteModal from "../../main/modal/DeleteModal";
 
 export interface StudentInfoUpdateForm {
   nickname: string;
@@ -17,7 +15,6 @@ export interface StudentInfoUpdateForm {
 const StudentMyInfoUpdateForm: React.FC = () => {
   const temporaryToken = localStorage.getItem("passwordAuthToken");
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
 
   const teacherData = useSelector(
     (state: RootState) => state.studentProfile.info
@@ -53,15 +50,6 @@ const StudentMyInfoUpdateForm: React.FC = () => {
     window.location.reload();
   };
 
-  // 회원 탈퇴 요청
-  const handleDelete = async () => {
-    dispatch(logout());
-    // 회원 탈퇴
-    await dispatch(deleteUserSteach());
-    // 메인페이지로 이동
-    navigate("/home");
-    window.location.reload();
-  };
   return (
     <div className="w-9/12 h-screen bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
       <form onSubmit={(e) => handleUpdateSubmit(e)}>
@@ -107,12 +95,8 @@ const StudentMyInfoUpdateForm: React.FC = () => {
           >
             수정하기
           </button>
-          <button
-            onClick={handleDelete}
-            className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
-          >
-            회원탈퇴
-          </button>
+          {/* 모달을 이용하여 삭제 */}
+          <DeleteModal purpose="student" />
         </div>
       </form>
     </div>

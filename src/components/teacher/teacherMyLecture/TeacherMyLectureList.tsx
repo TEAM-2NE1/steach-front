@@ -16,8 +16,8 @@ import {
   getCurriculaDetail,
   getCurriculaLectureList,
 } from "../../../store/CurriculaSlice";
-import { deleteCurriculaDetail } from "../../../store/CurriculaSlice";
 import TeacherMyLectureListButton from "./TeacherMyLectureListButton";
+import DeleteModal from "../../main/modal/DeleteModal";
 import Spinner from "../../main/spinner/Spinner";
 
 const TeacherMyLectureList: React.FC = () => {
@@ -58,13 +58,6 @@ const TeacherMyLectureList: React.FC = () => {
     return Math.floor(difference / (1000 * 60 * 60 * 24)); // 밀리초를 일 단위로 변환
   };
 
-  // 커리큘럼 삭제
-  const handleCurriculaDelete = (curricula_id: string) => {
-    dispatch(deleteCurriculaDetail(curricula_id));
-    navigate(`/teacher/profile/${username}`);
-    window.location.reload();
-  };
-
   return (
     <div className="grid grid-cols-12">
       <div className="col-span-1"></div>
@@ -82,12 +75,8 @@ const TeacherMyLectureList: React.FC = () => {
             >
               커리큘럼 수정
             </button>
-            <button
-              onClick={() => handleCurriculaDelete(curricula_id!)}
-              className="mx-2 p-3 rounded-md bg-red-200 text-white shadow-md hover:bg-red-300"
-            >
-              커리큘럼 삭제
-            </button>
+            {/* 모달을 이용하여 삭제 */}
+            <DeleteModal purpose="curricula" />
           </div>
           <section className="flex items-center my-7">
             <img
