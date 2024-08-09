@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -75,137 +75,155 @@ const PatchQuiz: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-12 bg-Beige">
-      <div className="col-span-3"></div>
-      <div className=" flex col-span-6 p-4 relative">
-        <button
-          className="p-3 absolute top-8 right-10 rounded-md bg-sky-200 text-white hover:bg-sky-300"
-          onClick={handleUpdateQuiz}
-        >
-          수정하기
-        </button>
-        <div className="hidden lg:flex lg:flex-row lg:justify-between lg:ml-0 my-auto">
-          {quiz.map((_, i) => (
-            <div key={i}>
-              <button
-                onClick={() => setTab(i + 1)}
-                className={`text-gray-600 py-4 px-6 mt-3 block rounded-2xl focus:outline-none ${
-                  tab === i + 1
-                    ? "bg-orange-200 text-white rounded-2xl"
-                    : "text-lightNavy hover:text-lightOrange"
-                }`}
-              >
-                Quiz {i + 1}
-              </button>
-            </div>
-          ))}
+    <div className="flex justify-center min-h-screen bg-gray-100 pt-10 pb-10">
+      <div className="bg-white border-4 border-beige-400 rounded-3xl p-6 w-3/5 h-3/4 flex flex-col justify-center overflow-y-auto relative">
+        <div className="flex items-center justify-between mb-6">
+          <div className="hidden lg:flex lg:flex-row lg:justify-between lg:ml-0 my-auto">
+            {quiz.map((_, i) => (
+              <div key={i}>
+                <button
+                  onClick={() => setTab(i + 1)}
+                  className={`text-gray-600 py-4 px-6 mt-3 block rounded-2xl focus:outline-none ${
+                    tab === i + 1
+                      ? "bg-orange-200 text-white rounded-2xl"
+                      : "text-lightNavy hover:text-lightOrange"
+                  }`}
+                >
+                  Quiz {i + 1}
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="hidden lg:flex space-x-4">
+            <button
+              className="mt-4 p-3 bg-blue-400 rounded-2xl text-xl text-white hover:bg-blue-600"
+              onClick={handleUpdateQuiz}
+            >
+              수정하기
+            </button>
+          </div>
         </div>
 
         {/* --------------------------------------------------------------- */}
         {/* 모바일 메뉴 */}
-        {isMenuOpen && (
-          <div className="flex flex-grow p-4 lg:hidden">
-            <ul className="flex flex-col mx-auto text-lg font-bold mt-4">
-              {quiz.map((_, i) => (
-                <div key={i} className="w-full flex flex-col">
-                  <li className="p-2">
+        <div className="lg:hidden">
+          <button onClick={toggleMenu} className="focus:outline-none">
+            <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} size="2x" />
+          </button>
+          {isMenuOpen && (
+            <div className="mt-4 flex flex-col">
+              <ul className="flex flex-col space-y-4 text-lg font-bold">
+                {quiz.map((_, i) => (
+                  <li key={i} className="flex justify-center">
                     <button
-                      onClick={() => setTab(i + 1)}
-                      className={`hover:text-orange-300 ${
+                      onClick={() => {
+                        setTab(i + 1);
+                        setIsMenuOpen(false);
+                      }}
+                      className={`w-24 text-center py-2 px-4 block rounded-2xl focus:outline-none ${
                         tab === i + 1
-                          ? ""
+                          ? "bg-orange-200 text-white"
                           : "text-lightNavy hover:text-lightOrange"
                       }`}
                     >
                       Quiz {i + 1}
                     </button>
                   </li>
-                </div>
-              ))}
-            </ul>
-          </div>
-        )}
-        {/* 햄버거 */}
-        <div className="ml-auto mt-5 lg:hidden">
-          <button onClick={toggleMenu} className="focus:outline-none">
-            <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} size="2x" />
-          </button>
+                ))}
+              </ul>
+              <div className="flex justify-evenly mt-4">
+                <button
+                  className="w-24 py-2 px-4 bg-blue-400 rounded-2xl text-center text-white hover:bg-blue-600"
+                  onClick={handleUpdateQuiz}
+                >
+                  수정하기
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         {/* --------------------------------------------------------------- */}
-      </div>
-      <div className="col-span-3"></div>
-      <div className="col-span-3"></div>
-      <form className="col-span-6 ">
-        <div className="p-4 flex justify-center">
-          {quiz.map((quizItem, i) => {
-            return (
-              tab === i + 1 && (
-                <div key={i} className="w-full">
-                  <div>
-                    <hr className="border-2 border-hardBeige"></hr>
-                    {/* 퀴즈 문제 */}
-                    <label htmlFor="question" className="mt-3 mx-3 text-2xl ">
-                      퀴즈 문제
-                    </label>
-                    <input
-                      type="text"
-                      id="question"
-                      name="question"
-                      value={quizItem.question}
-                      onChange={(e) =>
-                        handleChange(i, "question", e.target.value)
-                      }
-                      className="border-2 rounded-lg w-full p-2 mt-3"
-                      required
-                    />
 
-                    {/* 퀴즈 보기 */}
-                    <label
-                      htmlFor="choiceSentence"
-                      className="mt-3 mx-3 text-2xl "
-                    >
-                      퀴즈 보기
-                    </label>
-                    {quizItem.choices.map((choice, choicei) => (
-                      <div key={choicei}>
-                        <label className="mx-2">보기 {choicei + 1}</label>
-                        <br></br>
-                        <input
-                          type="text"
-                          value={choice}
-                          onChange={(e) =>
-                            handleChoiceChange(i, choicei, e.target.value)
-                          }
-                          className="border-2 rounded-lg p-2 mt-3"
-                          required
-                        />
-                      </div>
-                    ))}
-                    <label htmlFor="answers" className="text-2xl">
-                      정답
-                    </label>
-                    <select
-                      id="answers"
-                      name="answers"
-                      value={quizItem.answers}
-                      onChange={(e) =>
-                        handleChange(i, "answers", parseInt(e.target.value))
-                      }
-                      className="border-2 rounded-lg p-2 mb-5"
-                    >
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                    </select>
+        <form className="mt-6">
+          <div className="flex flex-col space-y-8">
+            <hr className="border-4 border-hardBeige mb-2 -mt-4"></hr>
+            {quiz.map((quizItem, i) => {
+              return (
+                tab === i + 1 && (
+                  <div key={i} className="w-full bg-white rounded-lg">
+                    <div>
+                      {/* 퀴즈 문제 */}
+                      <label
+                        htmlFor="question"
+                        className="mt-3 mx-3 text-3xl font-bold"
+                      >
+                        문제
+                      </label>
+                      <input
+                        type="text"
+                        id="question"
+                        name="question"
+                        value={quizItem.question}
+                        onChange={(e) =>
+                          handleChange(i, "question", e.target.value)
+                        }
+                        className="border-2 border-veryLightOrange rounded-lg w-full p-4 mt-4 focus:outline-none focus:ring-0 focus:border-hardBeige"
+                        required
+                      />
+
+                      <hr className="border-2 border-hardBeige my-10"></hr>
+
+                      {/* 퀴즈 선택지 */}
+                      <label
+                        htmlFor="choiceSentence"
+                        className="mt-3 mx-1 text-3xl font-bold"
+                      >
+                        선택지
+                      </label>
+                      {quizItem.choices.map((choice, choicei) => (
+                        <div key={choicei} className="my-4">
+                          <label className="mx-2 text-xl font-semibold">
+                            • 보기 {choicei + 1}
+                          </label>
+                          <input
+                            type="text"
+                            value={choice}
+                            onChange={(e) =>
+                              handleChoiceChange(i, choicei, e.target.value)
+                            }
+                            className="border-2 border-veryLightOrange rounded-lg w-full p-4 mt-4 focus:outline-none focus:ring-0 focus:border-hardBeige"
+                            required
+                          />
+                        </div>
+                      ))}
+                      <hr className="border-2 border-hardBeige my-10"></hr>
+
+                      {/* 정답 */}
+                      <label htmlFor="answers" className="text-3xl font-bold">
+                        정답
+                      </label>
+                      <select
+                        id="answers"
+                        name="answers"
+                        value={quizItem.answers}
+                        onChange={(e) =>
+                          handleChange(i, "answers", parseInt(e.target.value))
+                        }
+                        className="border-2 border-veryLightOrange rounded-lg p-4 mb-5 w-full mt-4 focus:outline-none focus:ring-0 focus:border-hardBeige"
+                      >
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-              )
-            );
-          })}
-        </div>
-      </form>
-      <div className="col-span-3"></div>
+                )
+              );
+            })}
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

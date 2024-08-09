@@ -21,10 +21,10 @@ import Game from "./pages/game/gamepage.tsx";
 import Man from "./pages/sub/Man.tsx";
 import Cat from "./pages/sub/Cat.tsx";
 import Reva from "./pages/sub/Reva.tsx";
-
 import SearchPage from "./pages/main/SearchPage.tsx";
 import MainPage from "./pages/main/MainPage.tsx";
 import QuizTest from "./components/quiz/QuizTest.tsx";
+import QuizDrawer from "./components/quiz/QuizDrawer.tsx";
 
 const App: React.FC = () => {
   return (
@@ -83,6 +83,7 @@ const App: React.FC = () => {
         <Route path="/game/reva" element={<Reva />}></Route>
         <Route path="/search" element={<SearchPage />}></Route>
         <Route path="/privacy" element={<QuizTest />}></Route>
+        <Route path="/drawer" element={<QuizDrawer />}></Route>
       </Routes>
       <Footer />
     </div>
