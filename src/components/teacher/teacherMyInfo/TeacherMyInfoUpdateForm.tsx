@@ -70,7 +70,7 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
     window.location.reload();
   };
   return (
-    <div className="w-9/12 bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
+    <div className="mx-auto my-12 p-6 w-9/12 bg-moreBeige rounded-xl shadow-md relative">
       <form onSubmit={(e) => handleUpdateSubmit(e)}>
         <h1 className="my-2 p-2 text-center text-4xl text-lightNavy">
           내정보 수정
@@ -139,18 +139,21 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
             required
           />
         </div>
-        <button
-          onClick={(e) => handleUpdateSubmit(e)}
-          className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
-        >
-          수정하기
-        </button>
-        <button
-          onClick={handleDelete}
-          className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
-        >
-          회원탈퇴
-        </button>
+        <section className="flex justify-end">
+          <button
+            type="submit"
+            className="mx-2 p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
+          >
+            수정하기
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="mx-2 p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
+          >
+            회원탈퇴
+          </button>
+        </section>
       </form>
     </div>
   );
