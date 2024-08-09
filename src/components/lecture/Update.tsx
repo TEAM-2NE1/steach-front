@@ -8,7 +8,7 @@ import banner from "../../assets/banner2.jpg";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store.tsx";
 import { petchCurriculumDetails } from "../../api/lecture/curriculumAPI.ts";
-import { getCurriculaDetail } from "../../store/CurriculaSlice.tsx";
+import { getCurriculaDetail } from "../../store/curriculaSlice.tsx";
 import { Curricula } from "../../interface/Curriculainterface.tsx";
 import { useParams, useNavigate } from "react-router-dom";
 

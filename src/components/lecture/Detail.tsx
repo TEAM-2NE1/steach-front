@@ -8,7 +8,7 @@ import {
   applyCurricula,
   applyCurriculaCheck,
   CurriculaCancel,
-} from "../../store/CurriculaSlice";
+} from "../../store/curriculaSlice";
 import { getLecturelist } from "../../store/LectureSlice";
 import { useDispatch } from "react-redux";
 import img1 from "../../../src/assets/checked.jpg";
@@ -46,8 +46,8 @@ const LectureDetail: React.FC = () => {
   const isApply = useSelector((state: RootState) => state.curriculum.isApply);
   const status = useSelector((state: RootState) => state.curriculum.status);
   const error = useSelector((state: RootState) => state.curriculum.error);
-  console.log(lectures)
-  console.log(lectureslist)
+  console.log(lectures);
+  console.log(lectureslist);
 
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(true);

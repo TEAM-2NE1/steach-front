@@ -15,8 +15,8 @@ import { AppDispatch, RootState } from "../../../store";
 import {
   getCurriculaDetail,
   getCurriculaLectureList,
-} from "../../../store/CurriculaSlice";
-import { deleteCurriculaDetail } from "../../../store/CurriculaSlice";
+} from "../../../store/curriculaSlice";
+import { deleteCurriculaDetail } from "../../../store/curriculaSlice";
 import TeacherMyLectureListButton from "./TeacherMyLectureListButton";
 import Spinner from "../../main/spinner/Spinner";
 
