@@ -10,8 +10,8 @@ import {
   CurriculaCancel,
   CurriculasState,
 } from "../../store/CurriculaSlice.tsx";
-import { Lecture } from "../../interface/Curriculainterface.tsx";
 import { getLecturelist } from "../../store/LectureSlice.tsx";
+import { Lecture } from "../../interface/Curriculainterface.tsx";
 import img1 from "../../../src/assets/checked.jpg";
 import img2 from "../../../src/assets/unchecked.jpg";
 import img3 from "../../../src/assets/human.png";
@@ -27,6 +27,18 @@ import {
 } from "@chakra-ui/react";
 import defaultImg from "../../assets/default.png";
 import Spinner from "../main/spinner/Spinner";
+import DOMPurify from 'dompurify'
+// import Markdown from "../main/Markdown.tsx";
+
+const sanitizedData = (htmlString: string) => ({
+  __html: htmlString ? DOMPurify.sanitize(htmlString) : 'error'
+})
+
+// function decodeHtml(html) {
+//   const text = document.createElement("textarea");
+//   text.innerHTML = html;
+//   return text.value;
+// }
 
 const LectureDetail: React.FC = () => {
   // 이진송
@@ -37,6 +49,8 @@ const LectureDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  // const [lectureDescription, setLectureDescription] = useState('');
+  const [lectureDescription, setLectureDescription] = useState<{ __html: string }>({ __html: '' });
   const lectures = useSelector((state: RootState) => (state.curriculum as CurriculasState).selectlectures);
   const lectureslist = useSelector((state: RootState) => (state.curriculum as CurriculasState).lectureslist);
 
@@ -77,6 +91,12 @@ const LectureDetail: React.FC = () => {
     setToday(formattedDate);
   }, []);
 
+  useEffect(() => {
+    if(lectures?.information){
+      setLectureDescription(sanitizedData(lectures?.information));
+    }
+  }, [lectures]);
+
   async function applyCurriculaBtn() {
     if (id) {
       await dispatch(applyCurricula(id));
@@ -99,6 +119,8 @@ const LectureDetail: React.FC = () => {
     return Math.floor(difference / (1000 * 60 * 60 * 24)); // 밀리초를 일 단위로 변환
   };
 
+
+  console.log('raw Data: ', lectures?.information);
   return (
     <>
       <header className="flex bg-gray-800 text-white text-left py-2.5 justify-center">
@@ -157,9 +179,42 @@ const LectureDetail: React.FC = () => {
             <h1 className="text-5xl" id="intro">
               강의 소개
             </h1>
-            <div className="bg-gray-200 rounded-lg p-10 my-10">
-              <p className="text-xl">{lectures?.information}</p>
-            </div>
+            <style>{`
+            
+              .lecture-content{
+                font-weight: revert;
+                margin: 2em 1em 2em 1em;
+                padding: 3em;
+                border-radius: 20px;
+                // padding: 3em 2em 3em 2em;
+                background: #f2f2f2;
+              }
+            
+              .lecture-content ul, .lecture-content ol {
+                padding-left: 20px;
+                list-style: revert;
+              }
+              
+              .lecture-content h1, h2, h3, h4, h5, h6 {
+                font-weight: 700;
+                font-size: revert;
+              }
+              
+              blockquote {
+                max-width: 100%;
+                margin: 0.5rem auto;
+                padding: 0.5rem 1.5rem;
+                background: #fff;
+                border-left: 6px solid #b8b8b8;
+                &::before, &::after{
+                  position: absolute;
+                  left: 0;
+                  font-size: 1rem;
+                  color: #b8b8b8;
+                }
+              }`
+            }</style>
+            <div className="lecture-content" dangerouslySetInnerHTML={lectureDescription}/>
           </div>
           <h1 className="text-5xl pt-10" id="day">
             강의 요일

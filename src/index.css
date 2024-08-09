@@ -4,15 +4,10 @@
 
 @font-face {
   font-family: "lineseed";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_11-01@1.0/LINESeedKR-Bd.woff2")
-    format("woff2");
-  font-weight: 700;
+  src: url("https://cdn.jsdelivr.net/gh/wizfile/font/LINESeedKR-Rg.woff") format("woff");
   font-style: normal;
 }
 
 body {
-  /* @apply font-malang; */
-  /* @apply font-dongle; */
-  /* @apply font-noto-sans; */
   @apply font-lineseed;
 }

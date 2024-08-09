@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useRef, useState} from "react";
 import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { TbArrowsRight } from "react-icons/tb";
 import checkimg from "../../assets/checked.jpg";
@@ -8,10 +8,13 @@ import { SignUpLecture } from "../../api/lecture/curriculumAPI.ts";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store.tsx";
 import { CurriculaFormData } from "../../interface/Curriculainterface.tsx";
-import Editor from "../main/Editor.tsx";
+
+import type { Editor } from '@toast-ui/react-editor';
+import ToastEditor from "../main/ToastEditor.tsx";
 
 const LectureSignUp: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
+  const editorRef = useRef<Editor>(null);
 
   type Weekday = "월" | "화" | "수" | "목" | "금" | "토" | "일";
   const [activeDays, setActiveDays] = useState<{ [key in Weekday]: boolean }>({
@@ -52,6 +55,24 @@ const LectureSignUp: React.FC = () => {
     일: 1,
   };
 
+  // const encodeHtml = (str: string) => {
+  //   return str.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+  //     return '&#'+i.charCodeAt(0)+';';
+  //   });
+  // };
+
+  const getContents = () => {
+    const markdownContent = editorRef.current?.getInstance().getMarkdown().replace(/(?:\r\n|\r|\n)/g, '\\\\n');
+    const htmlContent = editorRef.current?.getInstance().getHTML();
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        information: encodeHtml(htmlContent),
+      }));
+
+    console.log('[Toast Editor - Markdown]\n', markdownContent, '\n\n[Toast Editor - HTML]\n', htmlContent)
+  }
+
+
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -70,12 +91,12 @@ const LectureSignUp: React.FC = () => {
     }
   };
 
-  const handleEditorChange = (data: string) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      information: data,
-    }));
-  };
+  // const handleEditorChange = (data: string) => {
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     information: data,
+  //   }));
+  // };
 
   const handleCheckboxChange = (day: Weekday) => {
     setActiveDays((prevActiveDays) => {
@@ -102,31 +123,28 @@ const LectureSignUp: React.FC = () => {
     return bitmask.toString(2).padStart(7, "0");
   };
 
-  const stripHtmlTags = (htmlContent: string): string => {
-    const doc = new DOMParser().parseFromString(htmlContent, "text/html");
-    const textContent = Array.from(doc.body.childNodes)
-      .map((node) => {
-        if (node.nodeName === "BR") {
-          return "\n";
-        } else if (node.nodeName === "P") {
-          return node.textContent + "\n";
-        } else {
-          return node.textContent;
-        }
-      })
-      .join("");
-    return textContent.trim();
+  const encodeHtml = (htmlContent: string): string => {
+    // Create a new DOMParser instance
+    const parser = new DOMParser();
+    // Parse the HTML string into a document object
+    const doc = parser.parseFromString(htmlContent, "text/html");
+    // Serialize the document back to a string to ensure it's valid HTML
+    return new XMLSerializer().serializeToString(doc.body);
   };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    getContents();
     const formDataToSend = {
       ...formData,
-      intro: stripHtmlTags(formData.intro),
-      information: stripHtmlTags(formData.information),
+      // intro: encodeHtmlTags(formData.intro),
+      // information: encodeHtmlTags(formData.information),
+      intro: (formData.intro),
+      information: (formData.information),
       weekdays_bitmask: formatBitmask(formData.weekdays_bitmask),
     };
-    console.log('a')
+    console.log(formDataToSend);
     dispatch(SignUpLecture(formDataToSend));
   };
 
@@ -350,7 +368,7 @@ const LectureSignUp: React.FC = () => {
               강의 상세 설명
             </FormLabel>
             {/*  에디터 */}
-            {/* <Editor data={formData.information} onChange={handleEditorChange} /> */}
+            <ToastEditor content={formData.information} editorRef={editorRef}/>
             <div className="p-5 border my-5">
               <h1 className="text-6xl">강의 등록시 주의사항</h1>
               <ul>
@@ -372,7 +390,7 @@ const LectureSignUp: React.FC = () => {
                 </li>
               </ul>
             </div>
-            <button type="submit">버튼임</button>
+            <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={getContents} type="submit">등록하기</button>
           </FormControl>
         </form>
       </div>
