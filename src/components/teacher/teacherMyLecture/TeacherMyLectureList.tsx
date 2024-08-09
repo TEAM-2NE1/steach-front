@@ -128,9 +128,7 @@ const TeacherMyLectureList: React.FC = () => {
                   >
                     <AccordionButton className="bg-gray-200 hover:bg-gray-300">
                       <Box as="span" flex="1" textAlign="left" className="p-2">
-                        <Text className="text-2xl">
-                          [{lectures?.title}] {index + 1}주차 강의
-                        </Text>
+                        <Text className="text-2xl">&nbsp; {index + 1}주차 강의</Text>
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>

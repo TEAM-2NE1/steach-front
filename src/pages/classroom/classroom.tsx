@@ -10,13 +10,14 @@ const Classroom = () => {
 	const [userEmail, setUserEmail] = useState("");
 	const [role, setRole] = useState("");
 	const [hidden, setHidden] = useState(0);
-	const { curricula_id } = useParams<string>();
+	const { lecture_id } = useParams<string>();
+
 	useEffect(() => {
 		const localStorageUserData = localStorage.getItem('auth')
 		const userData = localStorageUserData ? JSON.parse(localStorageUserData) : null;
-		if (userData.email && curricula_id) {
+		if (userData.email && lecture_id) {
 			setRole(userData.role)
-			setRoomId(curricula_id)
+			setRoomId(lecture_id)
 			setUserEmail(userData.email)
 		}
 	}, [])
@@ -50,7 +51,7 @@ const Classroom = () => {
 			<input
 				type="text"
 				id="tb_roomid"
-				value={curricula_id}
+				value={lecture_id}
 				onChange={(e) => setRoomId(e.target.value)}
 				placeholder="Enter Room ID"
 				/>

@@ -4,6 +4,23 @@ import WebRTCVideo from '../../components/video';
 import { WebRTCUser } from '../../types';
 import WebrtcTeacherScreenShare from "./WebrtcTeacherScreenShare.tsx";
 
+import { Drawer, FloatButton } from "antd";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../../store";
+import { fetchLectureQuiz } from "../../store/QuizSlice";
+import {
+  AudioMutedOutlined,
+  AudioOutlined,
+  EllipsisOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
+import { QuizResponseDTO } from '../../components/quiz/QuizListComponent.tsx';
+import { QuizFetchListForm, QuizState } from '../../interface/quiz/QuizInterface.ts';
+import { AsyncThunkAction, Dispatch, AnyAction } from '@reduxjs/toolkit';
+import { useParams } from 'react-router-dom';
+// import DetailQuiz from "./QuizBlock";
+// import { QuizResponseDTO } from "./QuizListComponent";
+
 const pc_config = {
 	iceServers: [
 		{
@@ -36,9 +53,95 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 	const [goScreenShare, setGoScreenShare] = useState(false);
 	const [screenShareStopSignal, setScreenShareStopSignal] = useState(false);
 
-	const localStorageUserData = localStorage.getItem('auth');
-	const userData = localStorageUserData ? JSON.parse(localStorageUserData) : null;
-	console.log(userData)
+// --------------------------------------------------------------
+	const dispatch = useDispatch<AppDispatch>();
+	const { lecture_id } = useParams();
+	
+  // drawer 여닫기
+  const [open, setOpen] = useState(false);
+
+  // 마이크 음소거 여부
+  const [isMicroPhoneMute, setIsMicroPhoneMute] = useState(false);
+
+  // 소리 음소거 여부
+  const [isAudioMute, setIsAudioMute] = useState(false);
+
+  // 화면 출력 여부
+	const [isOnVideo, setIsOnVideo] = useState(false);
+	
+  // 화면 출력 여부
+  const [chating, setChating] = useState(false);
+
+  // 퀴즈 모달
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedQuiz, setSelectedQuiz] = useState<QuizResponseDTO | null>(
+    null
+	);
+	const { status } = useSelector((state: RootState) => (state.quiz as QuizState));
+  const quzzies = useSelector((state: RootState) => (state.quiz as QuizState).quizzes);
+
+  // Drawer 여는 함수
+  const showDrawer = () => {
+    if (open) {
+      setOpen(false);
+    } else {
+      setOpen(true);
+    }
+  };
+
+  // Drawer 닫는 함수
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  // 마이크 음소거 여부 핸들러 함수
+  const handleIsMicroPhoneMute = () => {
+    if (isMicroPhoneMute) {
+      setIsMicroPhoneMute(false);
+    } else {
+      setIsMicroPhoneMute(true);
+    }
+  };
+
+  // 소리 음소거 여부 핸들러 함수
+  const handleIsAudioMute = () => {
+    if (isAudioMute) {
+      setIsAudioMute(false);
+    } else {
+      setIsAudioMute(true);
+    }
+  };
+
+  // 자신의 화면 출력 여부 핸들러 함수
+  const handleIsOnVideo = () => {
+    if (isOnVideo) {
+      setIsOnVideo(false);
+    } else {
+      setIsOnVideo(true);
+    }
+  };
+
+  // 퀴즈 모달 핸들러 함수
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedQuiz(null);
+  };
+
+  //모달켜지기
+  const handleButtonClick = () => {
+    setIsModalOpen(true);
+  };
+
+  // 이 drawer을 켰을 때 퀴즈 리스트를 불러오기
+	useEffect(() => {
+		if (lecture_id) {
+			dispatch(fetchLectureQuiz(lecture_id));
+		}
+  }, []);
+
+
+// ----------------------------------------------------------------
 
 	const toggleScreenShare = () => {
 		if(!goScreenShare){
@@ -173,6 +276,7 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 		const videoTrack = localStreamRef.current?.getVideoTracks()[0];
 		if (videoTrack) {
 			videoTrack.enabled = !videoTrack.enabled;
+			setIsOnVideo(videoTrack.enabled)
 			setIsVideoEnabled(videoTrack.enabled);
 			if (socketRef.current) {
 				socketRef.current.emit('toggle_media', {
@@ -426,19 +530,139 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 					<p>마이크 상태: {isAudioEnabled ? 'ON' : 'OFF'} </p>
 					<p>화면공유 상태: {isScreenShareEnabled ? 'ON' : 'OFF'} </p>
 
-					<button onClick={toggleVideo}>
-						{isVideoEnabled ? 'Turn Off Video' : 'Turn On Video'}
+					{/* 비디오 */}
+				{isOnVideo && (
+						<button
+						onClick={toggleVideo}
+            className="fixed top-90 left-14 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-200"
+						>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+							>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
+								/>
+            </svg>
 					</button>
-					<button onClick={toggleAudio} disabled={isAudioDisabledByTeacher}>
-						{isAudioEnabled ? 'Turn Off Audio' : 'Turn On Audio'}
+				)}
+				{!isOnVideo && (
+          <button
+            onClick={toggleVideo}
+            className="fixed top-90 left-14 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-200"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M12 18.75H4.5a2.25 2.25 0 0 1-2.25-2.25V9m12.841 9.091L16.5 19.5m-1.409-1.409c.407-.407.659-.97.659-1.591v-9a2.25 2.25 0 0 0-2.25-2.25h-9c-.621 0-1.184.252-1.591.659m12.182 12.182L2.909 5.909M1.5 4.5l1.409 1.409"
+              />
+            </svg>
+          </button>
+					)}
+					
+					{/* 오디오 */}
+					{isAudioEnabled && (
+          <FloatButton
+							onClick={toggleAudio}
+            icon={<AudioOutlined />}
+            type="default"
+            style={{ top: 160, left: 16 }}
+						/>
+					)}
+					{!isAudioEnabled && (
+						<FloatButton
+							onClick={toggleAudio}
+							icon={<AudioMutedOutlined />}
+							type="default"
+							style={{ top: 160, left: 16 }}
+						/>
+					)}
+					{/* 화면공유 */}
+						<div style={{display: 'inline-block'}}>
+					<button
+						id="btn_start_screen_share"
+							onClick={toggleScreenShare}
+							className="fixed top-60 left-14 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-200"
+					>
+					<svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="size-6"
+        >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"
+        />
+        </svg>
+						
 					</button>
-				</div>
-				<div style={{display: 'inline-block'}}>
-					<button id="btn_start_screen_share" onClick={toggleScreenShare}>{isScreenShareEnabled ? '화면공유 중지하기' : '화면공유 시작하기'}</button>
 					{goScreenShare && (
 						<WebrtcTeacherScreenShare roomId={roomId} userEmail={userEmail + '_screen'} userRole={userRole + '_screen'} toggleScreenShareFunc={toggleScreenShareFunc} screenShareStopSignal={screenShareStopSignal}/>
 					)}
 				</div>
+				</div>
+				{/* <div style={{display: 'inline-block'}}>
+					<button id="btn_start_screen_share" onClick={toggleScreenShare}>{isScreenShareEnabled ? '화면공유 중지하기' : '화면공유 시작하기'}</button>
+					{goScreenShare && (
+						<WebrtcTeacherScreenShare roomId={roomId} userEmail={userEmail + '_screen'} userRole={userRole + '_screen'} toggleScreenShareFunc={toggleScreenShareFunc} screenShareStopSignal={screenShareStopSignal}/>
+					)}
+				</div> */}
+				<button
+					onClick={showDrawer}
+            className="fixed  w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-200"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"
+              />
+          </svg>
+          
+          </button>
+          <button
+            className="fixed top-30 left-14 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-200"
+          
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
+              />
+            </svg>
+          </button>
 			</div>
 			{users.map((user, index) => (
 				<div key={index}>
@@ -485,3 +709,7 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 };
 
 export default WebrtcTeacher;
+// function dispatch(arg0: AsyncThunkAction<QuizFetchListForm, string, { state?: unknown; dispatch?: Dispatch<AnyAction> | undefined; extra?: unknown; rejectValue?: unknown; serializedErrorType?: unknown; pendingMeta?: unknown; fulfilledMeta?: unknown; rejectedMeta?: unknown; }>) {
+// 	throw new Error('Function not implemented.');
+// }
+
