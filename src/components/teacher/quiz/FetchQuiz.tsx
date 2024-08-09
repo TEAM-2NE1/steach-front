@@ -45,10 +45,10 @@ const FetchQuiz: React.FC = () => {
   }, [tab, quizzes]);
 
   // 삭제 핸들러 함수
-  const handleDeleteQuiz = () => {
+  const handleDeleteQuiz = async () => {
     // 삭제 요청
     if (quizId !== null) {
-      dispatch(deleteQuiz(quizId));
+      await dispatch(deleteQuiz(quizId));
       window.location.reload();
     } else {
       console.log("quizId가 설정되지 않았습니다.");
