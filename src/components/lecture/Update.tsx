@@ -8,7 +8,10 @@ import banner from "../../assets/banner2.jpg";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store.tsx";
 import { petchCurriculumDetails } from "../../api/lecture/curriculumAPI.ts";
-import { CurriculasState, getCurriculaDetail } from "../../store/CurriculaSlice.tsx";
+import {
+  CurriculasState,
+  getCurriculaDetail,
+} from "../../store/CurriculaSlice.tsx";
 import { Curricula } from "../../interface/Curriculainterface.tsx";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -153,7 +156,7 @@ const LectureUpdate: React.FC = () => {
     return textContent.trim();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formDataToSend = {
       ...formData,
@@ -161,10 +164,17 @@ const LectureUpdate: React.FC = () => {
       information: stripHtmlTags(formData?.information || ""),
       weekdays_bitmask: formatBitmask(formData?.weekdays_bitmask || 0),
     };
-    dispatch(petchCurriculumDetails({ newLectureData: formDataToSend, id }));
-    setTimeout(() => {
-      navigate(-1);
-    }, 1000);
+
+    await dispatch(
+      petchCurriculumDetails({ newLectureData: formDataToSend, id })
+    );
+
+    navigate(-1);
+  };
+
+  // 뒤로 가기
+  const handleBack = () => {
+    navigate(-1);
   };
 
   return (
@@ -172,7 +182,15 @@ const LectureUpdate: React.FC = () => {
       <div className="col-span-2"></div>
       <div className=" col-span-8 p-4">
         <img src={banner} className="mx-auto w-2/3 rounded-2xl" />
-        <p className="self-start text-5xl pt-20 pl-5 pb-3">강의 수정</p>
+        <section className="relative">
+          <p className="self-start text-5xl pt-20 pl-5 pb-3">강의 수정</p>
+          <button
+            className="p-3 rounded-md bg-red-400 text-white font-semibold absolute top-16 right-8 hover:bg-red-500"
+            onClick={handleBack}
+          >
+            뒤로가기
+          </button>
+        </section>
         <hr></hr>
         <form onSubmit={handleSubmit}>
           <FormControl>
@@ -408,7 +426,12 @@ const LectureUpdate: React.FC = () => {
                 </li>
               </ul>
             </div>
-            <button type="submit">버튼임</button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600"
+            >
+              버튼임
+            </button>
           </FormControl>
         </form>
       </div>

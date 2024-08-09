@@ -24,7 +24,9 @@ const TeacherMyLectureListModal: React.FC<TeacherMyLectureListModalProps> = ({
   const format = "HH:mm";
 
   // 강의 상태 정보를 가져오기
-  const lecture = useSelector((state: RootState) => (state.lectures as LecturesState).lecture);
+  const lecture = useSelector(
+    (state: RootState) => (state.lectures as LecturesState).lecture
+  );
 
   // 모달 여닫는 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,18 +63,28 @@ const TeacherMyLectureListModal: React.FC<TeacherMyLectureListModalProps> = ({
 
   // 수정하기 핸들러 함수
   const handleOk = async () => {
-    const lectureData: PatchLecture = {
-      lecture_id: lectureId,
-      lecture_title: lectureTitle,
-      lecture_start_time: timePicker,
-    };
+    if (timePicker) {
+      const date = dayjs(timePicker, format).toDate();
 
-    // 강의 정보 수정 함수 호출
-    await dispatch(patchLectureDetail(lectureData));
-    setIsModalOpen(false);
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
 
-    // 새로고침 - 나중에 새로고침 없이 상태 변화를 실시간으로 가져올 방법으로 로직을 짤 필요가 있음.
-    window.location.reload();
+      // 시간을 'HH:mm' 형식으로 포맷
+      const formattedTime = `${String(hours).padStart(2, "0")}:${String(
+        minutes
+      ).padStart(2, "0")}`;
+      const lectureData: PatchLecture = {
+        lecture_id: lectureId,
+        lecture_title: lectureTitle,
+        lecture_start_time: formattedTime,
+      };
+      // 강의 정보 수정 함수 호출
+      await dispatch(patchLectureDetail(lectureData));
+      setIsModalOpen(false);
+
+      // 새로고침 - 나중에 새로고침 없이 상태 변화를 실시간으로 가져올 방법으로 로직을 짤 필요가 있음.
+      window.location.reload();
+    }
   };
 
   // 취소하기 핸들러 함수
