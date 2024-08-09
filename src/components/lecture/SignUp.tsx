@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, { useRef, useState } from "react";
 import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { TbArrowsRight } from "react-icons/tb";
 import checkimg from "../../assets/checked.jpg";
@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store.tsx";
 import { CurriculaFormData } from "../../interface/Curriculainterface.tsx";
 
-import type { Editor } from '@toast-ui/react-editor';
+import type { Editor } from "@toast-ui/react-editor";
 import ToastEditor from "../main/ToastEditor.tsx";
 
 const LectureSignUp: React.FC = () => {
@@ -62,16 +62,23 @@ const LectureSignUp: React.FC = () => {
   // };
 
   const getContents = () => {
-    const markdownContent = editorRef.current?.getInstance().getMarkdown().replace(/(?:\r\n|\r|\n)/g, '\\\\n');
+    const markdownContent = editorRef.current
+      ?.getInstance()
+      .getMarkdown()
+      .replace(/(?:\r\n|\r|\n)/g, "\\\\n");
     const htmlContent = editorRef.current?.getInstance().getHTML();
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        information: encodeHtml(htmlContent),
-      }));
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      information: encodeHtml(htmlContent),
+    }));
 
-    console.log('[Toast Editor - Markdown]\n', markdownContent, '\n\n[Toast Editor - HTML]\n', htmlContent)
-  }
-
+    console.log(
+      "[Toast Editor - Markdown]\n",
+      markdownContent,
+      "\n\n[Toast Editor - HTML]\n",
+      htmlContent
+    );
+  };
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -132,7 +139,6 @@ const LectureSignUp: React.FC = () => {
     return new XMLSerializer().serializeToString(doc.body);
   };
 
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     getContents();
@@ -140,8 +146,8 @@ const LectureSignUp: React.FC = () => {
       ...formData,
       // intro: encodeHtmlTags(formData.intro),
       // information: encodeHtmlTags(formData.information),
-      intro: (formData.intro),
-      information: (formData.information),
+      intro: formData.intro,
+      information: formData.information,
       weekdays_bitmask: formatBitmask(formData.weekdays_bitmask),
     };
     console.log(formDataToSend);
@@ -368,7 +374,7 @@ const LectureSignUp: React.FC = () => {
               강의 상세 설명
             </FormLabel>
             {/*  에디터 */}
-            <ToastEditor content={formData.information} editorRef={editorRef}/>
+            <ToastEditor content={formData.information} editorRef={editorRef} />
             <div className="p-5 border my-5">
               <h1 className="text-6xl">강의 등록시 주의사항</h1>
               <ul>
@@ -390,7 +396,13 @@ const LectureSignUp: React.FC = () => {
                 </li>
               </ul>
             </div>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={getContents} type="submit">등록하기</button>
+            <button
+              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600"
+              onClick={getContents}
+              type="submit"
+            >
+              등록하기
+            </button>
           </FormControl>
         </form>
       </div>

@@ -46,7 +46,7 @@ const App: React.FC = () => {
         ></Route>
         <Route path="/lecture/signup" element={<LectureSignUpPage />}></Route>
         <Route
-          path="/curricula/update/:id"
+          path="/teacher/profile/:username/curricula/:id/update"
           element={<LectureUpdatePage />}
         ></Route>
         <Route

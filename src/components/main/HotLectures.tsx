@@ -41,7 +41,7 @@ const HotLectures: React.FC = () => {
 
   return (
     <>
-      {status === "loading" && <Spinner/>}
+      {status === "loading" && <Spinner />}
       {status === "failed" && error}
       {status === "succeeded" && (
         <section className="flex justify-center py-6">
