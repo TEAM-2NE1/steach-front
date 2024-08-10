@@ -10,7 +10,6 @@ import {
   Legend,
 } from "chart.js";
 import { Card, CardHeader, CardBody, Box } from "@chakra-ui/react";
-import noteImage from "../../assets/noteImage.png";
 
 ChartJS.register(
   RadialLinearScale,
@@ -63,18 +62,12 @@ const options = {
 
 const MyLecturePreference: React.FC = () => {
   return (
-    <Box
-      className="flex flex-col justify-center items-center"
-      style={{
-        backgroundImage: `url(${noteImage})`,
-        backgroundSize: "100% 80%",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      <Card className="w-full h-4/8 p-4">
+    <Box className="h-full">
+      <Card className="h-full">
         <CardHeader className="text-center">
-          <h2 className="text-4xl text-lightNavy">나의 수업 선호도</h2>
+          <h2 className="text-4xl font-semibold text-lightNavy">
+            나의 수업 선호도
+          </h2>
         </CardHeader>
         <CardBody className="flex justify-center items-center h-full">
           <Radar data={data} options={options} />
