@@ -295,7 +295,7 @@ const curriculaSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
       })
-      // pop한 강의 들고오기
+      // lastest한 강의 들고오기
       .addCase(getLastestLecturelist.pending, (state) => {
         state.status = "loading";
       })

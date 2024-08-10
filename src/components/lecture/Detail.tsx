@@ -136,7 +136,7 @@ const LectureDetail: React.FC = () => {
               <div className="flex items-center">
                 <img src={img3} className="w-10 h-10 m-5" />
                 <span>
-                  {lectures?.teacher_name} 선생님 - 강사상세페이지, 만들어야함
+                  {lectures?.teacher_name} 선생님
                 </span>
               </div>
             </Link>
@@ -335,7 +335,7 @@ const LectureDetail: React.FC = () => {
             <button
               className="w-full mb-5 py-2 px-4 bg-gray-500 text-white font-bold rounded self-center"
               onClick={() => {
-                navigate(`/curricula/update/${id}`);
+                navigate(`/teacher/profile/${userData.username}/curricula/${id}/update`);
               }}
             >
               수정하기

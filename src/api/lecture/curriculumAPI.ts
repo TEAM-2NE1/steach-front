@@ -84,6 +84,7 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
         },
       }
     );
+    console.log(response.data)
     return response.data;
   }
 );
@@ -173,6 +174,7 @@ export const petchCurriculumDetails = createAsyncThunk<
       },
     }
   );
+  console.log(response.data)
   return response.data;
 });
 
