@@ -4,7 +4,7 @@ import CareerRecommendation from "./CareerRecommendation";
 
 const MyInfo: React.FC = () => {
   return (
-    <div>
+    <div className="min-h-screen">
       <MyLecturePreference />
       <CareerRecommendation />
     </div>
