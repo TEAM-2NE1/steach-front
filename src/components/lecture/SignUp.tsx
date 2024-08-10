@@ -5,14 +5,17 @@ import checkimg from "../../assets/checked.jpg";
 import uncheckimg from "../../assets/unchecked.jpg";
 import banner from "../../assets/banner2.jpg";
 import { SignUpLecture } from "../../api/lecture/curriculumAPI.ts";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../store.tsx";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../store.tsx";
 import { CurriculaFormData } from "../../interface/Curriculainterface.tsx";
 
 import type { Editor } from "@toast-ui/react-editor";
 import ToastEditor from "../main/ToastEditor.tsx";
+import { useNavigate } from "react-router-dom";
+import { CurriculasState } from "../../store/CurriculaSlice.tsx";
 
 const LectureSignUp: React.FC = () => {
+  const navigate = useNavigate();
   const dispatch: AppDispatch = useDispatch();
   const editorRef = useRef<Editor>(null);
 
@@ -150,9 +153,11 @@ const LectureSignUp: React.FC = () => {
       information: formData.information,
       weekdays_bitmask: formatBitmask(formData.weekdays_bitmask),
     };
-    console.log(formDataToSend);
     dispatch(SignUpLecture(formDataToSend));
+    const lastElement = curriculaData.at(-1);
+    navigate(`/curricula/detail/${lastElement?.curriculum_id}`)
   };
+  const curriculaData = useSelector((state: RootState) => (state.curriculum as CurriculasState).curricula);
 
   return (
     <div className="grid grid-cols-12">

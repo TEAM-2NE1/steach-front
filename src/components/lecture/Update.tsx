@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import Editor from "../main/ToastEditor.tsx";
+import React, { useEffect, useRef, useState } from "react";
+import ToastEditor from "../main/ToastEditor.tsx";
 import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { TbArrowsRight } from "react-icons/tb";
 import checkimg from "../../assets/checked.jpg";
@@ -14,6 +14,7 @@ import {
 } from "../../store/CurriculaSlice.tsx";
 import { Curricula } from "../../interface/Curriculainterface.tsx";
 import { useParams, useNavigate } from "react-router-dom";
+import { Editor } from "@toast-ui/react-editor/index";
 
 const LectureUpdate: React.FC = () => {
   const lectures = useSelector(
@@ -23,7 +24,14 @@ const LectureUpdate: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<Partial<Curricula | null>>(null);
+  const editorRef = useRef<Editor>(null);
 
+  useEffect(() => {
+    if (formData?.information && editorRef.current) {
+      editorRef.current.getInstance().setHTML(formData.information);
+    }
+  }, [formData?.information, editorRef]);
+  
   useEffect(() => {
     if (id) {
       dispatch(getCurriculaDetail(id));
@@ -89,6 +97,34 @@ const LectureUpdate: React.FC = () => {
     일: 1,
   };
 
+  const getContents = () => {
+    const markdownContent = editorRef.current
+      ?.getInstance()
+      .getMarkdown()
+      .replace(/(?:\r\n|\r|\n)/g, "\\\\n");
+    const htmlContent = editorRef.current?.getInstance().getHTML();
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      information: encodeHtml(htmlContent),
+    }));
+
+    console.log(
+      "[Toast Editor - Markdown]\n",
+      markdownContent,
+      "\n\n[Toast Editor - HTML]\n",
+      htmlContent
+    );
+  };
+
+  const encodeHtml = (htmlContent: string): string => {
+    // Create a new DOMParser instance
+    const parser = new DOMParser();
+    // Parse the HTML string into a document object
+    const doc = parser.parseFromString(htmlContent, "text/html");
+    // Serialize the document back to a string to ensure it's valid HTML
+    return new XMLSerializer().serializeToString(doc.body);
+  };
+
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -107,13 +143,13 @@ const LectureUpdate: React.FC = () => {
     }
   };
 
-  const handleEditorChange = (data: string) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      information: data,
-    }));
-    console.log(data);
-  };
+  // const handleEditorChange = (data: string) => {
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     information: data,
+  //   }));
+  //   console.log(data);
+  // };
 
   const handleCheckboxChange = (day: Weekday) => {
     setActiveDays((prevActiveDays) => {
@@ -401,10 +437,7 @@ const LectureUpdate: React.FC = () => {
             <FormLabel htmlFor="datetime" className="text-2xl">
               강의 상세 설명
             </FormLabel>
-            {/* <Editor
-              data={formData?.information || ""}
-              onChange={handleEditorChange}
-            /> */}
+            <ToastEditor editorRef={editorRef} />
             <div className="p-5 border my-5">
               <h1 className="text-6xl">강의 등록시 주의사항</h1>
               <ul>
@@ -428,9 +461,10 @@ const LectureUpdate: React.FC = () => {
             </div>
             <button
               type="submit"
+              onClick={getContents}
               className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600"
             >
-              버튼임
+              수정하기
             </button>
           </FormControl>
         </form>

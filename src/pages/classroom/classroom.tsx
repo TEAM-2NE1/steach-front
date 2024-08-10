@@ -15,6 +15,7 @@ const Classroom = () => {
 	useEffect(() => {
 		const localStorageUserData = localStorage.getItem('auth')
 		const userData = localStorageUserData ? JSON.parse(localStorageUserData) : null;
+		console.log(userData)
 		if (userData.email && lecture_id) {
 			setRole(userData.role)
 			setRoomId(lecture_id)
