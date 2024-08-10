@@ -55,7 +55,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ purpose }) => {
         <button
           type="button"
           onClick={showModal}
-          className="mx-2 p-3 font-semibold bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
+          className="mx-2 p-3 font-semibold bg-red-400 text-white rounded-md shadow-md hover:bg-red-500"
         >
           회원탈퇴
         </button>
