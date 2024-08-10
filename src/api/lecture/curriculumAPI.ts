@@ -7,7 +7,7 @@ import axios from "axios";
 import { BASE_URL, getAuthToken } from "../BASE_URL";
 import { SearchSendCurricula } from "../../interface/search/SearchInterface";
 
-const IMG_SERVER_URL = "http://steach.ssafy.io:8082";
+const IMG_SERVER_URL = "https://steach.ssafy.io";
 const Auth = localStorage.getItem("auth");
 
 let AuthData: any;

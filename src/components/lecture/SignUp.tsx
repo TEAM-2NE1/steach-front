@@ -154,8 +154,7 @@ const LectureSignUp: React.FC = () => {
       weekdays_bitmask: formatBitmask(formData.weekdays_bitmask),
     };
     dispatch(SignUpLecture(formDataToSend));
-    const lastElement = curriculaData.at(-1);
-    navigate(`/curricula/detail/${lastElement?.curriculum_id}`)
+    navigate(`/curricula/detail/${curriculaData?.curriculum_id}`)
   };
   const curriculaData = useSelector((state: RootState) => (state.curriculum as CurriculasState).curricula);
 
