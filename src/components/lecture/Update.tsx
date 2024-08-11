@@ -194,8 +194,9 @@ const LectureUpdate: React.FC = () => {
     e.preventDefault();
     const formDataToSend = {
       ...formData,
-      intro: stripHtmlTags(formData?.intro || ""),
-      information: stripHtmlTags(formData?.information || ""),
+      // intro: stripHtmlTags(formData?.intro || ""),
+      intro: formData?.intro,
+      information: formData?.information,
       weekdays_bitmask: formatBitmask(formData?.weekdays_bitmask || 0),
     };
 
