@@ -59,7 +59,7 @@ const NavbarLogin: React.FC = () => {
   // 로그인을 안했을때 로그인 하라고 하면서 로그인 창으로 이동시키기
   const handleIsLogin = () => {
     toast.warn("로그인을 해야 이용 가능합니다.", {
-      position: "top-center",
+      position: "top-right",
     });
     navigate("/user/login");
   };
@@ -155,7 +155,7 @@ const NavbarLogin: React.FC = () => {
       {/* 로그인 및 회원가입 버튼 */}
       <div className="hidden mr-3 lg:flex items-center ml-4 lg:ml-0">
         <button
-          className="ml-2 p-2 w-auto border-2 font-semibold border-hardBeige rounded-md"
+          className="ml-2 p-2 w-auto border-2 font-semibold border-hardBeige rounded-md bg-white"
           onClick={() => {
             navigate("/user/login");
           }}

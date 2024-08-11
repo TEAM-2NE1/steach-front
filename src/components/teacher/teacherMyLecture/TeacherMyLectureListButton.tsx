@@ -73,7 +73,7 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
       )}
       {lectureState === "scheduled" && (
         <>
-          <p className="mx-auto p-3 text-sm text-red-500 text-center">
+          <p className="mx-auto p-3 text-sm text-red-500 text-center font-semibold">
             예정된 강의
           </p>
           <Popover placement="right-start">
@@ -124,7 +124,9 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
         <>
           <Button
             className="mx-auto p-3 bg-sky-300 rounded-md shadow text-white hover:bg-pink-400"
-            onClick={() => { navigate(`/classroom/${lectureId}`) }}
+            onClick={() => {
+              navigate(`/classroom/${lectureId}`);
+            }}
           >
             강의 시작하기
           </Button>

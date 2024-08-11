@@ -9,9 +9,11 @@ const LectureReport: React.FC = () => {
   //     `quiz_answer_count` SMALLINT(6) NOT NULL DEFAULT 0,    -- 수업에서 맞힌 총 정답 개수
   //     `quiz_total_score` SMALLINT(6) NOT NULL DEFAULT 0,     -- 수업에서 맞힌 총 퀴즈 점수
   return (
-    <div className="bg-Beige">
+    <div className="min-h-screen">
       <div className="p-6">
-        <header className="my-2 text-5xl text-indigo-900">강의 리포트</header>
+        <header className="my-2 text-5xl text-indigo-900 font-semibold">
+          강의 리포트
+        </header>
         <div className="flex my-5 text-amber-800">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -36,7 +38,7 @@ const LectureReport: React.FC = () => {
           </div>
         </div>
         <main>
-          <section className="my-4">
+          <section className="xl:my-12 2xl:my-14">
             <h1 className="mx-3 text-4xl text-lightNavy font-bold">
               전체 통계
             </h1>
@@ -46,31 +48,31 @@ const LectureReport: React.FC = () => {
               <p className="p-3">맞춘 갯수 평균 : 9.3개</p>
             </div>
           </section>
-          <section className="mt-10">
+          <section className="2xl:mt-36">
             <h1 className="mx-3 text-4xl text-lightNavy font-bold">
               개별 통계
             </h1>
             <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl: gap-4">
-              <div className="mx-3 my-4 p-4 bg-white rounded-md shadow-md">
+              <div className="mx-3 my-4 p-4 bg-white border-2 border-hardBeige rounded-md shadow-md">
                 <p>학생 이름(student_id) 조시현</p>
                 <p>수업참여도(focus_ratio) 90%</p>
                 <p>퀴즈 점수(quiz_total_score) 950</p>
                 <p>퀴즈 점수(quiz_answer_count) 9/10</p>
               </div>
-              <div className="mx-3 my-4 p-4 bg-white rounded-md shadow-md">
+              <div className="mx-3 my-4 p-4 bg-white border-2 border-hardBeige rounded-md shadow-md">
                 <p>학생 이름(student_id) 조시현</p>
                 <p>수업참여도(focus_ratio) 90%</p>
                 <p>퀴즈 점수(quiz_total_score) 950</p>
                 <p>퀴즈 점수(quiz_answer_count) 9/10</p>
               </div>
 
-              <div className="mx-3 my-4 p-4 bg-white rounded-md shadow-md">
+              <div className="mx-3 my-4 p-4 bg-white border-2 border-hardBeige rounded-md shadow-md">
                 <p>학생 이름(student_id) 조시현</p>
                 <p>수업참여도(focus_ratio) 90%</p>
                 <p>퀴즈 점수(quiz_total_score) 950</p>
                 <p>퀴즈 점수(quiz_answer_count) 9/10</p>
               </div>
-              <div className="mx-3 my-4 p-4 bg-white rounded-md shadow-md">
+              <div className="mx-3 my-4 p-4 bg-white border-2 border-hardBeige rounded-md shadow-md">
                 <p>학생 이름(student_id) 조시현</p>
                 <p>수업참여도(focus_ratio) 90%</p>
                 <p>퀴즈 점수(quiz_total_score) 950</p>

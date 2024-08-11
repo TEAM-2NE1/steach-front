@@ -163,7 +163,7 @@ const NavbarTeacher: React.FC<Props> = ({ nickname }) => {
       </div>
       {/* 로그인 및 회원가입 버튼 */}
       <div className="hidden mr-3 lg:flex items-center ml-4 lg:ml-0">
-        <p className="w-auto ml-2 p-2 font-semibold border-2 border-hardBeige rounded-md">
+        <p className="w-auto ml-2 p-2 font-semibold border-2 bg-white border-hardBeige rounded-md">
           {nickname} 선생님
         </p>
 

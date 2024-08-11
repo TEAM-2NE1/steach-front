@@ -25,10 +25,12 @@ import SearchPage from "./pages/main/SearchPage.tsx";
 import MainPage from "./pages/main/MainPage.tsx";
 import QuizTest from "./components/quiz/QuizTest.tsx";
 import QuizDrawer from "./components/quiz/QuizDrawer.tsx";
+import { ToastContainer } from "react-toastify";
 
 const App: React.FC = () => {
   return (
     <div>
+      <ToastContainer autoClose={1500} />
       <Navbar />
       <Routes>
         <Route path="/" element={<MainPage />}></Route>
