@@ -7,7 +7,7 @@ import banner from "../../assets/banner2.jpg";
 import { SignUpLecture } from "../../api/lecture/curriculumAPI.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store.tsx";
-import { CurriculaFormData } from "../../interface/Curriculainterface.tsx";
+import { Curricula, CurriculaFormData } from "../../interface/Curriculainterface.tsx";
 
 import type { Editor } from "@toast-ui/react-editor";
 import ToastEditor from "../main/ToastEditor.tsx";
@@ -134,22 +134,28 @@ const LectureSignUp: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    getContents();
+    await getContents();
     const formDataToSend = {
       ...formData,
       intro: formData.intro,
       information: formData.information,
       weekdays_bitmask: formatBitmask(formData.weekdays_bitmask),
     };
-    const response = await dispatch(SignUpLecture(formDataToSend));
-
-    if (response.meta.requestStatus === "fulfilled") {
-      const lastElement = curriculaData.at(-1);
-      navigate(`/curricula/detail/${lastElement?.curriculum_id}`);
-      toast.success("수정되었습니다!", {
-        position: "top-right",
-      });
-    } else {
+    try {
+      const Postcurricula = await dispatch(SignUpLecture(formDataToSend));
+      const curriculaData = Postcurricula.payload as Curricula;
+      if (curriculaData?.curriculum_id !== undefined) {
+        navigate(`/curricula/detail/${curriculaData?.curriculum_id}`)
+        toast.success("수정되었습니다!", {
+          position: "top-right",
+        });
+      } else {
+        navigate('/home')
+        toast.success("수정되었습니다!", {
+          position: "top-right",
+        });
+      }
+    } catch (error) {
       toast.error("에러 발생!", {
         position: "top-right",
       });

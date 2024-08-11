@@ -48,6 +48,7 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
     const token = await getAuthToken();
 
     const formData = new FormData();
+    console.log('a')
     formData.append("userName", AuthData.username);
     formData.append("file", newLectureData.banner_img_url);
     const imgPost = await axios.post(
@@ -59,7 +60,6 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
         },
       }
     );
-
     const response = await axios.post(
       `${BASE_URL}/api/v1/curricula`,
       {
