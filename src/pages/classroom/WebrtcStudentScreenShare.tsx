@@ -13,6 +13,7 @@ const pc_config = {
 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 const SOCKET_SERVER_URL = `${protocol}//${window.location.hostname}:${window.location.port ? window.location.port : '5000'}`;
 
+
 interface WebrtcProps {
 	roomId: string;
 	userEmail: string;

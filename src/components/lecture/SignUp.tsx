@@ -7,7 +7,7 @@ import banner from "../../assets/banner2.jpg";
 import { SignUpLecture } from "../../api/lecture/curriculumAPI.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store.tsx";
-import { CurriculaFormData } from "../../interface/Curriculainterface.tsx";
+import { Curricula, CurriculaFormData } from "../../interface/Curriculainterface.tsx";
 
 import type { Editor } from "@toast-ui/react-editor";
 import ToastEditor from "../main/ToastEditor.tsx";
@@ -142,21 +142,28 @@ const LectureSignUp: React.FC = () => {
     return new XMLSerializer().serializeToString(doc.body);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    getContents();
+    await getContents();
     const formDataToSend = {
       ...formData,
-      // intro: encodeHtmlTags(formData.intro),
-      // information: encodeHtmlTags(formData.information),
       intro: formData.intro,
       information: formData.information,
       weekdays_bitmask: formatBitmask(formData.weekdays_bitmask),
     };
-    dispatch(SignUpLecture(formDataToSend));
-    navigate(`/curricula/detail/${curriculaData?.curriculum_id}`)
+    try {
+
+      const Postcurricula = await dispatch(SignUpLecture(formDataToSend));
+      const curriculaData = Postcurricula.payload as Curricula;
+      if (curriculaData?.curriculum_id !== undefined) {
+        navigate(`/curricula/detail/${curriculaData?.curriculum_id}`)
+      } else {
+        navigate('/home')
+      }
+    } catch (error) {
+      console.error("Failed to create curriculum:", error);
+    }
   };
-  const curriculaData = useSelector((state: RootState) => (state.curriculum as CurriculasState).curricula);
 
   return (
     <div className="grid grid-cols-12">
