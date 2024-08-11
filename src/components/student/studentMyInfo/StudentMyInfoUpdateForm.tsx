@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { updateStudentInfo } from "../../../store/userInfo/StudentProfileSlice";
 import { fetchStudentInfo } from "../../../store/userInfo/StudentProfileSlice";
+import { toast } from "react-toastify";
 import DeleteModal from "../../main/modal/DeleteModal";
 
 export interface StudentInfoUpdateForm {
@@ -48,6 +49,9 @@ const StudentMyInfoUpdateForm: React.FC = () => {
     await dispatch(updateStudentInfo(formData));
     localStorage.removeItem("passwordAuthToken");
     window.location.reload();
+    toast.success("수정되었습니다!", {
+      position: "top-right",
+    });
   };
 
   // 새로고침을 뒤로가기

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { loginSteach } from "../../store/userInfo/AuthSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
+import { toast } from "react-toastify";
 import LoginBannerBgImg from "../../assets/banner.jpg";
 
 // 이진송
@@ -42,7 +43,9 @@ const Login: React.FC = () => {
     if (loginResult.type === "login/fulfilled") {
       navigate("/home");
     } else {
-      alert("비밀번호가 틀렸습니다.");
+      toast.error("비밀번호가 틀렸습니다!", {
+        position: "top-right",
+      });
     }
   };
 

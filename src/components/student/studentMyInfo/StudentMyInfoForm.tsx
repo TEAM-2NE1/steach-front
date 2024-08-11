@@ -43,7 +43,7 @@ const StudentMyInfoForm: React.FC<StudentMyInfoProps> = ({
           <p className="my-3 text-lg">{teacherData?.email}</p>
         </section>
       </form>
-      <section className="flex flex-col lg:flex-row lg:h-[360px] mt-6">
+      <section className="flex flex-col lg:flex-row lg:h-[400px] mt-6 2xl:h-[530px]">
         <div className="mx-3 p-5 mb-6 lg:mb-0 w-full lg:w-1/2 border-2 border-hardBeige rounded-lg h-full">
           <MyLecturePreference />
         </div>

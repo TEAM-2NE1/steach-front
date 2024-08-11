@@ -92,7 +92,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ purpose }) => {
         <button
           type="button"
           onClick={showModal}
-          className="mx-2 p-3 bg-red-200 text-white font-semibold rounded-md shadow-md hover:bg-red-300"
+          className="mx-2 p-3 bg-red-300 text-white font-semibold rounded-md shadow-md hover:bg-red-400"
         >
           커리큘럼 삭제
         </button>
