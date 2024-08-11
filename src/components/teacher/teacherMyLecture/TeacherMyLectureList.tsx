@@ -62,7 +62,7 @@ const TeacherMyLectureList: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-12">
+    <div className="grid grid-cols-12 min-h-screen">
       <div className="col-span-1"></div>
       <div className="col-span-10">
         <div className="p-9 bg-white relative">
@@ -71,7 +71,7 @@ const TeacherMyLectureList: React.FC = () => {
           </header>
           <div className="absolute right-20">
             <button
-              className="mx-2 p-3 rounded-md bg-violet-200 text-white font-semibold shadow-md hover:bg-violet-300"
+              className="mx-2 p-3 rounded-md bg-violet-300 text-white font-semibold shadow-md hover:bg-violet-400"
               onClick={() => navigate(`update`)}
             >
               커리큘럼 수정

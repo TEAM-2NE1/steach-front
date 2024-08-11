@@ -163,12 +163,12 @@ const NavbarStudent: React.FC<Props> = ({ nickname }) => {
       </div>
       {/* 로그인 및 회원가입 버튼 */}
       <div className="hidden mr-3 lg:flex items-center ml-4 lg:ml-0">
-        <p className="w-auto ml-2 p-2 border-2 font-semibold border-hardBeige rounded-md">
+        <p className="ml-2 p-2 w-auto border-2 font-semibold bg-white border-hardBeige rounded-md">
           {nickname} 학생
         </p>
 
         <button
-          className="w-auto ml-2 p-2 text-white font-semibold bg-red-400 border-2 border-hardBeige rounded-md hover:bg-red-500"
+          className="ml-2 p-2 w-auto text-white font-semibold bg-red-400 border-2 border-hardBeige rounded-md hover:bg-red-500"
           onClick={logoutbtn}
         >
           로그아웃

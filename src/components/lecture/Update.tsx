@@ -15,6 +15,7 @@ import {
 import { Curricula } from "../../interface/Curriculainterface.tsx";
 import { useParams, useNavigate } from "react-router-dom";
 import { Editor } from "@toast-ui/react-editor/index";
+import { toast } from "react-toastify";
 
 const LectureUpdate: React.FC = () => {
   const lectures = useSelector(
@@ -31,7 +32,7 @@ const LectureUpdate: React.FC = () => {
       editorRef.current.getInstance().setHTML(formData.information);
     }
   }, [formData?.information, editorRef]);
-  
+
   useEffect(() => {
     if (id) {
       dispatch(getCurriculaDetail(id));
@@ -117,11 +118,8 @@ const LectureUpdate: React.FC = () => {
   };
 
   const encodeHtml = (htmlContent: string): string => {
-    // Create a new DOMParser instance
     const parser = new DOMParser();
-    // Parse the HTML string into a document object
     const doc = parser.parseFromString(htmlContent, "text/html");
-    // Serialize the document back to a string to ensure it's valid HTML
     return new XMLSerializer().serializeToString(doc.body);
   };
 
@@ -202,15 +200,23 @@ const LectureUpdate: React.FC = () => {
       weekdays_bitmask: formatBitmask(formData?.weekdays_bitmask || 0),
     };
 
-    await dispatch(
+    const response = await dispatch(
       petchCurriculumDetails({ newLectureData: formDataToSend, id })
     );
-
     navigate(-1);
+    if (response.meta.requestStatus === "fulfilled") {
+      toast.success("수정되었습니다!", {
+        position: "top-right",
+      });
+    } else {
+      toast.error("에러 발생!", {
+        position: "top-right",
+      });
+    }
   };
 
   // 뒤로 가기
-  const handleBack = () => {
+  const handleBackPage = () => {
     navigate(-1);
   };
 
@@ -220,10 +226,12 @@ const LectureUpdate: React.FC = () => {
       <div className=" col-span-8 p-4">
         <img src={banner} className="mx-auto w-2/3 rounded-2xl" />
         <section className="relative">
-          <p className="self-start text-5xl pt-20 pl-5 pb-3">강의 수정</p>
+          <p className="self-start text-5xl font-semibold pt-20 pl-5 pb-3">
+            커리큘럼 수정
+          </p>
           <button
             className="p-3 rounded-md bg-red-400 text-white font-semibold absolute top-16 right-8 hover:bg-red-500"
-            onClick={handleBack}
+            onClick={handleBackPage}
           >
             뒤로가기
           </button>
@@ -232,8 +240,8 @@ const LectureUpdate: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <FormControl>
             <div className="flex items-center mb-5">
-              <FormLabel htmlFor="title" className="mt-3 ml-3 mr-8 text-2xl ">
-                강의 제목
+              <FormLabel htmlFor="title" className="mt-3 ml-3 mr-8 text-lg">
+                커리큘럼 제목
               </FormLabel>
               <Input
                 type="text"
@@ -244,8 +252,8 @@ const LectureUpdate: React.FC = () => {
                 className="border-2 rounded-lg w-1/3 p-2 mt-3"
                 required
               />
-              <FormLabel htmlFor="sub_title" className="mt-3 mx-3 text-2xl ">
-                강의 부제목
+              <FormLabel htmlFor="sub_title" className="mt-3 mx-3 text-lg">
+                커리큘럼 부제목
               </FormLabel>
               <Input
                 type="text"
@@ -259,8 +267,8 @@ const LectureUpdate: React.FC = () => {
             </div>
             <hr></hr>
             <div className="flex items-center mb-5">
-              <FormLabel htmlFor="category" className="mt-3 mx-3 text-2xl">
-                강의 대분류
+              <FormLabel htmlFor="category" className="mt-3 mx-3 text-lg">
+                커리큘럼 대분류
               </FormLabel>
               <select
                 id="category"
@@ -278,8 +286,8 @@ const LectureUpdate: React.FC = () => {
                 <option value="EDUCATION">EDUCATION</option>
                 <option value="ETC">ETC</option>
               </select>
-              <FormLabel htmlFor="sub_category" className="mt-3 mx-3 text-2xl">
-                강의 중분류
+              <FormLabel htmlFor="sub_category" className="mt-3 mx-3 text-lg">
+                커리큘럼 중분류
               </FormLabel>
               <Input
                 type="text"
@@ -293,7 +301,7 @@ const LectureUpdate: React.FC = () => {
             </div>
             <hr></hr>
             <FormLabel htmlFor="banner_img_url" className="mt-3 mx-3 text-2xl">
-              강의 배너 이미지
+              커리큘럼 배너 이미지
             </FormLabel>
             <Input
               type="file"
@@ -304,7 +312,7 @@ const LectureUpdate: React.FC = () => {
             />
             <hr></hr>
             <FormLabel htmlFor="intro" className="my-3 mx-3 text-2xl">
-              강의 소개
+              커리큘럼 소개
             </FormLabel>
             <Input
               type="text"
@@ -317,7 +325,7 @@ const LectureUpdate: React.FC = () => {
             />
             <hr className="my-3"></hr>
             <FormLabel htmlFor="datetime" className="mt-3 mx-3 text-2xl">
-              강의 커리큘럼
+              강의
             </FormLabel>
             <div className="flex items-center mb-5">
               <div className="w-1/2">
@@ -436,11 +444,11 @@ const LectureUpdate: React.FC = () => {
             </select>
 
             <FormLabel htmlFor="datetime" className="text-2xl">
-              강의 상세 설명
+              커리큘럼 상세 설명
             </FormLabel>
             <ToastEditor editorRef={editorRef} />
             <div className="p-5 border my-5">
-              <h1 className="text-6xl">강의 등록시 주의사항</h1>
+              <h1 className="text-6xl">커리큘럼 등록시 주의사항</h1>
               <ul>
                 <li>
                   - 이해하기 쉬운 언어 사용: 학생들의 연령대에 맞는 쉬운 언어와

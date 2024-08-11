@@ -6,6 +6,7 @@ import {
   updateTeacherInfo,
 } from "../../../store/userInfo/TeacherProfileSlice";
 import DeleteModal from "../../main/modal/DeleteModal";
+import { toast } from "react-toastify";
 
 export interface TeacherInfoUpdateForm {
   nickname: string;
@@ -57,6 +58,9 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
     await dispatch(updateTeacherInfo(formData));
     localStorage.removeItem("passwordAuthToken");
     window.location.reload();
+    toast.success("수정되었습니다!", {
+      position: "top-right",
+    });
   };
 
   // 새로 고침으로 뒤로가게 하기
