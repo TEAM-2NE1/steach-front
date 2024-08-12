@@ -25,28 +25,28 @@ const QuizListComponent: React.FC<QuizListComponentProps> = ({trialVersion, tria
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchQuizData = async () => {
-      const token = getAuthToken();
+  // useEffect(() => {
+  //   const fetchQuizData = async () => {
+  //     const token = getAuthToken();
 
-      try {
-        const response = await axios.get(`${BASE_URL}/api/v1/quizzes/lecture/2240`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": 'application/json'
-          },
-        });
+  //     try {
+  //       const response = await axios.get(`${BASE_URL}/api/v1/quizzes/lecture/6576`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": 'application/json'
+  //         },
+  //       });
 
-        if (response.data && response.data.quiz_response_dtos && response.data.quiz_response_dtos.length > 0) {
-          setQuizzes(response.data.quiz_response_dtos);
-        } 
-      } catch (error) {
-        setError('Failed to fetch quiz data');
-      }
-    };
+  //       if (response.data && response.data.quiz_response_dtos && response.data.quiz_response_dtos.length > 0) {
+  //         setQuizzes(response.data.quiz_response_dtos);
+  //       } 
+  //     } catch (error) {
+  //       setError('Failed to fetch quiz data');
+  //     }
+  //   };
 
-    fetchQuizData();
-  }, []);
+  //   fetchQuizData();
+  // }, []);
 
   const handleButtonClick = (quiz: QuizResponseDTO) => {
     setSelectedQuiz(quiz);

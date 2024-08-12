@@ -179,7 +179,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
           `${BASE_URL}/api/v1/studentsQuizzes/` + initialQuizData.quiz_id,
           {
             score: score,
-            student_choice: {choiceSentence},
+            student_choice: choiceSentence,
           },
           {
             headers: {

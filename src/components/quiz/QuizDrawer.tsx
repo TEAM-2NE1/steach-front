@@ -93,7 +93,7 @@ const QuizDrawer: React.FC = () => {
 
   // 이 drawer을 켰을 때 퀴즈 리스트를 불러오기
   useEffect(() => {
-    dispatch(fetchLectureQuiz("5536"));
+    dispatch(fetchLectureQuiz("6576"));
   }, []);
 
   return (
