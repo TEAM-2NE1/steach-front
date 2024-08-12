@@ -1,12 +1,12 @@
 import { AppDispatch, RootState } from "../../../store";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   fetchTeacherInfo,
   updateTeacherInfo,
 } from "../../../store/userInfo/TeacherProfileSlice";
-import { deleteUserSteach, logout } from "../../../store/userInfo/AuthSlice";
+import DeleteModal from "../../main/modal/DeleteModal";
+import { toast } from "react-toastify";
 
 export interface TeacherInfoUpdateForm {
   nickname: string;
@@ -21,10 +21,10 @@ export interface TeacherInfoUpdateForm {
 const TeacherMyInfoUpdateForm: React.FC = () => {
   const temporaryToken = localStorage.getItem("passwordAuthToken");
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
   const teacherData = useSelector(
     (state: RootState) => state.teacherProfile.info
   );
+
   useEffect(() => {
     dispatch(fetchTeacherInfo());
   }, [dispatch]);
@@ -40,6 +40,7 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
     password_auth_token: temporaryToken,
   });
 
+  // 값 입력
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -57,26 +58,35 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
     await dispatch(updateTeacherInfo(formData));
     localStorage.removeItem("passwordAuthToken");
     window.location.reload();
+    toast.success("수정되었습니다!", {
+      position: "top-right",
+    });
   };
 
-  // 회원 탈퇴 요청
-  const handleDelete = async () => {
-    // 회원 탈퇴
-    await dispatch(deleteUserSteach());
-    // 탈퇴 후 로그아웃
-    await dispatch(logout());
-    // 메인페이지로 이동
-    navigate("/");
+  // 새로 고침으로 뒤로가게 하기
+  const handleBackPage = () => {
     window.location.reload();
   };
+
   return (
-    <div className="w-9/12 bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
+    <div className="mx-auto my-12 p-6 w-9/12 border-2 border-hardBeige rounded-xl shadow-lg relative">
       <form onSubmit={(e) => handleUpdateSubmit(e)}>
-        <h1 className="my-2 p-2 text-center text-4xl text-lightNavy">
-          내정보 수정
-        </h1>
-        <div className="grid grid-cols-1 my-4 p-2">
-          <label className="my-2 text-2xl text-lightNavy">닉네임</label>
+        <header className="flex justify-center relative">
+          <h1 className="my-2 p-2 text-center text-5xl font-bold text-lightNavy">
+            내정보 수정
+          </h1>
+          <button
+            type="button"
+            onClick={handleBackPage}
+            className="p-3 text-white font-semibold bg-red-300 rounded-md absolute top-5 right-5 hover:bg-red-400"
+          >
+            뒤로가기
+          </button>
+        </header>
+        <section className=" grid grid-cols-1 my-4 p-2 border-b-2">
+          <label className="my-2 text-3xl font-semibold text-lightNavy">
+            닉네임
+          </label>
           <input
             name="nickname"
             className="p-2 w-72 border-2 rounded-md"
@@ -84,9 +94,11 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
             onChange={(e) => handleChange(e)}
             required
           />
-        </div>
-        <div className="grid grid-cols-1 my-4 p-2">
-          <label className="my-2 text-2xl text-lightNavy">비밀번호</label>
+        </section>
+        <section className="grid grid-cols-1 my-4 p-2 border-b-2">
+          <label className="my-2 text-3xl font-semibold text-lightNavy">
+            비밀번호
+          </label>
           <input
             name="password"
             type="password"
@@ -95,62 +107,66 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
             onChange={(e) => handleChange(e)}
             required
           />
-        </div>
-        <div className="grid grid-cols-1 my-4 p-2">
-          <label className="my-2 text-2xl text-lightNavy">이메일</label>
+        </section>
+        <section className="grid grid-cols-1 my-4 p-2 border-b-2">
+          <label className="my-2 text-3xl font-semibold text-lightNavy">
+            이메일
+          </label>
           <input
             name="email"
             type="email"
-            className="p-2 w-72 border-2 rounded-md"
+            className="my-2 p-2 w-72 border-2 rounded-md"
             value={formData.email}
             onChange={(e) => handleChange(e)}
             required
           />
-        </div>
-        <div className="grid grid-cols-1 my-4 p-2">
-          <label className="my-2 text-2xl text-lightNavy">
+        </section>
+        <section className="grid grid-cols-1 my-4 p-2 border-b-2">
+          <label className="my-2 text-3xl font-semibold text-lightNavy">
             간단한 소개 문구
           </label>
           <textarea
             name="brief_introduction"
-            className="p-2 w-72 border-2 rounded-md"
+            className="my-2 p-2 w-72 border-2 rounded-md"
             value={formData.brief_introduction}
             onChange={(e) => handleChange(e)}
           />
-        </div>
-        <div className="grid grid-cols-1 my-4 p-2">
-          <label className="my-2 text-2xl text-lightNavy">학력</label>
+        </section>
+        <section className="grid grid-cols-1 my-4 p-2 border-b-2">
+          <label className="my-2 text-3xl font-semibold text-lightNavy">
+            학력
+          </label>
 
           <input
             name="academic_background"
-            className="p-2 w-72 border-2 rounded-md"
+            className="my-2 p-2 w-72 border-2 rounded-md"
             value={formData.academic_background}
             onChange={(e) => handleChange(e)}
             required
           />
-        </div>
-        <div className="grid grid-cols-1 my-4 p-2">
-          <label className="my-2 text-2xl text-lightNavy">전공분야</label>
+        </section>
+        <section className="grid grid-cols-1 my-4 p-2 border-b-2">
+          <label className="my-2 text-3xl font-semibold text-lightNavy ">
+            전공분야
+          </label>
           <input
             name="specialization"
-            className="p-2 w-72 border-2 rounded-md"
+            className="my-2 p-2 w-72 border-2 rounded-md"
             value={formData.specialization}
             onChange={(e) => handleChange(e)}
             required
           />
-        </div>
-        <button
-          onClick={(e) => handleUpdateSubmit(e)}
-          className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
-        >
-          수정하기
-        </button>
-        <button
-          onClick={handleDelete}
-          className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300"
-        >
-          회원탈퇴
-        </button>
+        </section>
+        <section className="flex justify-end">
+          <button
+            type="submit"
+            className="mx-2 p-3 bg-blue-300 text-white font-semibold rounded-md shadow-md hover:bg-blue-400"
+          >
+            수정하기
+          </button>
+          {/* 모달을 이용하여 삭제 */}
+          <DeleteModal purpose="teacher" />
+        </section>
       </form>
     </div>
   );

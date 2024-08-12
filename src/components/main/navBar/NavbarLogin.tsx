@@ -59,7 +59,7 @@ const NavbarLogin: React.FC = () => {
   // 로그인을 안했을때 로그인 하라고 하면서 로그인 창으로 이동시키기
   const handleIsLogin = () => {
     toast.warn("로그인을 해야 이용 가능합니다.", {
-      position: "top-center",
+      position: "top-right",
     });
     navigate("/user/login");
   };
@@ -114,7 +114,7 @@ const NavbarLogin: React.FC = () => {
           <input
             type="text"
             name="search"
-            placeholder="나의 성장을 도와줄 강의를 검색해보세요."
+            placeholder="나의 성장을 도와줄 커리큘럼을 검색해보세요."
             value={inputSearch}
             onChange={(e) => handleChange(e)}
             className="p-2 border-2 w-full h-10 rounded-md border-hardBeige"
@@ -155,7 +155,7 @@ const NavbarLogin: React.FC = () => {
       {/* 로그인 및 회원가입 버튼 */}
       <div className="hidden mr-3 lg:flex items-center ml-4 lg:ml-0">
         <button
-          className="w-auto ml-2 p-2 border-2 border-hardBeige rounded-md"
+          className="ml-2 p-2 w-auto border-2 font-semibold border-hardBeige rounded-md bg-white"
           onClick={() => {
             navigate("/user/login");
           }}
@@ -164,7 +164,7 @@ const NavbarLogin: React.FC = () => {
         </button>
 
         <button
-          className="w-auto ml-2 p-2 text-white bg-red-400 border-2 border-hardBeige rounded-md hover:bg-red-500"
+          className="ml-2 p-2 w-auto text-white font-semibold bg-red-400 border-2 border-hardBeige rounded-md hover:bg-red-500"
           onClick={() => {
             navigate("/user/signup");
           }}
@@ -206,7 +206,7 @@ const NavbarLogin: React.FC = () => {
           </ul>
           <div className="flex flex-col items-center mt-4 mx-2">
             <button
-              className="w-full mb-2 p-2 border-2 border-hardBeige rounded-md"
+              className="w-full mb-2 p-2 font-semibold border-2 border-hardBeige rounded-md"
               onClick={() => {
                 navigate("/user/login");
               }}
@@ -214,7 +214,7 @@ const NavbarLogin: React.FC = () => {
               로그인
             </button>
             <button
-              className="text-white bg-red-400 border-2 p-2 rounded-md hover:bg-red-500 w-full"
+              className="text-white font-semibold bg-red-400 border-2 p-2 rounded-md hover:bg-red-500 w-full"
               onClick={() => {
                 navigate("/user/signup");
               }}

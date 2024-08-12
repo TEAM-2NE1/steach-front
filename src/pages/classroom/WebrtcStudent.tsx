@@ -514,7 +514,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 						screenShareEnabled={user.screenShareEnabled}
 						screenShareDisabledByTeacher={user.screenShareDisabledByTeacher}
 						//아랫줄 주석 치면 어케 되나?
-						muted={userRole !== 'teacher' && user.userRole !== 'teacher'} // Students can only see the teacher's video
+						muted={userRole.toUpperCase() !== 'teacher'.toUpperCase() && user.userRole.toUpperCase() !== 'teacher'.toUpperCase()} // Students can only see the teacher's video
 					/>
 				</div>
 			))}

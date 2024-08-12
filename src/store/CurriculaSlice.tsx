@@ -18,7 +18,7 @@ import axios from "axios";
 // 이진송
 // axios 구성 기본틀인데 서버통신 가능할때 시험해보고 적용할 것 같음
 export interface CurriculasState {
-  curricula: Curricula[];
+  curricula: Curricula | null;
   lectureslist: LectureSeries | null;
   returnHotCurriculaList: returnHotCurriculaList | null;
   returnLastestCurriculaList: returnLastestCurriculaList | null;
@@ -30,7 +30,7 @@ export interface CurriculasState {
 
 // 커리큘럼 및 강의 초기 상태
 const initialState: CurriculasState = {
-  curricula: [],
+  curricula: null,
   lectureslist: null,
   returnHotCurriculaList: null,
   returnLastestCurriculaList: null,
@@ -185,7 +185,7 @@ const curriculaSlice = createSlice({
         SignUpLecture.fulfilled,
         (state, action: PayloadAction<Curricula>) => {
           state.status = "succeeded";
-          state.curricula.push(action.payload);
+          state.curricula = action.payload;
         }
       )
       .addCase(SignUpLecture.rejected, (state, action) => {
@@ -200,7 +200,7 @@ const curriculaSlice = createSlice({
         petchCurriculumDetails.fulfilled,
         (state, action: PayloadAction<Curricula>) => {
           state.status = "succeeded";
-          state.curricula.push(action.payload);
+          state.curricula = action.payload;
         }
       )
       .addCase(petchCurriculumDetails.rejected, (state, action) => {
@@ -295,7 +295,7 @@ const curriculaSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
       })
-      // pop한 강의 들고오기
+      // lastest한 강의 들고오기
       .addCase(getLastestLecturelist.pending, (state) => {
         state.status = "loading";
       })

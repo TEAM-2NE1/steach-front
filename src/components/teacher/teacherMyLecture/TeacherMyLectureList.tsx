@@ -1,3 +1,8 @@
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../../store";
+import { Lecture } from "../../../interface/Curriculainterface";
 import {
   AccordionPanel,
   Accordion,
@@ -7,17 +12,14 @@ import {
   Box,
   Text,
 } from "@chakra-ui/react";
-import { useNavigate, useParams } from "react-router-dom";
-import defaultImg from "../../../assets/default.png";
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { AppDispatch, RootState } from "../../../store";
 import {
+  CurriculasState,
   getCurriculaDetail,
   getCurriculaLectureList,
 } from "../../../store/CurriculaSlice";
-import { deleteCurriculaDetail } from "../../../store/CurriculaSlice";
+import defaultImg from "../../../assets/default.png";
 import TeacherMyLectureListButton from "./TeacherMyLectureListButton";
+import DeleteModal from "../../main/modal/DeleteModal";
 import Spinner from "../../main/spinner/Spinner";
 
 const TeacherMyLectureList: React.FC = () => {
@@ -25,21 +27,22 @@ const TeacherMyLectureList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   // curricula_id 추출
-  const { curricula_id } = useParams<{ curricula_id: string }>();
-
-  // username 추출
-  const userData = localStorage.getItem("auth");
-  const username = userData ? JSON.parse(userData).username : null;
+  const { username, curricula_id } = useParams<{
+    username: string;
+    curricula_id: string;
+  }>();
 
   // 커리큘럼 단일 상태를 조회
   const lectures = useSelector(
-    (state: RootState) => state.curriculum.selectlectures
+    (state: RootState) => (state.curriculum as CurriculasState).selectlectures
   );
-  const status = useSelector((state: RootState) => state.curriculum.status);
+  const status = useSelector(
+    (state: RootState) => (state.curriculum as CurriculasState).status
+  );
 
   // 단일 커리큘럼에 대한 강의 리스트 상태를 조회
   const lectureslist = useSelector(
-    (state: RootState) => state.curriculum.lectureslist
+    (state: RootState) => (state.curriculum as CurriculasState).lectureslist
   );
 
   // 페이지에 들어왔을때 curricula_id를 이용하여 함수 실행하기
@@ -58,36 +61,23 @@ const TeacherMyLectureList: React.FC = () => {
     return Math.floor(difference / (1000 * 60 * 60 * 24)); // 밀리초를 일 단위로 변환
   };
 
-  // 커리큘럼 삭제
-  const handleCurriculaDelete = (curricula_id: string) => {
-    dispatch(deleteCurriculaDetail(curricula_id));
-    navigate(`/teacher/profile/${username}`);
-    window.location.reload();
-  };
-
   return (
-    <div className="grid grid-cols-12">
+    <div className="grid grid-cols-12 min-h-screen">
       <div className="col-span-1"></div>
       <div className="col-span-10">
         <div className="p-9 bg-white relative">
-          <header className="text-4xl text-indigo-900">
+          <header className="text-5xl font-bold text-indigo-900">
             내 커리큘럼 {">"} {lectures?.title}
           </header>
           <div className="absolute right-20">
             <button
-              className="mx-2 p-3 rounded-md bg-violet-200 text-white shadow-md hover:bg-violet-300"
-              onClick={() =>
-                navigate(`/curricula/update/${lectures?.curriculum_id}`)
-              }
+              className="mx-2 p-3 rounded-md bg-violet-300 text-white font-semibold shadow-md hover:bg-violet-400"
+              onClick={() => navigate(`update`)}
             >
               커리큘럼 수정
             </button>
-            <button
-              onClick={() => handleCurriculaDelete(curricula_id!)}
-              className="mx-2 p-3 rounded-md bg-red-200 text-white shadow-md hover:bg-red-300"
-            >
-              커리큘럼 삭제
-            </button>
+            {/* 모달을 이용하여 삭제 */}
+            <DeleteModal purpose="curricula" />
           </div>
           <section className="flex items-center my-7">
             <img
@@ -97,19 +87,20 @@ const TeacherMyLectureList: React.FC = () => {
               onError={(e) => (e.currentTarget.src = defaultImg)}
             />
             <main className="mx-4">
-              <h1 className="my-3 text-2xl">{lectures?.sub_title}</h1>
-              <p className="text-sm text-slate-500">
+              <h1 className="my-3 text-3xl">{lectures?.sub_title}</h1>
+              <p className="text-md text-slate-500">
                 {lectures?.start_date} ~ {lectures?.end_date}
               </p>
-              <p className="text-sm text-slate-500">
-                {lectures?.lecture_start_time}시 ~ {lectures?.lecture_end_time}
-                시
+              <p className="text-md text-slate-500">
+                {lectures?.lecture_start_time} ~ {lectures?.lecture_end_time}
               </p>
             </main>
           </section>
           {status === "loading" && <Spinner />}
           <section className="mx-3 mt-12 mb-3 border-gray-300 p-4">
-            <h1 className="my-3 text-3xl text-lightNavy">강의목록</h1>
+            <h1 className="my-5 text-4xl text-lightNavy font-semibold">
+              강의목록
+            </h1>
             <Accordion className="shadow-lg" defaultIndex={[]} allowMultiple>
               {Array.from(
                 { length: lectureslist?.week_count ?? 0 },
@@ -127,14 +118,14 @@ const TeacherMyLectureList: React.FC = () => {
                     <AccordionButton className="bg-gray-200 hover:bg-gray-300">
                       <Box as="span" flex="1" textAlign="left" className="p-2">
                         <Text className="text-2xl">
-                          [{lectures?.title}] {index + 1}주차 강의
+                          &nbsp; {index + 1}주차 강의
                         </Text>
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>
                     <AccordionPanel pb={4} className="p-3 bg-white">
                       {lectureslist?.lectures[index + 1].map(
-                        (lecture, index2) => {
+                        (lecture: Lecture, index2: number) => {
                           const daysAgo = calculateDaysAgo(
                             lecture.lecture_start_time.slice(0, 10)
                           );

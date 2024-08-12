@@ -11,7 +11,7 @@ import {
 
 const ProfileLectureHistory: React.FC = () => {
   return (
-    <div className="m-6">
+    <div className="mx-8 my-10 min-h-screen">
       <h1 className="my-4 text-4xl text-lightNavy font-bold">
         지난 강의 내역이에요!
       </h1>

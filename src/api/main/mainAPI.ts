@@ -11,7 +11,7 @@ export const fetchLatestCurricula = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/api/v1/curricula`, {
       params: {
-        order: "POPULAR_PER_RATIO",
+        order: "LATEST",
         only_available: true,
         pageSize: 7,
         currentPageNumber: 1,
@@ -28,7 +28,7 @@ export const fetchPopularCurricula = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/api/v1/curricula`, {
       params: {
-        order: "LATEST",
+        order: "POPULAR_PER_RATIO",
         only_available: true,
         pageSize: 7,
         currentPageNumber: 1,

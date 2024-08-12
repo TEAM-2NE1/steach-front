@@ -25,7 +25,6 @@ interface Subject {
 
 const SearchCategoryMenu: React.FC<SearchCategoryMenuProps> = ({
   searchOption,
-  //initialCategory,
 }) => {
   const navigate = useNavigate();
 
@@ -73,7 +72,9 @@ const SearchCategoryMenu: React.FC<SearchCategoryMenuProps> = ({
               alt={subject.name}
               className="sm:size-8 md:size-12 lg:size-16 text-indigo-950"
             />
-            <div className="text-lightNavy">{subject.name}</div>
+            <div className="text-lg font-semibold text-lightNavy">
+              {subject.name}
+            </div>
           </button>
         ))}
       </div>

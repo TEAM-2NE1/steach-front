@@ -15,6 +15,7 @@ import {
   checkUsernameDuplicateApi,
   checkTeacherEmailDuplicateApi,
 } from "../../../api/user/userAPI.ts";
+import { toast } from "react-toastify";
 import teacher from "../../../assets/teacher.png";
 import SpinnerComponent from "../../main/spinner/Spinner";
 
@@ -106,9 +107,14 @@ const TeacherSignUp: React.FC = () => {
       checkInfo.passwordCoincidence
     ) {
       requestSignUp();
+      toast.success("회원가입이 완료 되었습니다!", {
+        position: "top-right",
+      });
     } else {
       // 아니면 경고 alert
-      console.log("정보를 다시 입력해주세요");
+      toast.error("정보를 다시 입력해주세요!", {
+        position: "top-right",
+      });
     }
   };
 

@@ -4,6 +4,8 @@ import { SearchSendCurricula } from "../../interface/search/SearchInterface";
 import { searchCurricula } from "../../store/SearchSlice";
 import { AppDispatch, RootState } from "../../store";
 import { useLocation, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import SearchCategoryMenu from "../../components/main/search/SearchCategoryMenu";
 import SearchOrderMenu from "../../components/main/search/SearchOrderMenu";
 import SearchSwitch from "../../components/main/search/SearchSwitch";
@@ -90,34 +92,40 @@ const SearchPage: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-12">
+    <div className="grid grid-cols-12 min-h-screen">
       <div className="col-span-1"></div>
       <main className="col-span-10">
         <form className="my-4" onSubmit={(e) => handleSearch(e)}>
-          <div className="flex justify-center">
+          <section className="flex justify-center">
             <SearchCategoryMenu searchOption={searchOption} />
-          </div>
-          <div className="flex justify-evenly items-center">
-            <SearchOrderMenu handleOptionChange={handleOptionChange} />
-            <input
-              type="text"
-              name="search"
-              className="ml-3 p-3 w-2/3 border-2 rounded-md"
-              value={searchOption.search}
-              onChange={(e) => handleOptionChange(e)}
-            />
-            <button
-              type="submit"
-              className="mr-2 p-3 rounded-md bg-red-200 text-white hover:bg-red-300"
-            >
-              검색하기
-            </button>
-            <SearchSwitch
-              searchOption={searchOption}
-              handleOptionChange={handleOptionChange}
-              handleSearch={handleSearch}
-            />
-          </div>
+          </section>
+          <section className="grid grid-cols-6 items-center">
+            <div className="col-span-1 flex justify-end">
+              <SearchOrderMenu handleOptionChange={handleOptionChange} />
+            </div>
+            <div className="col-span-4 mx-4 relative">
+              <input
+                type="text"
+                name="search"
+                className="ml-3 p-3 w-full border-2 rounded-md"
+                value={searchOption.search}
+                onChange={(e) => handleOptionChange(e)}
+              />
+              <button
+                type="submit"
+                className="absolute top-2.5 right-0 mr-2 hover:text-orange-300"
+              >
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="size-8" />
+              </button>
+            </div>
+            <div className="mx-auto col-span-1">
+              <SearchSwitch
+                searchOption={searchOption}
+                handleOptionChange={handleOptionChange}
+                handleSearch={handleSearch}
+              />
+            </div>
+          </section>
         </form>
         {status === "loading" && <Spinner />}
         {status === "succeeded" && curriculas.length === 0 && (
@@ -125,7 +133,7 @@ const SearchPage: React.FC = () => {
         )}
         {status === "succeeded" && curriculas.length > 0 && (
           <div className="my-10">
-            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:">
               {curriculas.map((curriculum) => (
                 <SearchCard
                   key={curriculum.curriculum_id}

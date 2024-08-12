@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams, useNavigate, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import {
   getCurriculaLectureList,
@@ -8,9 +8,10 @@ import {
   applyCurricula,
   applyCurriculaCheck,
   CurriculaCancel,
-} from "../../store/CurriculaSlice";
-import { getLecturelist } from "../../store/LectureSlice";
-import { useDispatch } from "react-redux";
+  CurriculasState,
+} from "../../store/CurriculaSlice.tsx";
+import { getLecturelist } from "../../store/LectureSlice.tsx";
+import { Lecture } from "../../interface/Curriculainterface.tsx";
 import img1 from "../../../src/assets/checked.jpg";
 import img2 from "../../../src/assets/unchecked.jpg";
 import img3 from "../../../src/assets/human.png";
@@ -26,6 +27,18 @@ import {
 } from "@chakra-ui/react";
 import defaultImg from "../../assets/default.png";
 import Spinner from "../main/spinner/Spinner";
+import DOMPurify from 'dompurify'
+// import Markdown from "../main/Markdown.tsx";
+
+const sanitizedData = (htmlString: string) => ({
+  __html: htmlString ? DOMPurify.sanitize(htmlString) : 'error'
+})
+
+// function decodeHtml(html) {
+//   const text = document.createElement("textarea");
+//   text.innerHTML = html;
+//   return text.value;
+// }
 
 const LectureDetail: React.FC = () => {
   // 이진송
@@ -36,18 +49,14 @@ const LectureDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const lectures = useSelector(
-    (state: RootState) => state.curriculum.selectlectures
-  );
-  const lectureslist = useSelector(
-    (state: RootState) => state.curriculum.lectureslist
-  );
+  // const [lectureDescription, setLectureDescription] = useState('');
+  const [lectureDescription, setLectureDescription] = useState<{ __html: string }>({ __html: '' });
+  const lectures = useSelector((state: RootState) => (state.curriculum as CurriculasState).selectlectures);
+  const lectureslist = useSelector((state: RootState) => (state.curriculum as CurriculasState).lectureslist);
 
-  const isApply = useSelector((state: RootState) => state.curriculum.isApply);
-  const status = useSelector((state: RootState) => state.curriculum.status);
-  const error = useSelector((state: RootState) => state.curriculum.error);
-  console.log(lectures)
-  console.log(lectureslist)
+  const isApply = useSelector((state: RootState) => (state.curriculum as CurriculasState).isApply);
+  const status = useSelector((state: RootState) => (state.curriculum as CurriculasState).status);
+  const error = useSelector((state: RootState) => (state.curriculum as CurriculasState).error);
 
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
@@ -82,6 +91,12 @@ const LectureDetail: React.FC = () => {
     setToday(formattedDate);
   }, []);
 
+  useEffect(() => {
+    if(lectures?.information){
+      setLectureDescription(sanitizedData(lectures?.information));
+    }
+  }, [lectures]);
+
   async function applyCurriculaBtn() {
     if (id) {
       await dispatch(applyCurricula(id));
@@ -97,13 +112,15 @@ const LectureDetail: React.FC = () => {
   }
 
   let startLecture: any;
-  function calculateDaysAgo(dateString: any) {
+  const calculateDaysAgo = (dateString: string): number => {
     const targetDate = new Date(dateString);
     const today = new Date(new Date().toISOString().slice(0, 10));
     const difference = today.getTime() - targetDate.getTime();
     return Math.floor(difference / (1000 * 60 * 60 * 24)); // 밀리초를 일 단위로 변환
-  }
+  };
 
+
+  console.log('raw Data: ', lectures?.information);
   return (
     <>
       <header className="flex bg-gray-800 text-white text-left py-2.5 justify-center">
@@ -119,7 +136,7 @@ const LectureDetail: React.FC = () => {
               <div className="flex items-center">
                 <img src={img3} className="w-10 h-10 m-5" />
                 <span>
-                  {lectures?.teacher_name} 선생님 - 강사상세페이지, 만들어야함
+                  {lectures?.teacher_name} 선생님
                 </span>
               </div>
             </Link>
@@ -162,9 +179,42 @@ const LectureDetail: React.FC = () => {
             <h1 className="text-5xl" id="intro">
               강의 소개
             </h1>
-            <div className="bg-gray-200 rounded-lg p-10 my-10">
-              <p className="text-xl">{lectures?.information}</p>
-            </div>
+            <style>{`
+            
+              .lecture-content{
+                font-weight: revert;
+                margin: 2em 1em 2em 1em;
+                padding: 3em;
+                border-radius: 20px;
+                // padding: 3em 2em 3em 2em;
+                background: #f2f2f2;
+              }
+            
+              .lecture-content ul, .lecture-content ol {
+                padding-left: 20px;
+                list-style: revert;
+              }
+              
+              .lecture-content h1, h2, h3, h4, h5, h6 {
+                font-weight: 700;
+                font-size: revert;
+              }
+              
+              blockquote {
+                max-width: 100%;
+                margin: 0.5rem auto;
+                padding: 0.5rem 1.5rem;
+                background: #fff;
+                border-left: 6px solid #b8b8b8;
+                &::before, &::after{
+                  position: absolute;
+                  left: 0;
+                  font-size: 1rem;
+                  color: #b8b8b8;
+                }
+              }`
+            }</style>
+            <div className="lecture-content" dangerouslySetInnerHTML={lectureDescription}/>
           </div>
           <h1 className="text-5xl pt-10" id="day">
             강의 요일
@@ -231,7 +281,7 @@ const LectureDetail: React.FC = () => {
                   </AccordionButton>
                   <AccordionPanel pb={4} className="p-3 bg-white">
                     {lectureslist?.lectures[index + 1].map(
-                      (lecture, index2) => {
+                      (lecture:Lecture, index2:number) => {
                         const daysAgo = calculateDaysAgo(
                           lecture.lecture_start_time.slice(0, 10)
                         );
@@ -276,7 +326,7 @@ const LectureDetail: React.FC = () => {
           </Accordion>
           <div></div>
         </div>
-        <div className="sticky top-24 lg:right-24 xl:right-44 right-0 h-96 w-96 bg-white ml-10 mt-3 p-4 flex flex-col rounded-lg border-2 border-gray-400">
+        <div className="sticky top-24 lg:right-24 xl:right-44 right-0 h-1/2 w-96 bg-white ml-10 mt-3 p-4 flex flex-col rounded-lg border-2 border-gray-400">
           <h3 className="text-3xl font-bold ml-4 mb-4 text-red-600">무료</h3>
           <h3 className="text-2xl font-bold mb-4">{lectures?.title}</h3>
           {userData &&
@@ -285,7 +335,7 @@ const LectureDetail: React.FC = () => {
             <button
               className="w-full mb-5 py-2 px-4 bg-gray-500 text-white font-bold rounded self-center"
               onClick={() => {
-                navigate(`/curricula/update/${id}`);
+                navigate(`/teacher/profile/${userData.username}/curricula/${id}/update`);
               }}
             >
               수정하기
@@ -353,7 +403,7 @@ const LectureDetail: React.FC = () => {
               </div>
               <div>
                 <span className="hidden">
-                  {(startLecture = calculateDaysAgo(lectures?.start_date))}
+                  {(startLecture = calculateDaysAgo(lectures?.start_date ?? "default-date"))}
                 </span>
                 <ul>
                   <li>{lectures?.teacher_name} 강사님</li>
@@ -379,7 +429,7 @@ const LectureDetail: React.FC = () => {
             </div>
             <div>
               <span className="hidden">
-                {(startLecture = calculateDaysAgo(lectures?.start_date))}
+                {(startLecture = calculateDaysAgo(lectures?.start_date ?? "default-date"))}
               </span>
               <ul>
                 <li>{lectures?.teacher_name} 선생님</li>
@@ -392,7 +442,7 @@ const LectureDetail: React.FC = () => {
               </ul>
             </div>
           </div>
-          <p className="text-center mt-auto text-xl">
+          <p className="text-center mt-auto text-xl ">
             {startLecture > 0
               ? `이미 ${startLecture}일 전에 강의가 시작했어요!`
               : startLecture < 0
