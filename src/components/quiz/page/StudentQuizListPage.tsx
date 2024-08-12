@@ -90,7 +90,7 @@ const TeacherQuizListPage: React.FC = () => {
       }
 
       try {
-        const curriculaResponse = await axios.get(`${BASE_URL}/api/v1/teachers/curricula`, {
+        const curriculaResponse = await axios.get(`${BASE_URL}/api/v1/students/curricula`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -173,8 +173,8 @@ const TeacherQuizListPage: React.FC = () => {
                 <DetailQuiz
                   initialQuizData={selectedQuiz}
                   onClose={handleCloseModal}
-                  trialVersion={true}
-                  isTeacher={true}
+                  trialVersion={false}
+                  isTeacher={false}
                 />
               </div>
             </div>
