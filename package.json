@@ -22,6 +22,7 @@
     "@mui/material": "^5.16.4",
     "@reduxjs/toolkit": "^1.9.7",
     "@ruffle-rs/ruffle": "^0.1.0-nightly.2024.8.4",
+    "@toast-ui/editor": "^3.2.2",
     "@types/draft-js": "^0.11.18",
     "@types/react-modal": "^3.16.3",
     "@types/react-redux": "^7.1.33",

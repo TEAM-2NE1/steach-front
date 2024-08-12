@@ -11,6 +11,9 @@ export default {
         lineseed: ["lineseed", "sans-serif"],
       },
       colors: {
+        discordChatBg: '#36393F',
+        discordChatBg2: '#2F3136',
+        discordText: '#FFFFFF',
         hoverNavy: "#36425F",
         lightNavy: "#536493",
         ivory: "#FFFFF0",
