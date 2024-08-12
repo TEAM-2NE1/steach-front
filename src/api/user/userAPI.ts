@@ -211,6 +211,7 @@ export const studentInfoUpdate = async (formData: StudentInfoUpdateForm) => {
         },
       }
     );
+
     return response.data;
   } catch (error) {
     console.error(error);
@@ -262,5 +263,41 @@ export const targetTeacherInfoGet = async (teacher_id: string) => {
   } catch (error) {
     console.error(error);
     throw error;
+  }
+};
+
+// 학생 레이다 차트 조회
+export const fetchStudentRadarChartApi = async () => {
+  const token = await getAuthToken();
+  const response = await axios.get(
+    `${BASE_URL}/api/v1/statistics/radar-chart`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data.scores;
+};
+
+// 학생 AI 진로추천 가져오기
+export const fetchStudentAICareerRecommendApi = async () => {
+  try {
+    const token = await getAuthToken();
+    const response = await axios.post(
+      `${BASE_URL}/api/v1/gpt/career`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log(response.data);
+
+    return response.data;
+  } catch (error) {
+    return null;
   }
 };

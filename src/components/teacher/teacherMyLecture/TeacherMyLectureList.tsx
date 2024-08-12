@@ -47,10 +47,13 @@ const TeacherMyLectureList: React.FC = () => {
 
   // 페이지에 들어왔을때 curricula_id를 이용하여 함수 실행하기
   useEffect(() => {
-    if (curricula_id) {
-      dispatch(getCurriculaDetail(curricula_id));
-      dispatch(getCurriculaLectureList(curricula_id));
-    }
+    const getCurricula = async () => {
+      if (curricula_id) {
+        await dispatch(getCurriculaDetail(curricula_id));
+        dispatch(getCurriculaLectureList(curricula_id));
+      }
+    };
+    getCurricula();
   }, [curricula_id, dispatch]);
 
   // 디데이 계산 함수
@@ -117,7 +120,7 @@ const TeacherMyLectureList: React.FC = () => {
                   >
                     <AccordionButton className="bg-gray-200 hover:bg-gray-300">
                       <Box as="span" flex="1" textAlign="left" className="p-2">
-                        <Text className="text-2xl">
+                        <Text className="text-2xl font-bold">
                           &nbsp; {index + 1}주차 강의
                         </Text>
                       </Box>
@@ -135,7 +138,7 @@ const TeacherMyLectureList: React.FC = () => {
                               className="grid grid-cols-4 border-b-2 border-gray-400 pt-1"
                             >
                               <div className="col-span-2">
-                                <h2 className="text-xl">
+                                <h2 className="text-xl font-semibold">
                                   {lecture.lecture_title}
                                 </h2>
                                 <p>
@@ -146,17 +149,21 @@ const TeacherMyLectureList: React.FC = () => {
                                     : "오늘 강의입니다."}
                                 </p>
                               </div>
-                              <div className="flex col-span-1 text-right md:justify-left lg:justify-end">
+                              <div className="flex col-span-1 md:justify-left lg:justify-end">
                                 <header>
                                   <p>강의 날짜 : </p>
                                   <p>시작 시간 : </p>
+                                  <p>종료 시간 : </p>
                                 </header>
                                 <main>
                                   <p>
                                     {lecture.lecture_start_time.slice(0, 10)}
                                   </p>
                                   <p>
-                                    {lecture.lecture_start_time.slice(11, 19)}
+                                    {lecture.lecture_start_time.slice(11, 16)}
+                                  </p>
+                                  <p>
+                                    {lecture.lecture_end_time.slice(11, 16)}
                                   </p>
                                 </main>
                               </div>

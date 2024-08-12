@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { fetchTeacherCurriculaList } from "../../../store/userInfo/TeacherProfileSlice";
 import { useNavigate } from "react-router-dom";
+import TeacherNothingCurricula from "./TeacherNothingCurricula";
 import defaultImg from "../../../assets/default.png";
 import Spinner from "../../main/spinner/Spinner";
 
@@ -57,8 +58,11 @@ const TeacherMyCurricula: React.FC = () => {
   return (
     <>
       {status === "loading" && <Spinner />}
-      {status === "succeeded" && (
-        <div className="p-6 bg-white min-h-screen flex flex-col justify-between">
+      {status === "succeeded" && teacherCurriculas.length === 0 && (
+        <TeacherNothingCurricula />
+      )}
+      {status === "succeeded" && teacherCurriculas.length > 0 && (
+        <div className="my-4 p-6 bg-white min-h-screen flex flex-col justify-between">
           <h1 className="mx-20 my-4 text-4xl font-bold text-lightNavy">
             내가 강의하는 커리큘럼
           </h1>

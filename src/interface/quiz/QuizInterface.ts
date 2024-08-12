@@ -14,6 +14,7 @@ export interface QuizDetailForm {
   question: string;
   choices: string[];
   answers: number;
+  time: number;
 }
 
 // 퀴즈 수정 내부 인터페이스

@@ -18,6 +18,7 @@ export const getLectureDetailApi = async (lectureId: number) => {
     lecture_title: response.data.lecture_title,
     lecture_order: response.data.lecture_order,
     lecture_start_time: response.data.lecture_start_time,
+    lecture_end_time: response.data.lecture_end_time,
   };
 
   return data;
@@ -34,6 +35,7 @@ export const patchLectureDetailApi = async (lectureData: PatchLecture) => {
   const updateLectureData = {
     lecture_title: lectureData.lecture_title,
     lecture_start_time: lectureData.lecture_start_time,
+    lecture_end_time: lectureData.lecture_end_time,
   };
   const response = await axios.patch(
     `${BASE_URL}/api/v1/lectures/${lectureId}`,

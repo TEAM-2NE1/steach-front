@@ -1,7 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { StudentInfoUpdateForm } from "../../components/student/studentMyInfo/StudentMyInfoUpdateForm";
-import { studentInfoGet } from "../../api/user/userAPI";
-import { studentInfoUpdate } from "../../api/user/userAPI";
+import {
+  fetchStudentAICareerRecommendApi,
+  studentInfoGet,
+} from "../../api/user/userAPI";
+import {
+  studentInfoUpdate,
+  fetchStudentRadarChartApi,
+} from "../../api/user/userAPI";
 import { returnStudentCurriculaList } from "../../interface/Curriculainterface";
 import { getStudentCurriculaList } from "../../api/lecture/curriculumAPI";
 import {
@@ -69,6 +75,23 @@ export const getStudentCurriculas =
     }
   );
 
+// gpt 진로 추천
+export const fetchStudentAICareerRecommend = createAsyncThunk(
+  "student/ai-recommend",
+  async (_, thunkAPI) => {
+    try {
+      const response = await fetchStudentAICareerRecommendApi();
+
+      return response;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return thunkAPI.rejectWithValue(error.response.data);
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 // 학생 프로필 슬라이스
 const studentProfileSlice = createSlice({
   name: "studentProfile",
@@ -109,6 +132,17 @@ const studentProfileSlice = createSlice({
         state.curricula = action.payload.curricula;
       })
       .addCase(getStudentCurriculas.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || null;
+      })
+      // 학생 AI 진로추천 조회
+      .addCase(fetchStudentAICareerRecommend.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchStudentAICareerRecommend.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(fetchStudentAICareerRecommend.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || null;
       });

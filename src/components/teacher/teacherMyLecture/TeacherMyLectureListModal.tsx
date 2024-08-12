@@ -31,8 +31,13 @@ const TeacherMyLectureListModal: React.FC<TeacherMyLectureListModalProps> = ({
   // 모달 여닫는 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // timePicker 및 lectureTitle 상태 초기화
-  const [timePicker, setTimePicker] = useState<string | undefined>(undefined);
+  // timePickerStartTime, timepickerEndTime 및 lectureTitle 상태 초기화
+  const [timePickerStartTime, setTimePickerStartTime] = useState<
+    string | undefined
+  >(undefined);
+  const [timePickerEndTime, setTimePickerEndTime] = useState<
+    string | undefined
+  >(undefined);
   const [lectureTitle, setLectureTitle] = useState<string | undefined>(
     undefined
   );
@@ -47,7 +52,8 @@ const TeacherMyLectureListModal: React.FC<TeacherMyLectureListModalProps> = ({
   // lecture가 업데이트될 때마다 timePicker와 lectureTitle 상태를 업데이트
   useEffect(() => {
     if (lecture) {
-      setTimePicker(lecture.lecture_start_time.substring(11, 16));
+      setTimePickerStartTime(lecture.lecture_start_time.substring(11, 16));
+      setTimePickerEndTime(lecture.lecture_end_time.substring(11, 16));
       setLectureTitle(lecture.lecture_title);
     }
   }, [lecture]);
@@ -63,20 +69,31 @@ const TeacherMyLectureListModal: React.FC<TeacherMyLectureListModalProps> = ({
 
   // 수정하기 핸들러 함수
   const handleOk = async () => {
-    if (timePicker) {
-      const date = dayjs(timePicker, format).toDate();
+    if (timePickerStartTime) {
+      // 시작 시간 변환
+      const dateStart = dayjs(timePickerStartTime, format).toDate();
+      const starthours = dateStart.getHours();
+      const startminutes = dateStart.getMinutes();
 
-      const hours = date.getHours();
-      const minutes = date.getMinutes();
+      // 종료 시간 변환
+      const dateEnd = dayjs(timePickerEndTime, format).toDate();
+      const endhours = dateEnd.getHours();
+      const endminutes = dateEnd.getMinutes();
 
       // 시간을 'HH:mm' 형식으로 포맷
-      const formattedTime = `${String(hours).padStart(2, "0")}:${String(
-        minutes
+      const formattedStartTime = `${String(starthours).padStart(
+        2,
+        "0"
+      )}:${String(startminutes).padStart(2, "0")}`;
+      const formattedEndTime = `${String(endhours).padStart(2, "0")}:${String(
+        endminutes
       ).padStart(2, "0")}`;
+
       const lectureData: PatchLecture = {
         lecture_id: lectureId,
         lecture_title: lectureTitle,
-        lecture_start_time: formattedTime,
+        lecture_start_time: formattedStartTime,
+        lecture_end_time: formattedEndTime,
       };
       // 강의 정보 수정 함수 호출
       await dispatch(patchLectureDetail(lectureData));
@@ -114,12 +131,30 @@ const TeacherMyLectureListModal: React.FC<TeacherMyLectureListModalProps> = ({
             />
           </div>
           <div>
-            <h2 className="mt-4 text-xl">강의 시간</h2>
+            <h2 className="mt-4 text-xl">강의 시작시간</h2>
             <TimePicker
-              value={timePicker ? dayjs(timePicker, format) : undefined}
+              value={
+                timePickerStartTime
+                  ? dayjs(timePickerStartTime, format)
+                  : undefined
+              }
               format={format}
               onChange={(timeString) =>
-                setTimePicker(
+                setTimePickerStartTime(
+                  Array.isArray(timeString) ? timeString[0] : timeString
+                )
+              }
+            />
+          </div>
+          <div>
+            <h2 className="mt-4 text-xl">강의 종료시간</h2>
+            <TimePicker
+              value={
+                timePickerEndTime ? dayjs(timePickerEndTime, format) : undefined
+              }
+              format={format}
+              onChange={(timeString) =>
+                setTimePickerEndTime(
                   Array.isArray(timeString) ? timeString[0] : timeString
                 )
               }

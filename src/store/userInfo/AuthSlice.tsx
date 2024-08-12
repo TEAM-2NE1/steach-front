@@ -21,6 +21,7 @@ export interface UserState {
   token: string;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+
   username: string;
 }
 

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaPencilAlt, FaHistory } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
-import ProfileLectureHistory from "../../components/student/ProfileLectureHistory";
 import { useNavigate } from "react-router-dom";
+import ProfileLectureHistory from "../../components/student/ProfileLectureHistory";
 import TeacherMyInfo from "../../components/teacher/teacherMyInfo/TeacherMyInfo";
 import TeacherMyCurricula from "../../components/teacher/teacherMyLecture/TeacherMyCurricula";
 

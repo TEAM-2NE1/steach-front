@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Radar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,57 +10,86 @@ import {
   Legend,
 } from "chart.js";
 import { Card, CardHeader, CardBody, Box } from "@chakra-ui/react";
-
-ChartJS.register(
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend
-);
-
-const data = {
-  labels: ["국어", "수학", "사회", "과학", "예체능", "공학", "외국어"],
-  datasets: [
-    {
-      label: "My First Dataset",
-      data: [65, 59, 90, 81, 56, 55, 40],
-      fill: true,
-      backgroundColor: "rgba(255, 99, 132, 0.2)",
-      borderColor: "rgb(255, 99, 132)",
-      pointBackgroundColor: "rgb(255, 99, 132)",
-      pointBorderColor: "#fff",
-      pointRadius: 2,
-      pointHoverBackgroundColor: "#fff",
-      pointHoverBorderColor: "rgb(255, 99, 132)",
-    },
-    {
-      label: "My Second Dataset",
-      data: [28, 48, 40, 19, 96, 27, 100],
-      fill: true,
-      backgroundColor: "rgba(54, 162, 235, 0.2)",
-      borderColor: "rgb(54, 162, 235)",
-      pointBackgroundColor: "rgb(54, 162, 235)",
-      pointBorderColor: "#fff",
-      pointRadius: 2,
-      pointHoverBackgroundColor: "#fff",
-      pointHoverBorderColor: "rgb(54, 162, 235)",
-    },
-  ],
-};
-
-const options = {
-  responsive: true,
-  maintainAspectRatio: false,
-  elements: {
-    line: {
-      borderWidth: 1,
-    },
-  },
-};
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
+import { fetchStudentRadarChartApi } from "../../api/user/userAPI";
+import { StudentRadarChart } from "../../interface/profile/StudentProfileInterface";
 
 const MyLecturePreference: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const [radarChartData, setRadarChartData] = useState<StudentRadarChart>({
+    Korean: 0,
+    Math: 0,
+    Social: 0,
+    Science: 0,
+    Arts_And_Physical: 0,
+    Engineering: 0,
+    Foreign_language: 0,
+  });
+
+  ChartJS.register(
+    RadialLinearScale,
+    PointElement,
+    LineElement,
+    Filler,
+    Tooltip,
+    Legend
+  );
+
+  const fetchSecondData = async () => {
+    const response = await fetchStudentRadarChartApi();
+
+    setRadarChartData({
+      Korean: response.Korean,
+      Math: response.Math,
+      Social: response.Social,
+      Science: response.Science,
+      Arts_And_Physical: response.Arts_And_Physical,
+      Engineering: response.Engineering,
+      Foreign_language: response.Foreign_language,
+    });
+  };
+
+  useEffect(() => {
+    fetchSecondData();
+  }, []);
+
+  const data = {
+    labels: ["국어", "수학", "사회", "과학", "예체능", "공학", "외국어"],
+    datasets: [
+      {
+        label: "수업 선호도",
+        data: [
+          radarChartData.Korean,
+          radarChartData.Math,
+          radarChartData.Social,
+          radarChartData.Science,
+          radarChartData.Arts_And_Physical,
+          radarChartData.Engineering,
+          radarChartData.Foreign_language,
+        ],
+        fill: true,
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderColor: "rgb(255, 99, 132)",
+        pointBackgroundColor: "rgb(255, 99, 132)",
+        pointBorderColor: "#fff",
+        pointRadius: 2,
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: "rgb(255, 99, 132)",
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    elements: {
+      line: {
+        borderWidth: 1,
+      },
+    },
+  };
+
   return (
     <Box className="h-full">
       <Card className="h-full">
