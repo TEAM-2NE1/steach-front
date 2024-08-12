@@ -15,7 +15,7 @@ const NoQuiz: React.FC = () => {
       <main className="text-center">
         <img src={noQuizimg} alt="no-image" className="mx-auto mb-6" />
         <button
-          className="p-3 bg-red-200 text-white rounded-md hover:bg-red-300"
+          className="p-3 text-white font-semibold rounded-md bg-red-200 hover:bg-red-300"
           onClick={() =>
             navigate(
               `/teacher/profile/${username}/curricula/${curricula_id}/lecture/${lecture_id}/createQuiz`

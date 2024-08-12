@@ -136,7 +136,7 @@ const LectureDetail: React.FC = () => {
               <div className="flex items-center">
                 <img src={img3} className="w-10 h-10 m-5" />
                 <span>
-                  {lectures?.teacher_name} 선생님 - 강사상세페이지, 만들어야함
+                  {lectures?.teacher_name} 선생님
                 </span>
               </div>
             </Link>
@@ -326,7 +326,7 @@ const LectureDetail: React.FC = () => {
           </Accordion>
           <div></div>
         </div>
-        <div className="sticky top-24 lg:right-24 xl:right-44 right-0 h-96 w-96 bg-white ml-10 mt-3 p-4 flex flex-col rounded-lg border-2 border-gray-400">
+        <div className="sticky top-24 lg:right-24 xl:right-44 right-0 h-1/2 w-96 bg-white ml-10 mt-3 p-4 flex flex-col rounded-lg border-2 border-gray-400">
           <h3 className="text-3xl font-bold ml-4 mb-4 text-red-600">무료</h3>
           <h3 className="text-2xl font-bold mb-4">{lectures?.title}</h3>
           {userData &&
@@ -335,7 +335,7 @@ const LectureDetail: React.FC = () => {
             <button
               className="w-full mb-5 py-2 px-4 bg-gray-500 text-white font-bold rounded self-center"
               onClick={() => {
-                navigate(`/curricula/update/${id}`);
+                navigate(`/teacher/profile/${userData.username}/curricula/${id}/update`);
               }}
             >
               수정하기
@@ -442,7 +442,7 @@ const LectureDetail: React.FC = () => {
               </ul>
             </div>
           </div>
-          <p className="text-center mt-auto text-xl">
+          <p className="text-center mt-auto text-xl ">
             {startLecture > 0
               ? `이미 ${startLecture}일 전에 강의가 시작했어요!`
               : startLecture < 0

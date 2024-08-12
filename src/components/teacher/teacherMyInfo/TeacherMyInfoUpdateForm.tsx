@@ -6,6 +6,7 @@ import {
   updateTeacherInfo,
 } from "../../../store/userInfo/TeacherProfileSlice";
 import DeleteModal from "../../main/modal/DeleteModal";
+import { toast } from "react-toastify";
 
 export interface TeacherInfoUpdateForm {
   nickname: string;
@@ -57,6 +58,9 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
     await dispatch(updateTeacherInfo(formData));
     localStorage.removeItem("passwordAuthToken");
     window.location.reload();
+    toast.success("수정되었습니다!", {
+      position: "top-right",
+    });
   };
 
   // 새로 고침으로 뒤로가게 하기
@@ -74,7 +78,7 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
           <button
             type="button"
             onClick={handleBackPage}
-            className="p-3 text-white font-semibold bg-blue-200 rounded-md absolute top-5 right-5 hover:bg-blue-300"
+            className="p-3 text-white font-semibold bg-red-300 rounded-md absolute top-5 right-5 hover:bg-red-400"
           >
             뒤로가기
           </button>
@@ -156,7 +160,7 @@ const TeacherMyInfoUpdateForm: React.FC = () => {
         <section className="flex justify-end">
           <button
             type="submit"
-            className="mx-2 p-3 bg-red-200 text-white font-semibold rounded-md shadow-md hover:bg-red-300"
+            className="mx-2 p-3 bg-blue-300 text-white font-semibold rounded-md shadow-md hover:bg-blue-400"
           >
             수정하기
           </button>

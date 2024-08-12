@@ -52,6 +52,7 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 	const [newMessage, setNewMessage] = useState('');
 	const [goScreenShare, setGoScreenShare] = useState(false);
 	const [screenShareStopSignal, setScreenShareStopSignal] = useState(false);
+	console.log('roomId : ', roomId)
 
 // --------------------------------------------------------------
 	const dispatch = useDispatch<AppDispatch>();
@@ -202,7 +203,7 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			const audioTrack = localStreamRef.current?.getAudioTracks()[0];
 			videoTrack.enabled = false;
 			audioTrack.enabled = false;
-
+			console.log('getLocalStream',roomId)
 			socketRef.current.emit('join_room', {
 				room: roomId,
 				email: userEmail,
@@ -334,6 +335,7 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 
 	useEffect(() => {
 		socketRef.current = io.connect(SOCKET_SERVER_URL);
+		console.log('useEffect',roomId)
 		getLocalStream();
 
 		socketRef.current.on('all_users', (allUsers: Array<{ id: string; email: string; userRole: string; videoEnabled: boolean; audioEnabled: boolean; audioDisabledByTeacher: boolean; offerSendScreenShareEnabled: boolean; offerSendScreenShareDisabledByTeacher: boolean; }>) => {
@@ -712,4 +714,3 @@ export default WebrtcTeacher;
 // function dispatch(arg0: AsyncThunkAction<QuizFetchListForm, string, { state?: unknown; dispatch?: Dispatch<AnyAction> | undefined; extra?: unknown; rejectValue?: unknown; serializedErrorType?: unknown; pendingMeta?: unknown; fulfilledMeta?: unknown; rejectedMeta?: unknown; }>) {
 // 	throw new Error('Function not implemented.');
 // }
-
