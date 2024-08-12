@@ -25,6 +25,8 @@ import SearchPage from "./pages/main/SearchPage.tsx";
 import MainPage from "./pages/main/MainPage.tsx";
 import QuizDrawer from "./components/quiz/QuizDrawer.tsx";
 import { ToastContainer } from "react-toastify";
+import QuizTestPage from "./components/quiz/page/QuizTestPage.tsx";
+import TeacherQuizListPage from "./components/quiz/page/TeacherQuizListPage.tsx";
 
 const App: React.FC = () => {
   return (
@@ -82,8 +84,12 @@ const App: React.FC = () => {
         <Route path="/game/man" element={<Man />}></Route>
         <Route path="/game/cat" element={<Cat />}></Route>
         <Route path="/game/reva" element={<Reva />}></Route>
+        <Route path="/privacy" element={<QuizTestPage />}></Route>
         <Route path="/search" element={<SearchPage />}></Route>
         <Route path="/drawer" element={<QuizDrawer />}></Route>
+
+        <Route path="/teacher-quiz-list" element={<TeacherQuizListPage />} />
+
       </Routes>
       <Footer />
     </div>

@@ -69,6 +69,53 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
   const [showModal, setShowModal] = useState<boolean>(false);
 
   const token = getAuthToken();
+
+  const tmpStatisticRankData = {
+    "prev": [
+      {
+        "rank": 1,
+        "score": 10,
+        "name": "호두마루"
+      },
+      {
+        "rank": 2,
+        "score": 0,
+        "name": "감자마루"
+      },
+      {
+        "rank": 3,
+        "score": 0,
+        "name": "딸기마루"
+      },
+      {
+        "rank": 4,
+        "score": 0,
+        "name": "초코마루"
+      }
+    ],
+    "current": [
+      {
+        "rank": 1,
+        "score": 90,
+        "name": "초코마루"
+      },
+      {
+        "rank": 2,
+        "score": 50,
+        "name": "감자마루"
+      },
+      {
+        "rank": 3,
+        "score": 10,
+        "name": "호두마루"
+      },
+      {
+        "rank": 4,
+        "score": 0,
+        "name": "딸기마루"
+      }
+    ]
+  }
   
   useEffect(() => {
     if (showStatistic) {
@@ -103,6 +150,10 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
 
     const questionTimer = setTimeout(() => {
       setShowQuestion(true);
+      if (trialVersion) {
+        setIsClicked(true);
+        setSelectedChoice(initialQuizData.answers - 1); //자동으로 정답처리
+      }
     }, 2500);
 
     const choicesTimer = setTimeout(() => {
@@ -167,7 +218,6 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
       //pass
     } else {
       //선택지 클릭했을 때
-      console.log("lowvw: " + choiceSentence)
       axios
         .post(
           `${BASE_URL}/api/v1/studentsQuizzes/` + initialQuizData.quiz_id,
@@ -207,7 +257,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
       : timer === 2
       ? "bg-amber-400"
       : timer === 3
-      ? "bg-yellow-300"
+      ? "bg-yellow-400"
       : "bg-blue-600";
   //파 초 노 주 빨
   return (
@@ -255,9 +305,11 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
             <div className="w-full">
               <StatisticsChart
                 dataset={
+                  trialVersion?
+                  { statistics: [5, 1, 0, 4] }:
                   statisticData ? statisticData : { statistics: [0, 0, 0, 0] }
                 }
-                rankData={statisticRankData}
+                rankData={trialVersion? tmpStatisticRankData : statisticRankData}
               />
               {/* <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0, 1, 8, 3]}} rankData = {statisticRankData} /> //연동코드 */}
             </div>
