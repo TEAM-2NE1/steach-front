@@ -5,20 +5,8 @@ import QuizChoiceButton from "./QuizChoiceButton";
 import { BASE_URL } from "../../api/BASE_URL";
 import StatisticsChart from "./StatisticsChart";
 import maruGif from "./toktokmaru.gif";
-import { QuizResponseDTO } from "./QuizListComponent";
-import { getToken } from "@chakra-ui/react";
 import { getAuthToken } from "../../api/BASE_URL";
 import { QuizDetailForm } from "../../interface/quiz/QuizInterface";
-
-// interface QuizData {
-//   quiz_id: number;
-//   lecture_id: number;
-//   quiz_number: number;
-//   time: number;
-//   question: string;
-//   choices: string[];
-//   answers: number;
-// }
 
 interface StatisticData {
   statistics: number[];
@@ -165,7 +153,13 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
     // 타이머 시작 후 몇 초가 지났는지 계산
     // const elapsedSeconds = initialQuizData.time - timer; // 초기 타이머 값이 3이므로, 현재 타이머 값(timer)으로부터 경과 시간을 계산
 
-    const score = Math.round((timer * 100) / initialQuizData.time);
+    let score = 0;
+
+    //틀렸을 때 0점처리
+    if (choice === initialQuizData.answers - 1) {
+      score = Math.round((timer * 100) / initialQuizData.time);
+    }
+
     console.log("점수는 " + score + "점!");
 
     //statistic axios

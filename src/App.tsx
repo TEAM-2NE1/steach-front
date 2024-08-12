@@ -23,7 +23,6 @@ import Cat from "./pages/sub/Cat.tsx";
 import Reva from "./pages/sub/Reva.tsx";
 import SearchPage from "./pages/main/SearchPage.tsx";
 import MainPage from "./pages/main/MainPage.tsx";
-import QuizTest from "./components/quiz/QuizTest.tsx";
 import QuizDrawer from "./components/quiz/QuizDrawer.tsx";
 import { ToastContainer } from "react-toastify";
 
@@ -84,7 +83,6 @@ const App: React.FC = () => {
         <Route path="/game/cat" element={<Cat />}></Route>
         <Route path="/game/reva" element={<Reva />}></Route>
         <Route path="/search" element={<SearchPage />}></Route>
-        <Route path="/privacy" element={<QuizTest />}></Route>
         <Route path="/drawer" element={<QuizDrawer />}></Route>
       </Routes>
       <Footer />
