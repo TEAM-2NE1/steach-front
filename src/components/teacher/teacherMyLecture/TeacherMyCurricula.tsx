@@ -59,7 +59,7 @@ const TeacherMyCurricula: React.FC = () => {
       {status === "loading" && <Spinner />}
       {status === "succeeded" && (
         <div className="p-6 bg-white min-h-screen flex flex-col justify-between">
-          <h1 className="mx-20 my-4 text-4xl text-lightNavy">
+          <h1 className="mx-20 my-4 text-4xl font-bold text-lightNavy">
             내가 강의하는 커리큘럼
           </h1>
           <div className="flex flex-col space-y-8 mx-20 my-4">

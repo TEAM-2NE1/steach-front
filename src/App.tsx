@@ -25,10 +25,12 @@ import SearchPage from "./pages/main/SearchPage.tsx";
 import MainPage from "./pages/main/MainPage.tsx";
 import QuizTest from "./components/quiz/QuizTest.tsx";
 import QuizDrawer from "./components/quiz/QuizDrawer.tsx";
+import { ToastContainer } from "react-toastify";
 
 const App: React.FC = () => {
   return (
     <div>
+      <ToastContainer autoClose={1500} />
       <Navbar />
       <Routes>
         <Route path="/" element={<MainPage />}></Route>
@@ -39,14 +41,14 @@ const App: React.FC = () => {
         ></Route>
         <Route path="/user/login" element={<LoginPage />}></Route>
         <Route path="/user/signup" element={<SignUpPage />}></Route>
-        <Route path="/classroom" element={<Classroom />}></Route>
+        <Route path="/classroom/:lecture_id" element={<Classroom />}></Route>
         <Route
           path="/curricula/detail/:id"
           element={<CurriculaDetailPage />}
         ></Route>
         <Route path="/lecture/signup" element={<LectureSignUpPage />}></Route>
         <Route
-          path="/curricula/update/:id"
+          path="/teacher/profile/:username/curricula/:id/update"
           element={<LectureUpdatePage />}
         ></Route>
         <Route

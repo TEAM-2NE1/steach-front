@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import {
@@ -22,16 +20,10 @@ const PatchQuiz: React.FC = () => {
 
   const quizzes = useSelector((state: RootState) => state.quiz.quizzes);
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [tab, setTab] = useState<number>(1);
 
   // quizzes 배열을 quiz 상태로 설정
   const [quiz, setQuiz] = useState<QuizDetailForm[]>(quizzes || []);
-
-  // 메뉴 토글 함수
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
 
   // input 입력 값 바인딩
   const handleChange = (
@@ -63,6 +55,39 @@ const PatchQuiz: React.FC = () => {
     setQuiz(newQuizzes);
   };
 
+  // 퀴즈 추가 함수
+  const plusTab = () => {
+    const counTab = quiz.length + 1;
+    if (counTab > 4) {
+      alert("최대 4개까지 추가할 수 있습니다.");
+      return;
+    } else {
+      setQuiz([
+        ...quiz,
+        {
+          quiz_id: 0, // 새 퀴즈에 대해 임시 ID 설정 (실제 생성 시 서버에서 할당될 수 있음)
+          lecture_id: parseInt(lecture_id || "0"), // lecture_id를 가져와 할당
+          quiz_number: counTab,
+          choices: ["", "", "", ""],
+          question: "",
+          answers: 1,
+        },
+      ]);
+    }
+  };
+
+  // 퀴즈 삭제 함수
+  const deleteTab = (index: number) => {
+    if (quiz.length === 1) {
+      alert("퀴즈는 최소 1개는 있어야 합니다.");
+      return;
+    }
+    const newQuizzes = quiz.filter((_, i) => i !== index);
+    setQuiz(newQuizzes);
+    setTab(1); // 첫 번째 탭으로 이동
+  };
+
+  // 퀴즈 수정 핸들러 함수
   const handleUpdateQuiz = async () => {
     const updateData: QuizUpdateSendForm = {
       lectureId: lecture_id,
@@ -75,15 +100,15 @@ const PatchQuiz: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center min-h-screen bg-gray-100 pt-10 pb-10">
-      <div className="bg-white border-4 border-beige-400 rounded-3xl p-6 w-3/5 h-3/4 flex flex-col justify-center overflow-y-auto relative">
+    <div className="flex justify-center min-h-screen pt-10 pb-10">
+      <div className="flex flex-col justify-center p-6 w-3/5 h-3/4 bg-white border-2 border-hardBeige rounded-3xl overflow-y-auto relative shadow-lg">
         <div className="flex items-center justify-between mb-6">
-          <div className="hidden lg:flex lg:flex-row lg:justify-between lg:ml-0 my-auto">
+          <div className="flex flex-row justify-between ml-0 my-auto">
             {quiz.map((_, i) => (
               <div key={i}>
                 <button
                   onClick={() => setTab(i + 1)}
-                  className={`text-gray-600 py-4 px-6 mt-3 block rounded-2xl focus:outline-none ${
+                  className={`text-gray-600 font-semibold py-4 px-6 mt-3 block rounded-2xl focus:outline-none ${
                     tab === i + 1
                       ? "bg-orange-200 text-white rounded-2xl"
                       : "text-lightNavy hover:text-lightOrange"
@@ -96,53 +121,19 @@ const PatchQuiz: React.FC = () => {
           </div>
           <div className="hidden lg:flex space-x-4">
             <button
-              className="mt-4 p-3 bg-blue-400 rounded-2xl text-xl text-white hover:bg-blue-600"
-              onClick={handleUpdateQuiz}
+              onClick={plusTab}
+              className="mt-4 p-3 bg-blue-400 rounded-lg text-xl font-semibold text-white hover:bg-blue-500"
             >
-              수정하기
+              퀴즈 추가
+            </button>
+            <button
+              className="mt-4 p-3 bg-red-400 rounded-lg text-xl font-semibold text-white hover:bg-red-500"
+              onClick={() => deleteTab(tab - 1)}
+            >
+              퀴즈 삭제
             </button>
           </div>
         </div>
-
-        {/* --------------------------------------------------------------- */}
-        {/* 모바일 메뉴 */}
-        <div className="lg:hidden">
-          <button onClick={toggleMenu} className="focus:outline-none">
-            <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} size="2x" />
-          </button>
-          {isMenuOpen && (
-            <div className="mt-4 flex flex-col">
-              <ul className="flex flex-col space-y-4 text-lg font-bold">
-                {quiz.map((_, i) => (
-                  <li key={i} className="flex justify-center">
-                    <button
-                      onClick={() => {
-                        setTab(i + 1);
-                        setIsMenuOpen(false);
-                      }}
-                      className={`w-24 text-center py-2 px-4 block rounded-2xl focus:outline-none ${
-                        tab === i + 1
-                          ? "bg-orange-200 text-white"
-                          : "text-lightNavy hover:text-lightOrange"
-                      }`}
-                    >
-                      Quiz {i + 1}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              <div className="flex justify-evenly mt-4">
-                <button
-                  className="w-24 py-2 px-4 bg-blue-400 rounded-2xl text-center text-white hover:bg-blue-600"
-                  onClick={handleUpdateQuiz}
-                >
-                  수정하기
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-        {/* --------------------------------------------------------------- */}
 
         <form className="mt-6">
           <div className="flex flex-col space-y-8">
@@ -216,6 +207,16 @@ const PatchQuiz: React.FC = () => {
                         <option value="3">3</option>
                         <option value="4">4</option>
                       </select>
+                      <br />
+                      <div className="flex">
+                        <button
+                          type="button"
+                          onClick={handleUpdateQuiz}
+                          className="ml-auto mr-3 p-3 text-white font-semibold bg-orange-300 rounded-lg hover:bg-orange-400"
+                        >
+                          퀴즈 수정
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )

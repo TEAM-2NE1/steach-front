@@ -8,9 +8,11 @@ import {
   AudioOutlined,
   EllipsisOutlined,
   QuestionCircleOutlined,
+  WechatOutlined,
 } from "@ant-design/icons";
 import DetailQuiz from "./QuizBlock";
 import { QuizResponseDTO } from "./QuizListComponent";
+import { QuizState } from "../../interface/quiz/QuizInterface";
 
 const QuizDrawer: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -33,8 +35,8 @@ const QuizDrawer: React.FC = () => {
     null
   );
 
-  const { status } = useSelector((state: RootState) => state.quiz);
-  const quzzies = useSelector((state: RootState) => state.quiz.quizzes);
+	const { status } = useSelector((state: RootState) => (state.quiz as QuizState));
+  const quzzies = useSelector((state: RootState) => (state.quiz as QuizState).quizzes);
 
   // Drawer 여는 함수
   const showDrawer = () => {
@@ -117,6 +119,21 @@ const QuizDrawer: React.FC = () => {
           />
         )}
         {/* 소리 아이콘 */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="size-6"
+        >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"
+        />
+        </svg>
+
         {isAudioMute && (
           <button
             onClick={handleIsAudioMute}
@@ -213,7 +230,16 @@ const QuizDrawer: React.FC = () => {
           icon={<EllipsisOutlined />}
         >
           <FloatButton
+            
             icon={<QuestionCircleOutlined />}
+            type="default"
+            style={{ top: 120, left: 36 }}
+            onClick={showDrawer}
+          />
+
+          <FloatButton
+            
+            icon={<WechatOutlined />}
             type="default"
             style={{ top: 120, left: 36 }}
             onClick={showDrawer}

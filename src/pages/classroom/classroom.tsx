@@ -17,6 +17,7 @@ const Classroom = () => {
 		}else if (role === "student"){
 			setPage("WebrtcStudent");
 		}
+		console.log(roomId)
 	};
 
 	return (

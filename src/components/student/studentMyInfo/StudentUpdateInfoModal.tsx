@@ -30,7 +30,7 @@ const StudentUpdateInfoModal: React.FC<StudentUpdateInfoModalProps> = ({
     <div className="absolute top-7 right-5">
       <button
         onClick={openModal}
-        className="p-4 text-white bg-indigo-200 rounded-md hover:bg-indigo-300"
+        className="p-4 text-white font-semibold bg-indigo-200 rounded-md hover:bg-indigo-300"
       >
         내정보 수정
       </button>

@@ -13,11 +13,12 @@ import SwiperCore from "swiper";
 import Spinner from "../../components/main/spinner/Spinner";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { getpopLecturelist } from "../../store/CurriculaSlice";
+import { CurriculasState, getpopLecturelist } from "../../store/CurriculaSlice.tsx";
 import { useNavigate } from "react-router-dom";
 import defaultImg from "../../assets/default.png";
 import { AppDispatch, RootState } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
+import { Curricula } from "../../interface/Curriculainterface.tsx";
 
 // 김헌규 제작
 // 이진송 수정 - 타입스크립트에 맞춰서 변경함
@@ -29,10 +30,10 @@ const HotLectures: React.FC = () => {
   const navigate = useNavigate();
 
   const curricula = useSelector(
-    (state: RootState) => state.curriculum.returnHotCurriculaList?.curricula
+    (state: RootState) => (state.curriculum as CurriculasState).returnHotCurriculaList?.curricula
   );
-  const status = useSelector((state: RootState) => state.curriculum.status);
-  const error = useSelector((state: RootState) => state.curriculum.error);
+  const status = useSelector((state: RootState) => (state.curriculum as CurriculasState).status);
+  const error = useSelector((state: RootState) => (state.curriculum as CurriculasState).error);
 
   useEffect(() => {
     dispatch(getpopLecturelist());
@@ -40,7 +41,7 @@ const HotLectures: React.FC = () => {
 
   return (
     <>
-      {status === "loading" && <Spinner/>}
+      {status === "loading" && <Spinner />}
       {status === "failed" && error}
       {status === "succeeded" && (
         <section className="flex justify-center py-6">
@@ -72,7 +73,7 @@ const HotLectures: React.FC = () => {
             className="flex justify-center grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
           >
             {curricula && curricula.length > 0 ? (
-              curricula.map((curriculum) => (
+              curricula.map((curriculum: Curricula) => (
                 <SwiperSlide key={curriculum.curriculum_id}>
                   <Card className="m-3 bg-white rounded-xl shadow overflow-hidden">
                     <CardBody>

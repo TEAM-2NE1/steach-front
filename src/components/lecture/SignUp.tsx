@@ -1,22 +1,31 @@
-import React, {useRef, useState} from "react";
+import React, { useRef, useState } from "react";
 import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { TbArrowsRight } from "react-icons/tb";
 import checkimg from "../../assets/checked.jpg";
 import uncheckimg from "../../assets/unchecked.jpg";
 import banner from "../../assets/banner2.jpg";
 import { SignUpLecture } from "../../api/lecture/curriculumAPI.ts";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../store.tsx";
-import { CurriculaFormData } from "../../interface/Curriculainterface.tsx";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../store.tsx";
+import { Curricula, CurriculaFormData } from "../../interface/Curriculainterface.tsx";
 
-import type { Editor } from '@toast-ui/react-editor';
+import type { Editor } from "@toast-ui/react-editor";
 import ToastEditor from "../main/ToastEditor.tsx";
+import { useNavigate } from "react-router-dom";
+import { CurriculasState } from "../../store/CurriculaSlice.tsx";
+import { toast } from "react-toastify";
 
 const LectureSignUp: React.FC = () => {
+  const navigate = useNavigate();
   const dispatch: AppDispatch = useDispatch();
   const editorRef = useRef<Editor>(null);
 
   type Weekday = "월" | "화" | "수" | "목" | "금" | "토" | "일";
+
+  const curriculaData = useSelector(
+    (state: RootState) => (state.curriculum as CurriculasState).curricula
+  );
+
   const [activeDays, setActiveDays] = useState<{ [key in Weekday]: boolean }>({
     월: false,
     화: false,
@@ -55,23 +64,24 @@ const LectureSignUp: React.FC = () => {
     일: 1,
   };
 
-  // const encodeHtml = (str: string) => {
-  //   return str.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
-  //     return '&#'+i.charCodeAt(0)+';';
-  //   });
-  // };
-
   const getContents = () => {
-    const markdownContent = editorRef.current?.getInstance().getMarkdown().replace(/(?:\r\n|\r|\n)/g, '\\\\n');
+    const markdownContent = editorRef.current
+      ?.getInstance()
+      .getMarkdown()
+      .replace(/(?:\r\n|\r|\n)/g, "\\\\n");
     const htmlContent = editorRef.current?.getInstance().getHTML();
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        information: encodeHtml(htmlContent),
-      }));
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      information: encodeHtml(htmlContent),
+    }));
 
-    console.log('[Toast Editor - Markdown]\n', markdownContent, '\n\n[Toast Editor - HTML]\n', htmlContent)
-  }
-
+    console.log(
+      "[Toast Editor - Markdown]\n",
+      markdownContent,
+      "\n\n[Toast Editor - HTML]\n",
+      htmlContent
+    );
+  };
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -90,13 +100,6 @@ const LectureSignUp: React.FC = () => {
       });
     }
   };
-
-  // const handleEditorChange = (data: string) => {
-  //   setFormData((prevFormData) => ({
-  //     ...prevFormData,
-  //     information: data,
-  //   }));
-  // };
 
   const handleCheckboxChange = (day: Weekday) => {
     setActiveDays((prevActiveDays) => {
@@ -124,42 +127,68 @@ const LectureSignUp: React.FC = () => {
   };
 
   const encodeHtml = (htmlContent: string): string => {
-    // Create a new DOMParser instance
     const parser = new DOMParser();
-    // Parse the HTML string into a document object
     const doc = parser.parseFromString(htmlContent, "text/html");
-    // Serialize the document back to a string to ensure it's valid HTML
     return new XMLSerializer().serializeToString(doc.body);
   };
 
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    getContents();
+    await getContents();
     const formDataToSend = {
       ...formData,
-      // intro: encodeHtmlTags(formData.intro),
-      // information: encodeHtmlTags(formData.information),
-      intro: (formData.intro),
-      information: (formData.information),
+      intro: formData.intro,
+      information: formData.information,
       weekdays_bitmask: formatBitmask(formData.weekdays_bitmask),
     };
-    console.log(formDataToSend);
-    dispatch(SignUpLecture(formDataToSend));
+    try {
+      const Postcurricula = await dispatch(SignUpLecture(formDataToSend));
+      const curriculaData = Postcurricula.payload as Curricula;
+      if (curriculaData?.curriculum_id !== undefined) {
+        navigate(`/curricula/detail/${curriculaData?.curriculum_id}`)
+        toast.success("수정되었습니다!", {
+          position: "top-right",
+        });
+      } else {
+        navigate('/home')
+        toast.success("수정되었습니다!", {
+          position: "top-right",
+        });
+      }
+    } catch (error) {
+      toast.error("에러 발생!", {
+        position: "top-right",
+      });
+    }
+  };
+
+  // 뒤로가기
+  const handleBackPage = () => {
+    navigate(-1);
   };
 
   return (
     <div className="grid grid-cols-12">
       <div className="col-span-2"></div>
-      <div className=" col-span-8 p-4">
+      <section className=" col-span-8 p-4">
         <img src={banner} className="mx-auto w-2/3 rounded-2xl" />
-        <p className="self-start text-5xl pt-20 pl-5 pb-3">강의 등록</p>
+        <div className="relative">
+          <p className="self-start text-5xl font-semibold pt-20 pl-5 pb-3">
+            커리큘럼 등록
+          </p>
+          <button
+            className="absolute top-16 right-8 p-3 bg-red-400 text-white font-semibold rounded-md hover:bg-red-500"
+            onClick={handleBackPage}
+          >
+            뒤로가기
+          </button>
+        </div>
         <hr></hr>
         <form onSubmit={handleSubmit}>
           <FormControl>
             <div className="flex items-center mb-5">
               <FormLabel htmlFor="title" className="mt-3 ml-3 mr-8 text-2xl ">
-                강의 제목
+                커리큘럼 제목
               </FormLabel>
               <Input
                 type="text"
@@ -171,7 +200,7 @@ const LectureSignUp: React.FC = () => {
                 required
               />
               <FormLabel htmlFor="sub_title" className="mt-3 mx-3 text-2xl ">
-                강의 부제목
+                커리큘럼 부제목
               </FormLabel>
               <Input
                 type="text"
@@ -186,7 +215,7 @@ const LectureSignUp: React.FC = () => {
             <hr></hr>
             <div className="flex items-center mb-5">
               <FormLabel htmlFor="category" className="mt-3 mx-3 text-2xl">
-                강의 대분류
+                커리큘럼 대분류
               </FormLabel>
               <select
                 id="category"
@@ -205,7 +234,7 @@ const LectureSignUp: React.FC = () => {
                 <option value="8">ETC</option>
               </select>
               <FormLabel htmlFor="sub_category" className="mt-3 mx-3 text-2xl">
-                강의 중분류
+                커리큘럼 중분류
               </FormLabel>
               <Input
                 type="text"
@@ -219,7 +248,7 @@ const LectureSignUp: React.FC = () => {
             </div>
             <hr></hr>
             <FormLabel htmlFor="banner_img_url" className="mt-3 mx-3 text-2xl">
-              강의 배너 이미지
+              커리큘럼 배너 이미지
             </FormLabel>
             <Input
               type="file"
@@ -232,7 +261,7 @@ const LectureSignUp: React.FC = () => {
             />
             <hr></hr>
             <FormLabel htmlFor="intro" className="my-3 mx-3 text-2xl">
-              강의 소개
+              커리큘럼 소개
             </FormLabel>
             <Input
               type="text"
@@ -245,7 +274,7 @@ const LectureSignUp: React.FC = () => {
             />
             <hr className="my-3"></hr>
             <FormLabel htmlFor="datetime" className="mt-3 mx-3 text-2xl">
-              강의 커리큘럼
+              강의
             </FormLabel>
             <div className="flex items-center mb-5">
               <div className="w-1/2">
@@ -365,12 +394,12 @@ const LectureSignUp: React.FC = () => {
             </select>
 
             <FormLabel htmlFor="datetime" className="text-2xl">
-              강의 상세 설명
+              커리큘럼 상세 설명
             </FormLabel>
             {/*  에디터 */}
-            <ToastEditor content={formData.information} editorRef={editorRef}/>
+            <ToastEditor content={formData.information} editorRef={editorRef} />
             <div className="p-5 border my-5">
-              <h1 className="text-6xl">강의 등록시 주의사항</h1>
+              <h1 className="text-6xl">커리큘럼 등록시 주의사항</h1>
               <ul>
                 <li>
                   - 이해하기 쉬운 언어 사용: 학생들의 연령대에 맞는 쉬운 언어와
@@ -390,10 +419,16 @@ const LectureSignUp: React.FC = () => {
                 </li>
               </ul>
             </div>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={getContents} type="submit">등록하기</button>
+            <button
+              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600"
+              onClick={getContents}
+              type="submit"
+            >
+              등록하기
+            </button>
           </FormControl>
         </form>
-      </div>
+      </section>
       <div className="col-span-2"></div>
     </div>
   );

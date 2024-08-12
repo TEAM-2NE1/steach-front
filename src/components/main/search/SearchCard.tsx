@@ -21,7 +21,7 @@ const SearchCard: React.FC<SearchCardProps> = ({ curriculum }) => {
 
   return (
     <Card
-      className="m-3 bg-white rounded-xl shadow overflow-hidden"
+      className="m-3 bg-white rounded-xl shadow overflow-hidden "
       key={curriculum.curriculum_id}
     >
       <CardBody>

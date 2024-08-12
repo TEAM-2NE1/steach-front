@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { updateStudentInfo } from "../../../store/userInfo/StudentProfileSlice";
 import { fetchStudentInfo } from "../../../store/userInfo/StudentProfileSlice";
+import { toast } from "react-toastify";
 import DeleteModal from "../../main/modal/DeleteModal";
 
 export interface StudentInfoUpdateForm {
@@ -48,56 +49,79 @@ const StudentMyInfoUpdateForm: React.FC = () => {
     await dispatch(updateStudentInfo(formData));
     localStorage.removeItem("passwordAuthToken");
     window.location.reload();
+    toast.success("수정되었습니다!", {
+      position: "top-right",
+    });
+  };
+
+  // 새로고침을 뒤로가기
+  const handleBackPage = () => {
+    window.location.reload();
   };
 
   return (
-    <div className="w-9/12 h-screen bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
+    <div className="w-9/12 border-2 border-hardBeige rounded-xl shadow-lg p-6 my-12 mx-auto relative">
       <form onSubmit={(e) => handleUpdateSubmit(e)}>
-        <h1 className="my-2 p-2 text-center text-4xl text-lightNavy">
-          내정보 수정
-        </h1>
-        <div className="grid grid-cols-1 my-4 p-2">
-          <label className="my-2 text-2xl text-lightNavy">닉네임</label>
+        <header className="relative">
+          <h1 className="my-2 p-2 text-center text-5xl font-bold text-lightNavy">
+            내정보 수정
+          </h1>
+          <button
+            type="button"
+            onClick={handleBackPage}
+            className="p-3 absolute top-5 right-8 text-white font-semibold bg-red-300 rounded-md hover:bg-red-400"
+          >
+            뒤로가기
+          </button>
+        </header>
+        <section className="grid grid-cols-1 my-4 p-2 border-b-2">
+          <label className="my-2 text-3xl font-semibold text-lightNavy">
+            닉네임
+          </label>
           <input
             name="nickname"
-            className="p-2 w-72 border-2 rounded-md"
+            className="my-3 p-2 w-72 border-2 rounded-md"
             value={formData.nickname}
             onChange={(e) => handleChange(e)}
             required
           />
-        </div>
-        <div className="grid grid-cols-1 my-4 p-2">
-          <label className="my-2 text-2xl text-lightNavy">비밀번호</label>
+        </section>
+        <section className="grid grid-cols-1 my-4 p-2 border-b-2">
+          <label className="my-2 text-3xl font-semibold text-lightNavy">
+            비밀번호
+          </label>
           <input
             name="password"
             type="password"
-            className="p-2 w-72 border-2 rounded-md"
+            className="my-3 p-2 w-72 border-2 rounded-md"
             value={formData.password}
             onChange={(e) => handleChange(e)}
             required
           />
-        </div>
-        <div className="grid grid-cols-1 my-4 p-2">
-          <label className="my-2 text-2xl text-lightNavy">이메일</label>
+        </section>
+        <section className="grid grid-cols-1 mt-4 mb-20 p-2 border-b-2">
+          <label className="my-2 text-3xl font-semibold text-lightNavy">
+            이메일
+          </label>
           <input
             name="email"
             type="email"
-            className="p-2 w-72 border-2 rounded-md"
+            className="my-3 p-2 w-72 border-2 rounded-md"
             value={formData.email}
             onChange={(e) => handleChange(e)}
             required
           />
-        </div>
-        <div className="absolute bottom-0 right-0 p-6 flex justify-end">
+        </section>
+        <section className="absolute bottom-0 right-0 p-6 flex justify-end">
           <button
             onClick={(e) => handleUpdateSubmit(e)}
-            className="p-3 bg-red-200 text-white rounded-md shadow-md hover:bg-red-300 mr-4"
+            className="p-3 bg-blue-300 text-white font-semibold rounded-md shadow-md hover:bg-blue-400 mr-4"
           >
             수정하기
           </button>
           {/* 모달을 이용하여 삭제 */}
           <DeleteModal purpose="student" />
-        </div>
+        </section>
       </form>
     </div>
   );

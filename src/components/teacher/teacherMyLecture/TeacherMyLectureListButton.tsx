@@ -7,7 +7,7 @@ import {
   PopoverCloseButton,
   Button,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import TeacherMyLectureListModal from "./TeacherMyLectureListModal";
 
 // prop으로 들어올 요소의 interface 타입 지정
@@ -25,6 +25,7 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
   username,
 }) => {
   const navigate = useNavigate();
+  const { curricula_id } = useParams();
 
   return (
     <>
@@ -72,7 +73,7 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
       )}
       {lectureState === "scheduled" && (
         <>
-          <p className="mx-auto p-3 text-sm text-red-500 text-center">
+          <p className="mx-auto p-3 text-sm text-red-500 text-center font-semibold">
             예정된 강의
           </p>
           <Popover placement="right-start">
@@ -121,7 +122,12 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
       )}
       {lectureState === "ongoing" && (
         <>
-          <Button className="mx-auto p-3 bg-sky-300 rounded-md shadow text-white hover:bg-pink-400">
+          <Button
+            className="mx-auto p-3 bg-sky-300 rounded-md shadow text-white hover:bg-pink-400"
+            onClick={() => {
+              navigate(`/classroom/${lectureId}`);
+            }}
+          >
             강의 시작하기
           </Button>
           <Popover placement="right-start">
