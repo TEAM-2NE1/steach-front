@@ -143,7 +143,7 @@ const LectureSignUp: React.FC = () => {
     };
     const response = await dispatch(SignUpLecture(formDataToSend));
 
-    if (response.meta.requestStatus === "fulfilled") {
+    if (response.meta.requestStatus === "fulfilled" && curriculaData) {
       const lastElement = curriculaData.at(-1);
       navigate(`/curricula/detail/${lastElement?.curriculum_id}`);
       toast.success("수정되었습니다!", {
