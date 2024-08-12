@@ -1,5 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { Curricula, LectureSeries, returnHotCurriculaList, returnLastestCurriculaList } from "../interface/Curriculainterface";
+import {
+  Curricula,
+  LectureSeries,
+  returnHotCurriculaList,
+  returnLastestCurriculaList,
+} from "../interface/Curriculainterface";
 import {
   fetchCurriculumDetails,
   petchCurriculumDetails,
@@ -10,8 +15,10 @@ import {
   getCurriculimApply,
   postCurriculimCancel,
 } from "../api/lecture/curriculumAPI";
-import { fetchLatestCurricula, fetchPopularCurricula } from "../api/main/mainAPI"
-
+import {
+  fetchLatestCurricula,
+  fetchPopularCurricula,
+} from "../api/main/mainAPI";
 
 import axios from "axios";
 
@@ -153,22 +160,21 @@ export const getpopLecturelist = createAsyncThunk<returnHotCurriculaList>(
 );
 
 // Lastest한 강의 들고오기
-export const getLastestLecturelist = createAsyncThunk<returnLastestCurriculaList>(
-  "lectures/lastestlist",
-  async (_, thunkAPI) => {
-    try {
-      const data = await fetchLatestCurricula();
-      return data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        return thunkAPI.rejectWithValue(error.response.data);
+export const getLastestLecturelist =
+  createAsyncThunk<returnLastestCurriculaList>(
+    "lectures/lastestlist",
+    async (_, thunkAPI) => {
+      try {
+        const data = await fetchLatestCurricula();
+        return data;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          return thunkAPI.rejectWithValue(error.response.data);
+        }
+        return thunkAPI.rejectWithValue(error);
       }
-      return thunkAPI.rejectWithValue(error);
     }
-  }
-);
-
-
+  );
 
 // 커리큘럼 슬라이스
 const curriculaSlice = createSlice({
@@ -245,7 +251,7 @@ const curriculaSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
       })
-      // 커리큘럼에 해당하는 강의
+      // 커리큘럼 신청
       .addCase(applyCurricula.pending, (state) => {
         state.status = "loading";
       })
@@ -256,7 +262,7 @@ const curriculaSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
       })
-      // 커리큘럼에 해당하는 강의
+      // 커리큘럼 신청 확인
       .addCase(applyCurriculaCheck.pending, (state) => {
         state.status = "loading";
       })
