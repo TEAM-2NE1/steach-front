@@ -211,6 +211,7 @@ export const studentInfoUpdate = async (formData: StudentInfoUpdateForm) => {
         },
       }
     );
+
     return response.data;
   } catch (error) {
     console.error(error);
@@ -263,4 +264,20 @@ export const targetTeacherInfoGet = async (teacher_id: string) => {
     console.error(error);
     throw error;
   }
+};
+
+// 학생 레이다 차트 조회
+export const fetchStudentRadarChartApi = async () => {
+  const token = await getAuthToken();
+  const response = await axios.get(
+    `${BASE_URL}/api/v1/statistics/radar-chart`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  console.log(response.data.scores);
+
+  return response.data.scores;
 };

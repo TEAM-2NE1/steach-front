@@ -62,7 +62,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ purpose }) => {
       )}
       {/* 모달 */}
       {isModalOpen && (purpose === "teacher" || purpose === "student") && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+        <form className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h2 className="text-xl font-semibold text-gray-800">회원탈퇴</h2>
             <p className="text-gray-600 mt-4">
@@ -84,7 +84,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ purpose }) => {
               </button>
             </div>
           </div>
-        </div>
+        </form>
       )}
 
       {/* 커리큘럼 삭제 */}
@@ -98,7 +98,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ purpose }) => {
         </button>
       )}
       {isModalOpen && purpose === "curricula" && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+        <form className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h2 className="text-xl font-semibold text-gray-800">삭제</h2>
             <p className="text-gray-600 mt-4">
@@ -120,7 +120,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ purpose }) => {
               </button>
             </div>
           </div>
-        </div>
+        </form>
       )}
     </>
   );

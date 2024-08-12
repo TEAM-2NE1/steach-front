@@ -58,6 +58,7 @@ export type Lectures = Array<{
   lecture_title: string;
   lecture_order: number;
   lecture_start_time: string;
+  lecture_end_time: string;
 }>;
 
 // 단일 강의 인터페이스
@@ -66,6 +67,7 @@ export interface Lecture {
   lecture_title: string;
   lecture_order: number;
   lecture_start_time: string;
+  lecture_end_time: string;
 }
 
 // 강의 상세 수정 인터페이스
@@ -73,6 +75,7 @@ export interface PatchLecture {
   lecture_id: number | undefined;
   lecture_title: string | undefined;
   lecture_start_time: string | undefined;
+  lecture_end_time: string | undefined;
 }
 
 // 인기 커리큘럼 리스트 조회 폼
@@ -106,7 +109,7 @@ export interface returnTeacherCurriculaList {
   curricula: Curricula[];
 }
 
-export interface PageInterface{
+export interface PageInterface {
   page: number;
   nowpage: number;
 }
