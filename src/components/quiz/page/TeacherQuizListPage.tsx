@@ -173,7 +173,7 @@ const TeacherQuizListPage: React.FC = () => {
                 <DetailQuiz
                   initialQuizData={selectedQuiz}
                   onClose={handleCloseModal}
-                  trialVersion={true}
+                  trialVersion={false}
                   isTeacher={true}
                 />
               </div>
