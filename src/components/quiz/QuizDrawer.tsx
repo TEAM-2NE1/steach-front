@@ -11,7 +11,7 @@ import {
   WechatOutlined,
 } from "@ant-design/icons";
 import DetailQuiz from "./QuizBlock";
-import { QuizResponseDTO } from "./QuizListComponent";
+import { QuizDetailForm } from "../../interface/quiz/QuizInterface";
 import { QuizState } from "../../interface/quiz/QuizInterface";
 
 const QuizDrawer: React.FC = () => {
@@ -31,7 +31,7 @@ const QuizDrawer: React.FC = () => {
 
   // 퀴즈 모달
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedQuiz, setSelectedQuiz] = useState<QuizResponseDTO | null>(
+  const [selectedQuiz, setSelectedQuiz] = useState<QuizDetailForm | null>(
     null
   );
 
@@ -87,14 +87,15 @@ const QuizDrawer: React.FC = () => {
   };
 
   //모달켜지기
-  const handleButtonClick = () => {
-    // setSelectedQuiz(quiz);
+  const handleButtonClick = (quiz: QuizDetailForm) => {
+    setSelectedQuiz(quiz);
     setIsModalOpen(true);
+    setOpen(false);
   };
 
   // 이 drawer을 켰을 때 퀴즈 리스트를 불러오기
   useEffect(() => {
-    dispatch(fetchLectureQuiz("5248"));
+    dispatch(fetchLectureQuiz("6576"));
   }, []);
 
   return (
@@ -248,6 +249,32 @@ const QuizDrawer: React.FC = () => {
         </FloatButton.Group>
       </section>
 
+      {isModalOpen && selectedQuiz && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg w-[500px] relative">
+            {/* Close Button Overlapping DetailQuiz */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
+            >
+              &times;
+            </button>
+
+            {/* DetailQuiz Component Centered */}
+            <div className="flex justify-center items-center">
+              <div className="rounded-lg overflow-hidden w-full">
+                <DetailQuiz
+                  initialQuizData={selectedQuiz}
+                  onClose={handleCloseModal}
+                  trialVersion={false}
+                  {...{ trialTimer: 5 }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <section className="h-screen">
         <Drawer
           title="퀴즈 목록"
@@ -256,52 +283,29 @@ const QuizDrawer: React.FC = () => {
           mask={false}
           loading={status === "loading"}
         >
-          {/* 퀴즈 목록 */}
-          <section>
-            {quzzies?.map((quiz, index) => {
-              return (
-                <>
-                  {
+          {/* Drawer가 열릴 때만 section 컴포넌트를 생성 */}
+          {open && (
+            <section>
+              {quzzies?.map((quiz, index) => {
+                console.log(quiz);
+                return (
+                  <>
                     <button
                       key={quiz.quiz_id}
-                      onClick={() => handleButtonClick()}
+                      onClick={() => handleButtonClick(quiz)}
                       className="w-full text-left bg-blue-200 text-white p-2 mb-2 rounded hover:bg-blue-600 transition"
                     >
                       Quiz {quiz.quiz_number} - {quiz.question}
                     </button>
-                  }
-                  {isModalOpen && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                      <div className="bg-white rounded-lg shadow-lg w-[500px] relative">
-                        {/* Close Button Overlapping DetailQuiz */}
-                        <button
-                          onClick={handleCloseModal}
-                          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
-                        >
-                          &times;
-                        </button>
-
-                        {/* DetailQuiz Component Centered */}
-                        <div className="flex justify-center items-center">
-                          <div className="rounded-lg overflow-hidden w-full">
-                            <DetailQuiz
-                              key={index}
-                              initialQuizData={{ ...quiz, time: 5 }}
-                              onClose={handleCloseModal}
-                              trialVersion={false}
-                              {...{ trialTimer: 5 }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </>
-              );
-            })}
-          </section>
+                    
+                  </>
+                );
+              })}
+            </section>
+          )}
         </Drawer>
       </section>
+
     </>
   );
 };

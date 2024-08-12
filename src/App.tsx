@@ -23,9 +23,12 @@ import Cat from "./pages/sub/Cat.tsx";
 import Reva from "./pages/sub/Reva.tsx";
 import SearchPage from "./pages/main/SearchPage.tsx";
 import MainPage from "./pages/main/MainPage.tsx";
-import QuizTest from "./components/quiz/QuizTest.tsx";
 import QuizDrawer from "./components/quiz/QuizDrawer.tsx";
 import { ToastContainer } from "react-toastify";
+import QuizTestPage from "./components/quiz/page/QuizTestPage.tsx";
+import TeacherQuizListPage from "./components/quiz/page/TeacherQuizListPage.tsx";
+import StudentQuizListPage from "./components/quiz/page/StudentQuizListPage.tsx";
+import TeacherQuizListPageTrial from "./components/quiz/page/TeacherQuizListPageTrial.tsx";
 
 const App: React.FC = () => {
   return (
@@ -83,9 +86,14 @@ const App: React.FC = () => {
         <Route path="/game/man" element={<Man />}></Route>
         <Route path="/game/cat" element={<Cat />}></Route>
         <Route path="/game/reva" element={<Reva />}></Route>
+        <Route path="/privacy" element={<QuizTestPage />}></Route>
         <Route path="/search" element={<SearchPage />}></Route>
-        <Route path="/privacy" element={<QuizTest />}></Route>
         <Route path="/drawer" element={<QuizDrawer />}></Route>
+
+        <Route path="/teacher-quiz-list-trial" element={<TeacherQuizListPageTrial />} />
+        <Route path="/teacher-quiz-list" element={<TeacherQuizListPage />} />
+        <Route path="/student-quiz-list" element={<StudentQuizListPage />} />
+
       </Routes>
       <Footer />
     </div>

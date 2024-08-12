@@ -10,13 +10,13 @@ interface RankingsProps {
   data: {
     prev: Ranking[];
     current: Ranking[];
-  };
+  } | null;
 }
 
 const RankingsList: React.FC<RankingsProps> = ({ data }) => {
-  const [displayedList, setDisplayedList] = useState<Ranking[]>(data.prev);
-  const [animatedScores, setAnimatedScores] = useState<number[]>(data.prev.map(item => item.score));
-  const [animatedRanks, setAnimatedRanks] = useState<number[]>(data.prev.map(item => item.rank));
+  const [displayedList, setDisplayedList] = useState<Ranking[]>(data ? data.prev : []);
+  const [animatedScores, setAnimatedScores] = useState<number[]>(data ? data.prev.map(item => item.score) : []);
+  const [animatedRanks, setAnimatedRanks] = useState<number[]>(data ? data.prev.map(item => item.rank) : []);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isTranslationg2, setIsTransitioning2] = useState(false);
 
@@ -37,7 +37,7 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
       const interval = setInterval(() => {
         setAnimatedScores((prevScores) =>
           prevScores.map((score, index) => {
-            const targetScore = data.current[index].score;
+            const targetScore = data? data.current[index].score : 0;
             const difference = targetScore - score;
             let step = Math.ceil(difference / totalSteps); // 각 프레임에서 변화할 양
   
@@ -59,7 +59,7 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
       const interval2 = setInterval(() => {
         setAnimatedRanks((prevRank) =>
           prevRank.map((rank, index) => {
-            const targetRank = data.current[index].rank;
+            const targetRank = data? data.current[index].rank: 0;
             const difference = targetRank - rank;
             let step = Math.ceil(difference / totalSteps); // 각 프레임에서 변화할 양
 
@@ -90,14 +90,14 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
         clearTimeout(timeoutId); // 타이머도 클리어하여 메모리 누수 방지
       };
     }
-  }, [isTransitioning, data.current]);
+  }, [isTransitioning, data? data.current: 0]);
 
   return (
     <div style={{width: '70%'}}>
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {displayedList.map((item, index) => { //item은 prev
-          const currentRank = data.current.find(currentItem => currentItem.name === item.name)?.rank;
-          const currentScore = data.current.find(currentItem => currentItem.name === item.name)?.score;
+          const currentRank = data? data.current.find(currentItem => currentItem.name === item.name)?.rank: 0;
+          const currentScore = data? data.current.find(currentItem => currentItem.name === item.name)?.score: 0;
           const prevRank = item.rank
 
           return (
