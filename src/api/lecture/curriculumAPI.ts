@@ -48,6 +48,7 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
     const token = await getAuthToken();
 
     const formData = new FormData();
+    console.log("a");
     formData.append("userName", AuthData.username);
     formData.append("file", newLectureData.banner_img_url);
     const imgPost = await axios.post(
@@ -55,11 +56,11 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
       formData,
       {
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       }
     );
-
     const response = await axios.post(
       `${BASE_URL}/api/v1/curricula`,
       {
@@ -84,7 +85,7 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
         },
       }
     );
-    console.log(response.data)
+    console.log(response.data);
     return response.data;
   }
 );
@@ -174,7 +175,7 @@ export const petchCurriculumDetails = createAsyncThunk<
       },
     }
   );
-  console.log(response.data)
+  console.log(response.data);
   return response.data;
 });
 

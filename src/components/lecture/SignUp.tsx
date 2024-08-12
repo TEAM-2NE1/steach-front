@@ -132,6 +132,7 @@ const LectureSignUp: React.FC = () => {
     return new XMLSerializer().serializeToString(doc.body);
   };
 
+  // 생성 핸들러 함수
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     getContents();
@@ -146,7 +147,7 @@ const LectureSignUp: React.FC = () => {
     if (response.meta.requestStatus === "fulfilled" && curriculaData) {
       const lastElement = curriculaData.at(-1);
       navigate(`/curricula/detail/${lastElement?.curriculum_id}`);
-      toast.success("수정되었습니다!", {
+      toast.success("생성되었습니다!", {
         position: "top-right",
       });
     } else {

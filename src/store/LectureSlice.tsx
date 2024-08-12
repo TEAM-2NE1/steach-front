@@ -61,6 +61,7 @@ export const patchLectureDetail = createAsyncThunk<Lecture, PatchLecture>(
     try {
       // 데이터 수정 함수 호출
       const data = await patchLectureDetailApi(lectureData);
+      console.log(data);
 
       return data;
     } catch (error) {

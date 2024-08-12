@@ -5,17 +5,8 @@ import QuizChoiceButton from "./QuizChoiceButton";
 import { BASE_URL } from "../../api/BASE_URL";
 import StatisticsChart from "./StatisticsChart";
 import maruGif from "./toktokmaru.gif";
-import { QuizResponseDTO } from "./QuizListComponent";
-
-// interface QuizData {
-//   quiz_id: number;
-//   lecture_id: number;
-//   quiz_number: number;
-//   time: number;
-//   question: string;
-//   choices: string[];
-//   answers: number;
-// }
+import { getAuthToken } from "../../api/BASE_URL";
+import { QuizDetailForm } from "../../interface/quiz/QuizInterface";
 
 interface StatisticData {
   statistics: number[];
@@ -39,17 +30,17 @@ export interface ApiResponse {
 }
 
 interface DetailQuizProps {
-  initialQuizData: QuizResponseDTO;
+  initialQuizData: QuizDetailForm;
   onClose: () => void;
   trialVersion?: boolean;
-  trialTimer?: number;
+  isTeacher: boolean;
 }
 
 const DetailQuiz: React.FC<DetailQuizProps> = ({
   initialQuizData,
   onClose,
   trialVersion,
-  trialTimer,
+  isTeacher
 }) => {
   const [showChoices, setShowChoices] = useState(false);
   const [showQuestion, setShowQuestion] = useState(false);
@@ -63,10 +54,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
   const [statisticRankData, setStatisticRankData] =
     useState<StatisticRankData | null>(null);
 
-  const realTime =
-    trialVersion === undefined || trialVersion === false
-      ? initialQuizData.time
-      : trialTimer; //타이머관련, 연습판 여부!
+  const realTime = initialQuizData.time; 
   const [timer, setTimer] = useState<number>(
     realTime !== undefined ? realTime : initialQuizData.time
   ); // 타이머 시간
@@ -77,8 +65,55 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
   const [showStatistic, setShowStatstic] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const token =
-    "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHJpbmciLCJpYXQiOjE3MjMxMDUzMzksImV4cCI6MTcyOTEwNTMzOSwidG9rZW5fdHlwZSI6ImFjY2VzcyJ9.uyMfUDDiF46n296z2x4908K7U8Tmd6PYpmmnJJfdmZc";
+  const token = getAuthToken();
+
+  const tmpStatisticRankData = {
+    "prev": [
+      {
+        "rank": 1,
+        "score": 10,
+        "name": "호두마루"
+      },
+      {
+        "rank": 2,
+        "score": 0,
+        "name": "감자마루"
+      },
+      {
+        "rank": 3,
+        "score": 0,
+        "name": "딸기마루"
+      },
+      {
+        "rank": 4,
+        "score": 0,
+        "name": "초코마루"
+      }
+    ],
+    "current": [
+      {
+        "rank": 1,
+        "score": 90,
+        "name": "초코마루"
+      },
+      {
+        "rank": 2,
+        "score": 50,
+        "name": "감자마루"
+      },
+      {
+        "rank": 3,
+        "score": 10,
+        "name": "호두마루"
+      },
+      {
+        "rank": 4,
+        "score": 0,
+        "name": "딸기마루"
+      }
+    ]
+  }
+  
   useEffect(() => {
     if (showStatistic) {
       //통계불러오기
@@ -112,6 +147,10 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
 
     const questionTimer = setTimeout(() => {
       setShowQuestion(true);
+      if (isTeacher && !trialVersion) {
+        setIsClicked(true);
+        setSelectedChoice(initialQuizData.answers - 1); //자동으로 정답처리
+      }
     }, 2500);
 
     const choicesTimer = setTimeout(() => {
@@ -162,20 +201,26 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
     // 타이머 시작 후 몇 초가 지났는지 계산
     // const elapsedSeconds = initialQuizData.time - timer; // 초기 타이머 값이 3이므로, 현재 타이머 값(timer)으로부터 경과 시간을 계산
 
-    const score = (timer * 100) / initialQuizData.time;
+    let score = 0;
+
+    //틀렸을 때 0점처리
+    if (choice === initialQuizData.answers - 1) {
+      score = Math.round((timer * 100) / initialQuizData.time);
+    }
+
     console.log("점수는 " + score + "점!");
 
     //statistic axios
-    if (trialVersion) {
+    if (trialVersion || isTeacher) {
       //pass
     } else {
       //선택지 클릭했을 때
       axios
         .post(
-          `${BASE_URL}/api/v1/studentsQuizzes/1290`,
+          `${BASE_URL}/api/v1/studentsQuizzes/` + initialQuizData.quiz_id,
           {
             score: score,
-            student_choice: "choiceSentence",
+            student_choice: choiceSentence,
           },
           {
             headers: {
@@ -209,7 +254,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
       : timer === 2
       ? "bg-amber-400"
       : timer === 3
-      ? "bg-yellow-300"
+      ? "bg-yellow-400"
       : "bg-blue-600";
   //파 초 노 주 빨
   return (
@@ -257,33 +302,38 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
             <div className="w-full">
               <StatisticsChart
                 dataset={
+                  trialVersion?
+                  { statistics: [5, 1, 0, 4] }:
                   statisticData ? statisticData : { statistics: [0, 0, 0, 0] }
                 }
-                rankData={statisticRankData}
+                rankData={trialVersion? tmpStatisticRankData : statisticRankData}
               />
               {/* <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0, 1, 8, 3]}} rankData = {statisticRankData} /> //연동코드 */}
             </div>
           )}
         </div>
 
-        <div
-          id="result"
-          className={`absolute top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 text-white text-center transition-opacity duration-500 w-[150px] h-[50px] rounded-lg flex items-center justify-center z-50 ${
-            showModal && showMyResult && !showStatistic
-              ? "opacity-100"
-              : "opacity-0"
-          } ${
-            selectedChoice === initialQuizData.answers - 1
-              ? "bg-blue-300"
-              : "bg-red-300"
-          }`}
-        >
-          <p>
-            {selectedChoice === initialQuizData.answers - 1
-              ? "맞았습니다"
-              : "틀렸습니다"}
-          </p>
-        </div>
+        {(!isTeacher || trialVersion) && (
+          <div
+            id="result"
+            className={`absolute top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 text-white text-center transition-opacity duration-500 w-[150px] h-[50px] rounded-lg flex items-center justify-center z-50 ${
+              showModal && showMyResult && !showStatistic
+                ? "opacity-100"
+                : "opacity-0"
+            } ${
+              selectedChoice === initialQuizData.answers - 1
+                ? "bg-blue-300"
+                : "bg-red-300"
+            }`}
+          >
+            <p>
+              {selectedChoice === initialQuizData.answers - 1
+                ? "맞았습니다"
+                : "틀렸습니다"}
+            </p>
+          </div>
+        )}
+
 
         <div
           id="question"

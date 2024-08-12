@@ -18,7 +18,7 @@ const SignUpStudentPage: React.FC = () => {
       <div className="flex flex-col items-center justify-center">
         {!selectedRole && (
           <>
-            <p className="text-5xl p-20">회원가입</p>
+            <p className="text-5xl font-semibold p-20">회원가입</p>
             <div className="flex gap-10 mb-40">
               <div
                 className="flex flex-col items-center justify-center w-40 h-40 border border-black rounded-lg md:w-64 md:h-64 lg:w-96 lg:h-96"
@@ -63,7 +63,6 @@ const SignUpStudentPage: React.FC = () => {
             <TeacherSignUp />
           </>
         ) : null}
-
       </div>
     </>
   );
