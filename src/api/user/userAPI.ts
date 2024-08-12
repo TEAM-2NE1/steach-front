@@ -277,7 +277,27 @@ export const fetchStudentRadarChartApi = async () => {
       },
     }
   );
-  console.log(response.data.scores);
 
   return response.data.scores;
+};
+
+// 학생 AI 진로추천 가져오기
+export const fetchStudentAICareerRecommendApi = async () => {
+  try {
+    const token = await getAuthToken();
+    const response = await axios.post(
+      `${BASE_URL}/api/v1/gpt/career`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log(response.data);
+
+    return response.data;
+  } catch (error) {
+    return null;
+  }
 };

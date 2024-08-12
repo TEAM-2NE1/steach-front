@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { StudentInfoUpdateForm } from "../../components/student/studentMyInfo/StudentMyInfoUpdateForm";
-import { studentInfoGet } from "../../api/user/userAPI";
+import {
+  fetchStudentAICareerRecommendApi,
+  studentInfoGet,
+} from "../../api/user/userAPI";
 import {
   studentInfoUpdate,
   fetchStudentRadarChartApi,
@@ -19,7 +22,6 @@ const initialState: StudentUserInfo = {
   error: null,
   info: null,
   curricula: [],
-  radarChart: null,
 };
 
 // 학생 정보 조회
@@ -73,14 +75,14 @@ export const getStudentCurriculas =
     }
   );
 
-// 학생 레이다 차트 결과 조회
-export const fetchStudentRadarChart = createAsyncThunk(
-  "student/radar-chart",
+// gpt 진로 추천
+export const fetchStudentAICareerRecommend = createAsyncThunk(
+  "student/ai-recommend",
   async (_, thunkAPI) => {
     try {
-      const response = await fetchStudentRadarChartApi();
+      const response = await fetchStudentAICareerRecommendApi();
 
-      return response.data.scores;
+      return response;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         return thunkAPI.rejectWithValue(error.response.data);
@@ -133,24 +135,14 @@ const studentProfileSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || null;
       })
-      // 학생 Radar Chart 조회 - 항목 확인후 interface 수정후 action 항목들을 추가해야함
-      .addCase(fetchStudentRadarChart.pending, (state) => {
+      // 학생 AI 진로추천 조회
+      .addCase(fetchStudentAICareerRecommend.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchStudentRadarChart.fulfilled, (state, action) => {
+      .addCase(fetchStudentAICareerRecommend.fulfilled, (state) => {
         state.status = "succeeded";
-
-        if (state.radarChart) {
-          state.radarChart.Korean = action.payload.Korean;
-          state.radarChart.Math = action.payload.Math;
-          state.radarChart.Social = action.payload.Social;
-          state.radarChart.Science = action.payload.Science;
-          state.radarChart.Arts_And_Physical = action.payload.Arts_And_Physical;
-          state.radarChart.Engineering = action.payload.Engineering;
-          state.radarChart.Foreign_language = action.payload.Foreign_language;
-        }
       })
-      .addCase(fetchStudentRadarChart.rejected, (state, action) => {
+      .addCase(fetchStudentAICareerRecommend.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || null;
       });

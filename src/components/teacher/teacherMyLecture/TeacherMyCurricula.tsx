@@ -62,7 +62,7 @@ const TeacherMyCurricula: React.FC = () => {
         <TeacherNothingCurricula />
       )}
       {status === "succeeded" && teacherCurriculas.length > 0 && (
-        <div className="p-6 bg-white min-h-screen flex flex-col justify-between">
+        <div className="my-4 p-6 bg-white min-h-screen flex flex-col justify-between">
           <h1 className="mx-20 my-4 text-4xl font-bold text-lightNavy">
             내가 강의하는 커리큘럼
           </h1>
