@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Radar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,13 +10,22 @@ import {
   Legend,
 } from "chart.js";
 import { Card, CardHeader, CardBody, Box } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
 import { fetchStudentRadarChartApi } from "../../api/user/userAPI";
 import { StudentRadarChart } from "../../interface/profile/StudentProfileInterface";
 
 const MyLecturePreference: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const [radarChartData, setRadarChartData] = useState<StudentRadarChart>({
+    Korean: 0,
+    Math: 0,
+    Social: 0,
+    Science: 0,
+    Arts_And_Physical: 0,
+    Engineering: 0,
+    Foreign_language: 0,
+  });
 
   ChartJS.register(
     RadialLinearScale,
@@ -27,32 +36,18 @@ const MyLecturePreference: React.FC = () => {
     Legend
   );
 
-  const radarChartdata = useSelector(
-    (state: RootState) => state.studentProfile.radarChart
-  );
-
-  const secondData: StudentRadarChart = {
-    Korean: 0,
-    Math: 0,
-    Social: 0,
-    Science: 0,
-    Arts_And_Physical: 0,
-    Engineering: 0,
-    Foreign_language: 0,
-  };
-
   const fetchSecondData = async () => {
     const response = await fetchStudentRadarChartApi();
 
-    secondData.Korean = response.Korean;
-    secondData.Math = response.Math;
-    secondData.Social = response.Social;
-    secondData.Science = response.Science;
-    secondData.Arts_And_Physical = response.Arts_And_Physical;
-    secondData.Engineering = response.Engineering;
-    secondData.Foreign_language = response.Foreign_language;
-
-    console.log(secondData);
+    setRadarChartData({
+      Korean: response.Korean,
+      Math: response.Math,
+      Social: response.Social,
+      Science: response.Science,
+      Arts_And_Physical: response.Arts_And_Physical,
+      Engineering: response.Engineering,
+      Foreign_language: response.Foreign_language,
+    });
   };
 
   useEffect(() => {
@@ -65,13 +60,13 @@ const MyLecturePreference: React.FC = () => {
       {
         label: "수업 선호도",
         data: [
-          secondData.Korean,
-          secondData.Math,
-          secondData.Social,
-          secondData.Science,
-          secondData.Arts_And_Physical,
-          secondData.Engineering,
-          secondData.Foreign_language,
+          radarChartData.Korean,
+          radarChartData.Math,
+          radarChartData.Social,
+          radarChartData.Science,
+          radarChartData.Arts_And_Physical,
+          radarChartData.Engineering,
+          radarChartData.Foreign_language,
         ],
         fill: true,
         backgroundColor: "rgba(255, 99, 132, 0.2)",

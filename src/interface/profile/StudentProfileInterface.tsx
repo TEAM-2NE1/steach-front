@@ -13,9 +13,9 @@ export interface StudentUserInfo {
   error: string | null;
   info: StudentInfo | null;
   curricula: Curricula[];
-  radarChart: StudentRadarChart | null;
 }
 
+// 학생 radarChart
 export interface StudentRadarChart {
   Arts_And_Physical: number;
   Social: number;
