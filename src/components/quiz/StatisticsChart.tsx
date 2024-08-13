@@ -17,6 +17,9 @@ const StatisticsChart: React.FC<StatisticsChartProps> = ({ dataset, rankData }) 
     // 2초 후에 showRankings를 true로 설정
     const timer = setTimeout(() => {
       setShowRankings(true);
+      console.log(rankData === null)
+      console.log(rankData?.prev)
+      console.log(rankData?.current)
     }, 2000);
 
     // 타이머를 정리하여 메모리 누수를 방지

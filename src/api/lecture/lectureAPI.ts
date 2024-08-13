@@ -1,7 +1,6 @@
 import axios from "axios";
 import { Lecture, PatchLecture } from "../../interface/Curriculainterface";
-import { BASE_URL } from "../BASE_URL";
-import { getAuthToken } from "../BASE_URL";
+import { BASE_URL, getAuthToken } from "../BASE_URL";
 
 // 강의 상세 조회
 export const getLectureDetailApi = async (lectureId: number) => {

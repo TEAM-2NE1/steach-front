@@ -64,6 +64,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
   const [showMyResult, setShowMyResult] = useState<boolean>(false);
   const [showStatistic, setShowStatstic] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [finishGetData, setFinishGetData] = useState<boolean>(false);
 
   const token = getAuthToken();
 
@@ -113,10 +114,32 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
       }
     ]
   }
+
+  const savePrevRankDataToLocalStorage = (rankData: RankData[]): void => {
+    try {
+      const serializedData = JSON.stringify(rankData);
+      localStorage.setItem('prevRankData', serializedData);
+    } catch (error) {
+      console.error("Error saving rank data to localStorage", error);
+    }
+  }; //로컬스토리지 저장 함수
+
+  const getPrevRankDataFromLocalStorage = (): RankData[] | null => {
+    try {
+      const serializedData = localStorage.getItem('prevRankData');
+      if (serializedData === null) {
+        return null;
+      }
+      return JSON.parse(serializedData) as RankData[];
+    } catch (error) {
+      console.error("Error getting rank data from localStorage", error);
+      return null;
+    }
+  }; //로컬스토리지에서 꺼내오는 함수
   
   useEffect(() => {
     if (showStatistic) {
-      //통계불러오기
+      // 통계 불러오기
       axios
         .get<ApiResponse>(
           `${BASE_URL}/api/v1/quizzes/${initialQuizData?.quiz_id}/statistic`,
@@ -129,16 +152,27 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
         .then((response) => {
           console.log(response.data);
           setStatisticData({ statistics: response.data.statistics }); // 데이터 설정
-          setStatisticRankData({
-            prev: response.data.prev,
+          
+          let prev = getPrevRankDataFromLocalStorage();
+          console.log(prev);
+          
+          const rankData = {
+            prev: prev ?? response.data.current, // prev가 null이면 response.data.current 사용
             current: response.data.current,
-          });
+          };
+  
+          setStatisticRankData(rankData);
+  
+          savePrevRankDataToLocalStorage(response.data.current);
         })
         .catch((error) => {
           console.error("Error fetching statistic data:", error);
+        })
+        .finally(() => {
+          setFinishGetData(true); // 데이터 로드 완료 표시
         });
     }
-  }, [showStatistic, initialQuizData]); // showStatistic이 true가 될 때 요청을 보냄
+  }, [showStatistic, initialQuizData]);
 
   useEffect(() => {
     const emojiTimer = setTimeout(() => {
@@ -298,7 +332,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
             showStatistic ? "opacity-70" : "opacity-0"
           }`}
         >
-          {showStatistic && (
+          {statisticRankData  && finishGetData && (
             <div className="w-full">
               <StatisticsChart
                 dataset={
@@ -308,7 +342,6 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
                 }
                 rankData={trialVersion? tmpStatisticRankData : statisticRankData}
               />
-              {/* <StatisticsChart dataset={statisticData ? statisticData : {statistics: [0, 1, 8, 3]}} rankData = {statisticRankData} /> //연동코드 */}
             </div>
           )}
         </div>
@@ -333,7 +366,6 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
             </p>
           </div>
         )}
-
 
         <div
           id="question"

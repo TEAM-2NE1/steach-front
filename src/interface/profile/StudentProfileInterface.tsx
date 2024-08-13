@@ -13,6 +13,7 @@ export interface StudentUserInfo {
   error: string | null;
   info: StudentInfo | null;
   curricula: Curricula[];
+  gptStatistic: string | null;
 }
 
 // 학생 radarChart
@@ -24,4 +25,8 @@ export interface StudentRadarChart {
   Science: number;
   Korean: number;
   Math: number;
+}
+
+export interface StudentCarrerRecommend {
+  gptStatistic: string;
 }
