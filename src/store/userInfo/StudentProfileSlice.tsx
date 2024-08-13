@@ -55,7 +55,7 @@ export const updateStudentInfo = createAsyncThunk<
   }
 });
 
-// 학생이 수강신청한 강의 목록 가져오기
+// 학생이 수강신청한 커리큘럼 목록 가져오기
 export const getStudentCurriculas =
   createAsyncThunk<returnStudentCurriculaList>(
     "student/curricula/get",
