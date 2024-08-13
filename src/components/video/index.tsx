@@ -76,7 +76,7 @@ const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audi
 	if(userRole.endsWith('_screen')){
 		return (
 			<Container>
-				{/* <p>[email : {email.substring(0, email.length-7)}의 화면공유]</p> */}
+				<p>[email : {email.substring(0, email.length-7)}의 화면공유]</p>
 				<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen} />
 				{/* <UserLabel>{email}</UserLabel> */}
 			</Container>
@@ -85,8 +85,8 @@ const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audi
 		return (
 			<Container>
 				<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen}/>
-				{/* <UserLabel>{email}</UserLabel>
-				<UserRoleLabel>{userRole}</UserRoleLabel>
+				<UserLabel>{email}</UserLabel>
+				{/* <UserRoleLabel>{userRole}</UserRoleLabel>
 				<Indicator>Video: {videoEnabled ? 'On' : 'Off'}</Indicator>
 				<Indicator>Audio: {audioEnabled && !audioDisabledByTeacher ? 'On' : 'Off'}</Indicator>
 				<Indicator>Teacher Allowed: {audioDisabledByTeacher ? 'No' : 'Yes'}</Indicator>

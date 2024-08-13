@@ -6,7 +6,7 @@ import WebrtcTeacherScreenShare from "./WebrtcTeacherScreenShare.tsx";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../store";
 import { fetchLectureQuiz } from "../../store/QuizSlice";
-import { QuizResponseDTO } from '../../components/quiz/QuizListComponent.tsx';
+// import { QuizResponseDTO } from '../../components/quiz/QuizListComponent.tsx';
 import { QuizFetchListForm, QuizState } from '../../interface/quiz/QuizInterface.ts';
 import { AsyncThunkAction, Dispatch, AnyAction } from '@reduxjs/toolkit';
 import { useParams } from 'react-router-dom';
@@ -50,6 +50,7 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 	const [showControls, setShowControls] = useState(false); // 컨트롤 표시 상태
 	const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
 	const [isChatOpen, setIsChatOpen] = useState(false);
+	const [isItemsOpen, setIsItemsOpen] = useState(false);
 // --------------------------------------------------------------
 	const dispatch = useDispatch<AppDispatch>();
 	const { lecture_id } = useParams();
@@ -70,12 +71,12 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
   const [chating, setChating] = useState(false);
 
   // 퀴즈 모달
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedQuiz, setSelectedQuiz] = useState<QuizResponseDTO | null>(
-    null
-	);
-	const { status } = useSelector((state: RootState) => (state.quiz as QuizState));
-  const quzzies = useSelector((state: RootState) => (state.quiz as QuizState).quizzes);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [selectedQuiz, setSelectedQuiz] = useState<QuizResponseDTO | null>(
+  //   null
+	// );
+	// const { status } = useSelector((state: RootState) => (state.quiz as QuizState));
+  // const quzzies = useSelector((state: RootState) => (state.quiz as QuizState).quizzes);
 
 
   // 이 drawer을 켰을 때 퀴즈 리스트를 불러오기
@@ -131,6 +132,10 @@ const toggleFullscreen2 = () => {
 
 const toggleChat = () => {
 	setIsChatOpen((prev) => !prev);
+	};
+	
+const toggleItems = () => {
+	setIsItemsOpen((prev) => !prev);
 };
 
 	
@@ -325,7 +330,7 @@ const toggleChat = () => {
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === 'Enter') {
-			handleSendMessage
+			handleSendMessage();
 		}
 	}
 
@@ -508,7 +513,7 @@ const toggleChat = () => {
 	}, [createPeerConnection, getLocalStream]);
 
 	return (
-		<div className={`${styles.videoContainer} ${isFullscreen ? 'flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg top-0 left-0 z-50 gap-4' : 'flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg gap-4'}`}
+		<div className={`${styles.videoContainer} ${isFullscreen ? 'flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg top-0 left-0 z-50 gap-4' : 'flex flex-wrap items-center justify-center w-full h-full bg-discordChatBg gap-4'}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseMove={handleMouseMove}
 			onMouseLeave={handleMouseLeave}
@@ -550,6 +555,12 @@ const toggleChat = () => {
 									>
 									{isChatOpen ? '💬' : '💬'}
 								</button>
+								<button
+									onClick={toggleItems}
+									className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+									>
+									{isItemsOpen ? '👜' : '👜'}
+								</button>
 					</div>
 								<div className='col-span-2'></div>
 				</div>
@@ -583,8 +594,18 @@ const toggleChat = () => {
 						audioDisabledByTeacher={user.audioDisabledByTeacher}
 						screenShareEnabled={user.screenShareEnabled}
 						screenShareDisabledByTeacher={user.screenShareDisabledByTeacher}
-						muted={userRole !== 'teacher' && user.userRole !== 'teacher'} // Students can only see the teacher's video
+						muted={userRole !== 'TEACHER' && user.userRole !== 'TEACHER'} // Students can only see the teacher's video
 					/>
+						{userRole === 'TEACHER' && user.userRole === 'STUDENT' && (
+						<button onClick={() => toggleStudentMic(user.id, user.audioDisabledByTeacher)}>
+							{user.audioDisabledByTeacher ? 'Enable Mic' : 'Disable Mic'}
+						</button>
+					)}
+						{userRole === 'TEACHER' && user.userRole === 'STUDENT' && (
+						<button onClick={() => toggleStudentScreenShare(user.id, user.email, user.screenShareDisabledByTeacher)}>
+							{user.screenShareDisabledByTeacher ? '화면공유 허용시키기' : '화면공유 금지시키기'}
+						</button>
+					)}
 				</div>
 			))}
 			</div>
@@ -603,6 +624,16 @@ const toggleChat = () => {
 					placeholder="메세지 전송"
 					className="border-2 mt-2 border-discordChatBg2 p-2 w-full bg-discordChatBg text-discordText"
 				/>
+				<button onClick={handleSendMessage} className="mt-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2">
+					전송
+				</button>
+			</div>
+			<div className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${isItemsOpen ? 'translate-x-0 transition-transform duration-500 ease-in-out' : 'hidden translate-x-full transition-transform duration-500 ease-in-out'}`}>
+				<h3>Items</h3>
+				<div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
+
+				</div>
+
 				<button onClick={handleSendMessage} className="mt-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2">
 					전송
 				</button>
