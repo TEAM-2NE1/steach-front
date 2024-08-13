@@ -24,18 +24,22 @@ import Cat from "./pages/sub/Cat.tsx";
 import Reva from "./pages/sub/Reva.tsx";
 import SearchPage from "./pages/main/SearchPage.tsx";
 import MainPage from "./pages/main/MainPage.tsx";
-import QuizDrawer from "./components/quiz/QuizDrawer.tsx";
 import { ToastContainer } from "react-toastify";
+import QuizDrawer from "./components/quiz/QuizDrawer.tsx";
 import QuizTestPage from "./components/quiz/page/QuizTestPage.tsx";
 import TeacherQuizListPage from "./components/quiz/page/TeacherQuizListPage.tsx";
 import StudentQuizListPage from "./components/quiz/page/StudentQuizListPage.tsx";
 import TeacherQuizListPageTrial from "./components/quiz/page/TeacherQuizListPageTrial.tsx";
 
+
 const App: React.FC = () => {
+
+  const hideNavbarRoutes = [''];
+  const hideNavbar = hideNavbarRoutes.includes(location.pathname) || /\/classroom\/\d+/.test(location.pathname);
   return (
     <div>
       <ToastContainer autoClose={1500} />
-      <Navbar />
+      {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<MainPage />}></Route>
         <Route path="/home" element={<HomePage />}></Route>
@@ -97,7 +101,7 @@ const App: React.FC = () => {
         <Route path="/student-quiz-list" element={<StudentQuizListPage />} />
 
       </Routes>
-      <Footer />
+      {!hideNavbar && <Footer />}
     </div>
   );
 };

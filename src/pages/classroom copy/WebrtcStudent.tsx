@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store.tsx';
 import { useParams } from 'react-router-dom';
 import styles from './WebrtcStudent.module.css';
+import html2canvas from "html2canvas";
 
 const pc_config = {
 	iceServers: [
@@ -43,13 +44,162 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
   const [isMuted, setIsMuted] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false); // 전체화면 상태 관리
-	const [showControls, setShowControls] = useState(false); // 컨트롤 표시 상태
+  const [isFullscreen, setIsFullscreen] = useState(false);
+	const [showControls, setShowControls] = useState(false);
 	const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
 	const [isChatOpen, setIsChatOpen] = useState(false);
 	const dispatch = useDispatch<AppDispatch>();
 	const { lecture_id } = useParams();
+	// 
+	const divRef = useRef<HTMLDivElement>(null);
+	const MAX_WIDTH = 854;
+	const MAX_HEIGHT = 480;
+	const TOLERANCE = 10;
+	const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+	const [accDdResult, setAccDdResult] = useState<number[]>([]);
+	const [cntAFK, setCntAFK] = useState<number>(0);
+	const [cntFocus, setCntFocus] = useState<number>(0);
+	const [cntDrowsy, setCntDrowsy] = useState<number>(0);
+	const [notFocusTime, setNotFocusTime] = useState<number>(0);
 
+
+	const getDrowsiness = async () => {
+		if (!divRef.current) return;
+
+		try {
+			const div = divRef.current;
+			const canvas = await html2canvas(div, { scale: 2 });
+
+			const originalWidth = canvas.width;
+			const originalHeight = canvas.height;
+			let width = originalWidth;
+			let height = originalHeight;
+
+			if (originalWidth > MAX_WIDTH || originalHeight > MAX_HEIGHT) {
+				const widthRatio = MAX_WIDTH / originalWidth;
+				const heightRatio = MAX_HEIGHT / originalHeight;
+				const scaleRatio = Math.min(widthRatio, heightRatio);
+
+				width = originalWidth * scaleRatio;
+				height = originalHeight * scaleRatio;
+			}
+
+			const resizedCanvas = document.createElement("canvas");
+			resizedCanvas.width = width;
+			resizedCanvas.height = height;
+			const ctx = resizedCanvas.getContext("2d");
+
+			if (ctx) {
+				ctx.drawImage(canvas, 0, 0, width, height);
+			}
+
+			resizedCanvas.toBlob((blob) => {
+				if (blob !== null) {
+					const formData = new FormData();
+					// saveAs(blob, "res.png");
+					formData.append("file", blob, "focus.png");
+
+					// Upload the resized image
+					fetch("https://steach.ssafy.io/drowsiness", {
+						method: "POST",
+						body: formData,
+					})
+						.then((response) => response.text())
+						.then((result) => {
+							saveAccddRes(parseInt(result, 10));
+						})
+						.catch((error) => {
+							console.error("[Drowsiness Detection] Error:", error);
+						});
+				}
+			});
+		} catch (error) {
+			console.error("Error converting div to image:", error);
+		}
+	};
+
+
+
+	const saveAccddRes = (value: number) => {
+		// First, update the counts based on the new value
+		setCntAFK((prevCntAFK) => (value === -1 ? prevCntAFK + 1 : prevCntAFK));
+		setCntFocus((prevCntFocus) => (value === 0 ? prevCntFocus + 1 : prevCntFocus));
+		setCntDrowsy((prevCntDrowsy) => (value === 1 ? prevCntDrowsy + 1 : prevCntDrowsy));
+		setNotFocusTime((prevNotFocusTime) => (value === -1 || value === 1 ? prevNotFocusTime + 1 : prevNotFocusTime));
+
+		setAccDdResult((prevValues) => {
+			// Add the new value to the array
+			const updatedValues = [...prevValues, value];
+
+			// If the length exceeds TOLERANCE, we need to adjust counts
+			if (updatedValues.length > TOLERANCE) {
+				const firstOfAccDdRes = updatedValues.shift(); // Remove the oldest value and adjust counts
+
+				// Adjust counts based on the removed value
+				setCntAFK((prevCntAFK) => (firstOfAccDdRes === -1 ? prevCntAFK - 1 : prevCntAFK));
+				setCntFocus((prevCntFocus) => (firstOfAccDdRes === 0 ? prevCntFocus - 1 : prevCntFocus));
+				setCntDrowsy((prevCntDrowsy) => (firstOfAccDdRes === 1 ? prevCntDrowsy - 1 : prevCntDrowsy));
+			}
+
+			// Return the updated array to setAccDdResult
+			return updatedValues;
+		});
+	};
+
+	useEffect(() => {
+		if (cntAFK >= TOLERANCE) {
+			setCntAFK(0);
+			setCntFocus(0);
+			setCntDrowsy(0);
+			setAccDdResult([]); // Clear the accDdResult array
+			askComeBack();
+			reportToTeacher('afk');
+		} else if (cntDrowsy >= TOLERANCE) {
+			setCntAFK(0);
+			setCntFocus(0);
+			setCntDrowsy(0);
+			setAccDdResult([]); // Clear the accDdResult array
+			wakeStudent();
+			reportToTeacher('sleep');
+		}
+	}, [cntAFK, cntDrowsy]); // Dependencies array to watch for changes
+
+	const reportToTeacher = (type: string) => {
+		if (socketRef.current) {
+			socketRef.current.emit('report_to_teacher', {
+				userId: socketRef.current.id,
+				email: userEmail,
+				type: type
+			});
+		}
+	}
+
+
+	const startDrowsinessDetection = () => {
+		if (!intervalId) {
+			const id = setInterval(getDrowsiness, 2000);
+			setIntervalId(id);
+		}
+		setCntAFK(0);
+		setCntDrowsy(0);
+	};
+
+	const stopDrowsinessDetection = () => {
+		if (intervalId) {
+			clearInterval(intervalId);
+			setIntervalId(null);
+		}
+		setCntAFK(0);
+		setCntDrowsy(0);
+	};
+
+	const askComeBack = () => {
+		console.log(`[Focus Detection] Away From Keyboard for ${TOLERANCE * 2}초 detected!!!`);
+	}
+
+	const wakeStudent = () => {
+		console.log(`[Drowsiness Detection] Drowsy for ${TOLERANCE * 2}초 detected!!!`);
+	}
 
 
 	const toggleScreenShare = () => {
@@ -167,7 +317,6 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 						pc.addTrack(track, localStreamRef.current);
 					}
 				});
-			} else {
 			}
 
 			return pc;
@@ -192,6 +341,13 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 					screenShareEnabled: isScreenShareEnabled,
 					screenShareDisabledByTeacher: isScreenShareDisabledByTeacher
 				});
+			}
+			if(!videoTrack.enabled){
+				console.log('Start DD');
+				startDrowsinessDetection();
+			}else{
+				console.log('Stop DD');
+				stopDrowsinessDetection();
 			}
 		}
 	};
@@ -467,6 +623,25 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			}
 		});
 
+		socketRef.current.on('lecture_end', () => {
+			notFocusTime * 2 / 60
+			
+
+			// 선생님이 강의종료 버튼을 누르면 이 버튼이 눌림.
+			// 여기에 백엔드 서버로 notFocusTime을 업로드하는 코드를 넣으면 됨
+
+			// 아래는 P2P 커넥션 끊는 코드임. 주석 풀고 사용하면 됨.
+			// if (socketRef.current) {
+			// 	socketRef.current.disconnect();
+			// }
+			// users.forEach((user) => {
+			// 	if (pcsRef.current[user.id]) {
+			// 		pcsRef.current[user.id].close();
+			// 		delete pcsRef.current[user.id];
+			// 	}
+			// });
+		});
+
 		return () => {
 			if (socketRef.current) {
 				socketRef.current.disconnect();
@@ -500,14 +675,6 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 		setIsChatOpen((prev) => !prev);
 };
 
-
-  const toggleMute = () => {
-    if (localVideoRef.current) {
-      localVideoRef.current.muted = !localVideoRef.current.muted;
-      setIsMuted(localVideoRef.current.muted);
-    }
-  };
-
   const handleTimeUpdate = () => {
     if (localVideoRef.current) {
       setCurrentTime(localVideoRef.current.currentTime);
@@ -521,10 +688,10 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
   };
 
   const handleFullscreenChange = () => {
-		setShowControls(true); // 전체화면에 진입하거나 나올 때 컨트롤을 보여줍니다.
-		showControlsTemporarily(); // 전체화면 진입 후 2초 동안 유지
+		setShowControls(true);
+		showControlsTemporarily(); 
     if (!document.fullscreenElement) {
-      setShowControls(false); // 전체화면이 아닐 때는 바로 컨트롤을 숨깁니다.
+      setShowControls(false); 
     }
   };
 	
@@ -579,9 +746,9 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			<div className={`${isFullscreen ? 'fixed top-0 left-0 w-full h-full z-50 bg-black grid grid-cols-12 gap-4' : 'grid grid-cols-12 gap-4 w-full'} ${isChatOpen ? 'mr-[300px] transition-margin-right duration-500 ease-in-out' : 'transition-margin-right duration-500 ease-in-out'} flex flex-wrap items-center justify-center bg-discordChatBg`}>
 				<div className="col-span-6 flex items-center justify-center">
 					<div style={{ display: 'inline-block' }}>
-						<div style={{ position: 'relative', width: 600, height: 338 }} className={`${styles.videoContainer}`}>
+						<div ref={divRef} style={{ position: 'relative', width: 600, height: 338 }} className={`${styles.videoContainer}`}>
 							<video
-								className="w-full h-full bg-black"
+								className="w-full h-full bg-black rounded-2xl"
 								onClick={toggleFullscreen}
 								muted={isMuted}
 								ref={localVideoRef}
