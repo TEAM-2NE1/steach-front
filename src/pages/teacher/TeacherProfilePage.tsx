@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { FaPencilAlt, FaHistory } from "react-icons/fa";
+import { FaPencilAlt } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { useNavigate } from "react-router-dom";
-import ProfileLectureHistory from "../../components/student/ProfileLectureHistory";
 import TeacherMyInfo from "../../components/teacher/teacherMyInfo/TeacherMyInfo";
 import TeacherMyCurricula from "../../components/teacher/teacherMyLecture/TeacherMyCurricula";
 
@@ -60,17 +59,6 @@ const TeacherProfilePage: React.FC = () => {
               } flex flex-col items-center`}
               onClick={() => handleTabClick(1)}
             >
-              <FaHistory className="size-8 my-2" />
-              <h2 className="whitespace-nowrap">강의 히스토리</h2>
-            </button>
-            <button
-              className={`my-2 text-lg p-3 ${
-                selectedTab === 2
-                  ? "bg-orange-200 text-white rounded-3xl"
-                  : "text-lightNavy hover:text-hoverNavy"
-              } flex flex-col items-center`}
-              onClick={() => handleTabClick(2)}
-            >
               <CgProfile className="size-8 my-2" />
               <h2 className="whitespace-nowrap">내 정보</h2>
             </button>
@@ -86,8 +74,7 @@ const TeacherProfilePage: React.FC = () => {
       <div className="col-span-10">
         <div className="flex-1 p-3">
           {selectedTab === 0 && <TeacherMyCurricula />}
-          {selectedTab === 1 && <ProfileLectureHistory />}
-          {selectedTab === 2 && <TeacherMyInfo />}
+          {selectedTab === 1 && <TeacherMyInfo />}
         </div>
       </div>
       <div className="col-span-1"></div>

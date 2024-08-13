@@ -46,7 +46,10 @@ const App: React.FC = () => {
         <Route path="/user/login" element={<LoginPage />}></Route>
         <Route path="/user/signup" element={<SignUpPage />}></Route>
         {/* <Route path="/classroom/:lecture_id" element={<Classroom />}></Route> */}
-        <Route path="/classroom/:lecture_id" element={<ClassroomCopy />}></Route>
+        <Route
+          path="/classroom/:lecture_id"
+          element={<ClassroomCopy />}
+        ></Route>
         <Route
           path="/curricula/detail/:id"
           element={<CurriculaDetailPage />}
@@ -81,7 +84,7 @@ const App: React.FC = () => {
           element={<PatchQuiz />}
         ></Route>
         <Route
-          path="/teacher/profile/lecture/lectureReport"
+          path="/teacher/profile/:username/curricula/:curricula_id/lecture/:lecture_id/lectureReport"
           element={<LectureReport />}
         ></Route>
         <Route path="/game" element={<Game />}></Route>
@@ -91,11 +94,12 @@ const App: React.FC = () => {
         <Route path="/privacy" element={<QuizTestPage />}></Route>
         <Route path="/search" element={<SearchPage />}></Route>
         <Route path="/drawer" element={<QuizDrawer />}></Route>
-
-        <Route path="/teacher-quiz-list-trial" element={<TeacherQuizListPageTrial />} />
+        <Route
+          path="/teacher-quiz-list-trial"
+          element={<TeacherQuizListPageTrial />}
+        />
         <Route path="/teacher-quiz-list" element={<TeacherQuizListPage />} />
         <Route path="/student-quiz-list" element={<StudentQuizListPage />} />
-
       </Routes>
       <Footer />
     </div>

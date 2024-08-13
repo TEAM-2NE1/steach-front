@@ -32,7 +32,11 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
         <>
           <Button
             className="mx-auto p-3 bg-sky-300 rounded-md shadow text-white font-semibold hover:bg-sky-400"
-            onClick={() => navigate("/teacher/profile/lecture/lectureReport")}
+            onClick={() =>
+              navigate(
+                `/teacher/profile/${username}/curricula/${curriculaId}/lecture/${lectureId}/lectureReport`
+              )
+            }
           >
             리포트 보기
           </Button>

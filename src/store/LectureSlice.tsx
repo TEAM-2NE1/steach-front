@@ -16,6 +16,7 @@ import axios from "axios";
 export interface LecturesState {
   lectureslist: LectureSeries | null;
   lecture: Lecture | null;
+  students_quizzes_by_lecture_dto: [];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -24,6 +25,7 @@ export interface LecturesState {
 const initialState: LecturesState = {
   lectureslist: null,
   lecture: null,
+  students_quizzes_by_lecture_dto: [],
   status: "idle",
   error: null,
 };

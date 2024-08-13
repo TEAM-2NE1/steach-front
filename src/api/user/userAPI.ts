@@ -294,9 +294,8 @@ export const fetchStudentAICareerRecommendApi = async () => {
         },
       }
     );
-    console.log(response.data);
 
-    return response.data;
+    return response.data.gptStatistic;
   } catch (error) {
     return null;
   }
