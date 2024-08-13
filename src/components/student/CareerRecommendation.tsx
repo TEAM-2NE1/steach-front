@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchStudentAICareerRecommendApi } from "../../api/user/userAPI";
+import { fetchStudentAICareerRecommend } from "../../store/userInfo/StudentProfileSlice";
 import {
   Card,
   CardHeader,
@@ -8,21 +8,35 @@ import {
   Box,
   StackDivider,
 } from "@chakra-ui/react";
+import { useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
+import { useSelector } from "react-redux";
 
 const CareerRecommendation: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const gptStatistic = useSelector(
+    (state: RootState) => state.studentProfile.gptStatistic
+  );
+
   // AI 진로추천 결과
-  const [recommendResult, setRecommendResult] = useState<string | null>("");
+  const [recommendResult, setRecommendResult] = useState<string | null>(null);
 
   // 진로 추천 결과를 가져오는 함수
   const getRecommendResult = async () => {
-    const result = await fetchStudentAICareerRecommendApi();
-
-    setRecommendResult(result);
+    await dispatch(fetchStudentAICareerRecommend());
+    console.log(gptStatistic);
   };
 
   useEffect(() => {
     getRecommendResult();
   }, []);
+
+  useEffect(() => {
+    // gptStatistic이 업데이트될 때마다 recommendResult를 설정
+    if (gptStatistic) {
+      setRecommendResult(gptStatistic);
+    }
+  }, [gptStatistic]);
 
   return (
     <Box className="h-full">
@@ -37,7 +51,7 @@ const CareerRecommendation: React.FC = () => {
           <Stack divider={<StackDivider />} spacing="4">
             <Box>
               {recommendResult ? (
-                <p className="text-xl">{recommendResult}</p>
+                <p className="text-md text-center">{recommendResult}</p>
               ) : (
                 <p className="text-xl text-red-500">
                   강의를 수강하여야 결과를 볼 수 있습니다.

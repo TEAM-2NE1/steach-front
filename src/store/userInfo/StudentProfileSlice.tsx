@@ -4,10 +4,7 @@ import {
   fetchStudentAICareerRecommendApi,
   studentInfoGet,
 } from "../../api/user/userAPI";
-import {
-  studentInfoUpdate,
-  fetchStudentRadarChartApi,
-} from "../../api/user/userAPI";
+import { studentInfoUpdate } from "../../api/user/userAPI";
 import { returnStudentCurriculaList } from "../../interface/Curriculainterface";
 import { getStudentCurriculaList } from "../../api/lecture/curriculumAPI";
 import {
@@ -22,6 +19,7 @@ const initialState: StudentUserInfo = {
   error: null,
   info: null,
   curricula: [],
+  gptStatistic: "",
 };
 
 // 학생 정보 조회
@@ -139,8 +137,9 @@ const studentProfileSlice = createSlice({
       .addCase(fetchStudentAICareerRecommend.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchStudentAICareerRecommend.fulfilled, (state) => {
+      .addCase(fetchStudentAICareerRecommend.fulfilled, (state, action) => {
         state.status = "succeeded";
+        state.gptStatistic = action.payload;
       })
       .addCase(fetchStudentAICareerRecommend.rejected, (state, action) => {
         state.status = "failed";

@@ -10,13 +10,10 @@ import {
   Legend,
 } from "chart.js";
 import { Card, CardHeader, CardBody, Box } from "@chakra-ui/react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../store";
 import { fetchStudentRadarChartApi } from "../../api/user/userAPI";
 import { StudentRadarChart } from "../../interface/profile/StudentProfileInterface";
 
 const MyLecturePreference: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const [radarChartData, setRadarChartData] = useState<StudentRadarChart>({
     Korean: 0,
     Math: 0,
