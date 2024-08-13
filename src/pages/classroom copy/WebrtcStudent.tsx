@@ -8,6 +8,8 @@ import { AppDispatch } from '../../store.tsx';
 import { useParams } from 'react-router-dom';
 import styles from './WebrtcStudent.module.css';
 import html2canvas from "html2canvas";
+import { QuizDetailForm } from '../../interface/quiz/QuizInterface.ts';
+import DetailQuiz from '../../components/quiz/QuizBlock.tsx';
 
 const pc_config = {
 	iceServers: [
@@ -62,6 +64,25 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 	const [cntDrowsy, setCntDrowsy] = useState<number>(0);
 	const [notFocusTime, setNotFocusTime] = useState<number>(0);
 
+	//퀴즈모달 ======================================
+	//퀴즈모달 출력 여부
+	const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+
+	//퀴즈모달 닫기
+	const handleCloseQuizModal = () => {
+		setIsQuizModalOpen(false);
+		setSelectedQuiz(null);
+	};
+
+	//현재 퀴즈
+	const [selectedQuiz, setSelectedQuiz] = useState<QuizDetailForm | null>(null);
+	//==============================================
+
+	//선생님이 퀴즈를 시작했을 때 rtc에서 호출하는 함수
+	const openQuiz = (quiz: QuizDetailForm) => {
+		setSelectedQuiz(quiz)
+		setIsQuizModalOpen(true)
+	}
 
 	const getDrowsiness = async () => {
 		if (!divRef.current) return;
@@ -117,8 +138,6 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			console.error("Error converting div to image:", error);
 		}
 	};
-
-
 
 	const saveAccddRes = (value: number) => {
 		// First, update the counts based on the new value
@@ -822,6 +841,32 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
     </div>
   ))}
 </div>
+	  {isQuizModalOpen && selectedQuiz &&  (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg w-[500px] relative">
+            {/* Close Button Overlapping DetailQuiz */}
+            <button
+              onClick={handleCloseQuizModal}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
+            >
+              &times;
+            </button>
+
+            {/* DetailQuiz Component Centered */}
+            <div className="flex justify-center items-center">
+              <div className="rounded-lg overflow-hidden w-full">
+                {/* 학생인 경우에는 trialVersion, isTeacher false */}
+                <DetailQuiz
+                  initialQuizData={selectedQuiz}
+                  onClose={handleCloseQuizModal}
+                  trialVersion={false}
+                  isTeacher={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 <div className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${isChatOpen ? 'translate-x-0 transition-transform duration-500 ease-in-out' : 'hidden translate-x-full transition-transform duration-500 ease-in-out'}`}>
 				<h3>Chat</h3>
 				<div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
@@ -838,7 +883,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 					className="border-2 mt-2 border-discordChatBg2 p-2 w-full bg-discordChatBg text-discordText"
 				/>
 				<button onClick={handleSendMessage} className="mt-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2">
-					전송
+=					전송
 				</button>
 			</div>
 		</div>
