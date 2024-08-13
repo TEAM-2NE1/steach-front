@@ -66,6 +66,9 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
   const [showModal, setShowModal] = useState<boolean>(false);
   const [finishGetData, setFinishGetData] = useState<boolean>(false);
 
+  //이미 푼 퀴즈 에러창
+  const [alreadyTakenQuizModal, setAlreadyTakenQuizModal] = useState(false);
+
   const token = getAuthToken();
 
   const tmpStatisticRankData = {
@@ -264,6 +267,17 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
           }
         )
         .catch((error) => {
+          if (error.response) {
+            //이미 푼 퀴즈인 경우
+            if (error.response.status === 400) {
+              setAlreadyTakenQuizModal(true)
+
+              // 1초 후 모달 숨김
+              setTimeout(() => {
+                setAlreadyTakenQuizModal(false);
+              }, 1000);
+            }
+          }
           console.error(
             "There was an error sending the statistics data!",
             error
@@ -316,6 +330,16 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
           )}
         </div>
 
+        {/* 이미 퀴즈를 풀었다 블록 */}
+        {alreadyTakenQuizModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-green-300 text-black p-4 rounded-lg shadow-lg">
+              이미 푼 퀴즈입니다.
+            </div>
+          </div>
+        )}
+
+        {/* 시계 블록 */}
         <div
           id="clock"
           className={`absolute top-[5%] right-1 ml-0 opacity-0 text-white text-center transition-opacity duration-500 w-[40px] h-[40px] leading-[40px] rounded-full ${clockColor} ${
@@ -326,6 +350,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
           <p>{timer}</p>
         </div>
 
+        {/* 통계(선지당 선택개수, 퀴즈점수 순위) 블록 */}
         <div
           id="statistic"
           className={`absolute top-[70%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 text-white text-center transition-opacity duration-500 w-full h-[50px] flex items-center justify-center ${
@@ -337,8 +362,8 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
               <StatisticsChart
                 dataset={
                   trialVersion?
-                  { statistics: [5, 1, 0, 4] }:
-                  statisticData ? statisticData : { statistics: [0, 0, 0, 0] }
+                    { statistics: [5, 1, 0, 4] }: //체험판 더미 데이터
+                    statisticData ? statisticData : { statistics: [0, 0, 0, 0] } //TODO undefined 에러..
                 }
                 rankData={trialVersion? tmpStatisticRankData : statisticRankData}
               />
@@ -346,6 +371,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
           )}
         </div>
 
+        {/* 맞았습니다 틀렸습니다 블록 */}
         {(!isTeacher || trialVersion) && (
           <div
             id="result"
@@ -367,6 +393,7 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
           </div>
         )}
 
+        {/* 퀴즈 질문 블록 */}
         <div
           id="question"
           className={`absolute inset-0 top-[50px] text-2xl transition-transform duration-500 ease-in-out flex justify-center items-end pb-2 ${

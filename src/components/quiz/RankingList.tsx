@@ -10,7 +10,7 @@ interface RankingsProps {
   data: {
     prev: Ranking[];
     current: Ranking[];
-  } | null;
+  };
 }
 
 const RankingsList: React.FC<RankingsProps> = ({ data }) => {
@@ -93,37 +93,39 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
   }, [isTransitioning, data? data.current: 0]);
 
   return (
-    <div style={{width: '70%'}}>
+    <div style={{ width: '70%' }}>
       <ul style={{ listStyle: 'none', padding: 0 }}>
-        {displayedList.map((item, index) => { //item은 prev
-          const currentRank = data? data.current.find(currentItem => currentItem.name === item.name)?.rank: 0;
-          const currentScore = data? data.current.find(currentItem => currentItem.name === item.name)?.score: 0;
-          const prevRank = item.rank
+        {displayedList.map((item, index) => { // item은 prev
+          const currentRank = data ? data.current.find(currentItem => currentItem.name === item.name)?.rank : -1;
+          const currentScore = data ? data.current.find(currentItem => currentItem.name === item.name)?.score : -1;
+          const prevRank = item.rank;
+
+          // 애니메이션 효과로 부드럽게 사라지게 함
+          const shouldDisappear = isTranslationg2 && (currentRank === -1 || currentScore === -1);
 
           return (
             <li
-                key={item.name}
-                className={`mb-1 py-0 px-5 shadow-md rounded-lg border border-gray-200 ${currentRank === 1 ? 'bg-blue-300' : 'bg-white'}`}
-                style={{
-                    transition: 'all 0.5s ease',
-                    transform: (
-                        isTranslationg2 && item.rank !== currentRank && currentRank !== undefined ? 
-                          (item.rank - currentRank > 0) ?
-                          `translateY(${34 * (currentRank - prevRank)}px)`  :
-                          `translateY(${34 * (currentRank - prevRank)}px)`
-                        : 'translateY(0)'
-                    ),
-                    color: 'black',
-                }}
+              key={item.name}
+              className={`mb-1 py-0 px-5 shadow-md rounded-lg border border-gray-200 transition-opacity duration-500 ${currentRank === 1 ? 'bg-blue-300' : 'bg-white'}`}
+              style={{
+                opacity: shouldDisappear ? 0 : 1,
+                transition: 'opacity 0.5s ease, transform 0.5s ease',
+                transform: (
+                  isTranslationg2 && item.rank !== currentRank && currentRank !== undefined ?
+                    `translateY(${34 * (currentRank - prevRank)}px)` :
+                    'translateY(0)'
+                ),
+                color: 'black',
+              }}
             >
-                <div className="flex items-center justify-between w-full">
-                    <div className="text-lg font-semibold">
-                        {isTranslationg2 ? currentRank : Math.round(animatedRanks[index])}. {item.name}
-                    </div>
-                    <div className="text-sm font-semibold text-black text-right">
-                        {isTranslationg2 ? currentScore : Math.round(animatedScores[index])}
-                    </div>
+              <div className="flex items-center justify-between w-full">
+                <div className="text-lg font-semibold">
+                  {isTranslationg2 ? currentRank : Math.round(animatedRanks[index])}. {item.name}
                 </div>
+                <div className="text-sm font-semibold text-black text-right">
+                  {isTranslationg2 ? currentScore : Math.round(animatedScores[index])}
+                </div>
+              </div>
             </li>
           );
         })}
