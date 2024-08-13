@@ -10,9 +10,25 @@ const Container = styled.div`
 `;
 
 const VideoContainer = styled.video`
-	width: 600px;
-	height: 338px;
-	background-color: black;
+  width: 600px;
+  height: 338px;
+  background-color: black;
+  border-radius: 16px;
+`;
+
+const ScreenContainer = styled.div`
+	position: relative;
+	display: inline-block;
+	width: 200px;
+	height: 113px;
+	margin: 5px;
+`;
+
+const ScreenVideoContainer = styled.video`
+  width: 200px;
+  height: 113px;
+  background-color: black;
+  border-radius: 16px;
 `;
 
 const UserLabel = styled.p`
@@ -54,10 +70,12 @@ interface Props {
 	screenShareEnabled: boolean;
 	screenShareDisabledByTeacher?: boolean;
 	muted?: boolean;
+	isScreenShare?: boolean;
 }
 
-const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audioDisabledByTeacher, screenShareEnabled, screenShareDisabledByTeacher, muted}: Props) => {
+const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audioDisabledByTeacher, screenShareEnabled, screenShareDisabledByTeacher, muted, isScreenShare}: Props) => {
 	const ref = useRef<HTMLVideoElement>(null);
+
 	const toggleFullscreen = () => {
     if (ref.current) {
       if (!document.fullscreenElement) {
@@ -73,20 +91,20 @@ const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audi
 		if (ref.current) ref.current.srcObject = stream;
 	}, [stream]);
 
-	if(userRole.endsWith('_screen')){
+	if(isScreenShare){
 		return (
-			<Container>
-				{/* <p>[email : {email.substring(0, email.length-7)}의 화면공유]</p> */}
-				<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen} />
+			<ScreenContainer>
+				<p>email : {email.substring(0, email.length-7)}의 화면공유</p>
+				<ScreenVideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen} />
 				{/* <UserLabel>{email}</UserLabel> */}
-			</Container>
+			</ScreenContainer>
 		);
 	}else{
 		return (
 			<Container>
+				<UserLabel className='text-white'>{email}</UserLabel>
 				<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen}/>
-				{/* <UserLabel>{email}</UserLabel>
-				<UserRoleLabel>{userRole}</UserRoleLabel>
+				{/* <UserRoleLabel>{userRole}</UserRoleLabel>
 				<Indicator>Video: {videoEnabled ? 'On' : 'Off'}</Indicator>
 				<Indicator>Audio: {audioEnabled && !audioDisabledByTeacher ? 'On' : 'Off'}</Indicator>
 				<Indicator>Teacher Allowed: {audioDisabledByTeacher ? 'No' : 'Yes'}</Indicator>
