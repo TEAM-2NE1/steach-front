@@ -170,6 +170,7 @@ const TeacherQuizListPage: React.FC = () => {
             {/* DetailQuiz Component Centered */}
             <div className="flex justify-center items-center">
               <div className="rounded-lg overflow-hidden w-full">
+                {/* 선생님 실제버전 경우에는 trialVersion false, isTeacher true */}
                 <DetailQuiz
                   initialQuizData={selectedQuiz}
                   onClose={handleCloseModal}

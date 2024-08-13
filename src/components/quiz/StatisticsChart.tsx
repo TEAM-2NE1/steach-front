@@ -6,7 +6,7 @@ import { StatisticRankData } from './QuizBlock';
 
 interface StatisticsChartProps {
   dataset: { statistics: number[] };
-  rankData: StatisticRankData | null
+  rankData: StatisticRankData
 }
 
 const StatisticsChart: React.FC<StatisticsChartProps> = ({ dataset, rankData }) => {
@@ -46,7 +46,7 @@ const StatisticsChart: React.FC<StatisticsChartProps> = ({ dataset, rankData }) 
         {!showRankings ? (
           <ChartRow data={dataset.statistics} />
         ) : (
-          <RankingsList key={Date.now()} data={rankData ? rankData : null} />
+          <RankingsList key={Date.now()} data={rankData} />
           // <RankingsList key={Date.now()} data={rankData ? rankData : data} //연동 코드 /> 
         )}
       </div>
