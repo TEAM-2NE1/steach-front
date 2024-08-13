@@ -13,11 +13,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../store";
 import { fetchLectureQuiz } from "../../store/QuizSlice";
 // import { QuizResponseDTO } from '../../components/quiz/QuizListComponent.tsx';
-import { QuizDetailForm, QuizFetchListForm, QuizState } from '../../interface/quiz/QuizInterface.ts';
-import { AsyncThunkAction, Dispatch, AnyAction } from '@reduxjs/toolkit';
-import { useParams } from 'react-router-dom';
-import styles from './WebrtcStudent.module.css';
-import DetailQuiz from '../../components/quiz/QuizBlock.tsx';
+import {
+  QuizDetailForm,
+  QuizFetchListForm,
+  QuizState,
+} from "../../interface/quiz/QuizInterface.ts";
+import { AsyncThunkAction, Dispatch, AnyAction } from "@reduxjs/toolkit";
+import { useParams } from "react-router-dom";
+import styles from "./WebrtcStudent.module.css";
+import DetailQuiz from "../../components/quiz/QuizBlock.tsx";
 // import DetailQuiz from "./QuizBlock";
 // import { QuizResponseDTO } from "./QuizListComponent";
 
@@ -86,21 +90,20 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({
   const [chating, setChating] = useState(false);
 
   // 퀴즈 모달
-	//퀴즈모달 출력 여부
-	const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  //퀴즈모달 출력 여부
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
 
-	//퀴즈모달 닫기
-	const handleCloseQuizModal = () => {
-		setIsQuizModalOpen(false);
-		setSelectedQuiz(null);
-	};
+  //퀴즈모달 닫기
+  const handleCloseQuizModal = () => {
+    setIsQuizModalOpen(false);
+    setSelectedQuiz(null);
+  };
 
-	//클릭한 퀴즈
-	const [selectedQuiz, setSelectedQuiz] = useState<QuizDetailForm | null>(null);
+  //클릭한 퀴즈
+  const [selectedQuiz, setSelectedQuiz] = useState<QuizDetailForm | null>(null);
 
-	//퀴즈
-	let quizzes = useSelector((state:RootState) => state.quiz.quizzes)
-
+  //퀴즈
+  let quizzes = useSelector((state: RootState) => state.quiz.quizzes);
 
   // 이 drawer을 켰을 때 퀴즈 리스트를 불러오기
   useEffect(() => {
@@ -365,7 +368,8 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({
     }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
     if (newMessage.trim() !== "") {
       if (socketRef.current) {
         socketRef.current.emit("send_chat", {
@@ -375,12 +379,6 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({
         });
         setNewMessage("");
       }
-    }
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      handleSendMessage();
     }
   };
 
@@ -656,232 +654,313 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({
     };
   }, [createPeerConnection, getLocalStream]);
 
-	return (
-		<div className={`${styles.videoContainer} ${isFullscreen ? 'flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg top-0 left-0 z-50 gap-4' : 'flex flex-wrap items-center justify-center w-full h-full bg-discordChatBg gap-4'}`}
-			onMouseEnter={handleMouseEnter}
-			onMouseMove={handleMouseMove}
-			onMouseLeave={handleMouseLeave}
-		>
-			<div className={`${isFullscreen ? 'fixed top-0 left-0 w-full h-full z-50 bg-black grid grid-cols-12 gap-4' : 'grid grid-cols-12 gap-4 w-full h-screen'} ${isChatOpen || isItemsOpen || isQuizOpen ? 'mr-[300px] transition-margin-right duration-500 ease-in-out' : 'transition-margin-right duration-500 ease-in-out'} flex flex-wrap items-center justify-center bg-discordChatBg`}>
-				<div className="col-span-6 flex items-center justify-center">
-					<div style={{ display: 'inline-block' }}>
-						<div style={{ position: 'relative', width: 600, height: 338 }} className={`${styles.videoContainer}`}>
-							<video
-								className="w-full h-full bg-black rounded-2xl"
-								onClick={toggleFullscreen}
-								muted={isMuted}
-								ref={localVideoRef}
-								autoPlay
-								controls={false}
-							/>
-						</div>
-						{showControls && (
-							<div className={`absolute bottom-0 left-0 right-0 flex justify-around items-center p-3 rounded-lg ${showControls ? 'translate-y-0 opacity-100 transition-transform transition-opacity duration-500 ease-in-out' : 'translate-y-full opacity-0 transition-transform transition-opacity duration-500 ease-in-out'} bg-opacity-80 bg-gradient-to-t from-black to-transparent z-10`}>
-								<div className='grid grid-cols-12 '>
-								<div className='col-span-2'></div>
-									<div className='col-span-8'>
-										
-								<button onClick={toggleVideo} className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-									{isVideoEnabled ? '📸 ' : '📷 '}
-								</button>
-								<button onClick={toggleAudio} className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-									{isAudioEnabled ? '🔊' : '🔇'}
-								</button>
-								<button onClick={toggleScreenShare} className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-									{isScreenShareEnabled ? '🖥️' : '🖥️'}
-								</button>
-								<button onClick={toggleFullscreen2} className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-									⛶ {isFullscreen ? '' : ''}
-								</button>
-								<button
-									onClick={toggleChat}
-									className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-									>
-									{isChatOpen ? '💬' : '💬'}
-								</button>
-								<button
-									onClick={toggleItems}
-									className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-									>
-									{isItemsOpen ? '👜' : '👜'}
-								</button>
-								<button
-									onClick={toggleQuiz}
-									className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-									>
-									{isItemsOpen ? '🎓' : '🎓'}
-								</button>
-					</div>
-								<div className='col-span-2'></div>
-				</div>
-							</div>
-						)}
-					</div>
-				</div>
-				<div className="col-span-6 flex items-center justify-center">
-					<div style={{ display: 'inline-block' }}>
-						{goScreenShare && (
-							<WebrtcTeacherScreenShare
-								roomId={roomId}
-								userEmail={userEmail + '_screen'}
-								userRole={userRole + '_screen'}
-								toggleScreenShareFunc={toggleScreenShareFunc}
-								screenShareStopSignal={screenShareStopSignal}
-							/>
-						)}
-					</div>
-				</div>
-			</div>
-			<div className={`grid grid-cols-12 gap-4 w-full mt-4 ${isChatOpen || isItemsOpen ? 'mr-[320px]' : 'mr-0'} transition-margin duration-500 ease-in-out`}>
-			{users.map((user, index) => (
-				<div key={index} className="col-span-6 flex items-center justify-center">
-
-					{user.userRole.endsWith('_screen') ? null : (
-						<div className="flex flex-col">
-							<div className="flex-grow">
-							<div className="flex h-4">
-								<div className="w-1/2 flex items-center justify-center text-white">
-									{userRole === 'TEACHER' && user?.userRole === 'STUDENT' && (
-										<button onClick={() => toggleStudentMic(user.id, user.audioDisabledByTeacher)} className="mt-2">
-											{user.audioDisabledByTeacher ? '마이크 허용' : '마이크 금지'}
-										</button>
-									)}
-								</div>
-								<div className="w-1/2 flex items-center justify-center text-white">
-									{userRole === 'TEACHER' && user?.userRole === 'STUDENT' && (
-										<button onClick={() => toggleStudentScreenShare(user.id, user.email, user.screenShareDisabledByTeacher)} className="mt-2">
-											{user.screenShareDisabledByTeacher ? '화면공유 허용' : '화면공유 금지'}
-										</button>
-									)}
-								</div>
-							</div>
-								<div className="w-full h-full flex items-center justify-center">
-									<WebRTCVideo
-										email={user.email}
-										userRole={user.userRole}
-										stream={user.stream}
-										videoEnabled={user.videoEnabled}
-										audioEnabled={user.audioEnabled}
-										audioDisabledByTeacher={user.audioDisabledByTeacher}
-										screenShareEnabled={user.screenShareEnabled}
-										screenShareDisabledByTeacher={user.screenShareDisabledByTeacher}
-										muted={userRole !== 'TEACHER' && user.userRole !== 'TEACHER'}
-										isScreenShare={false}
-									/>
-								</div>
-							</div>
-
-						</div>
-)}
-  </div>
-))}
-
-			</div>
-			<div className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${isChatOpen ? 'translate-x-0 transition-transform duration-500 ease-in-out' : 'hidden translate-x-full transition-transform duration-500 ease-in-out'}`}>
-				<h3>Chat</h3>
-				<div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
-					{messages.map((msg, idx) => (
-						<p key={idx}>{msg}</p>
-					))}
-				</div>
-				<input
-					type="text"
-					value={newMessage}
-					onKeyDown={handleKeyDown}
-					onChange={(e) => setNewMessage(e.target.value)}
-					placeholder="메세지 전송"
-					className="border-2 mt-2 border-discordChatBg2 p-2 w-full bg-discordChatBg text-discordText"
-				/>
-				<button onClick={handleSendMessage} className="mt-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2">
-					전송
-				</button>
-			</div>
-			<div className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${isItemsOpen ? 'translate-x-0 transition-transform duration-500 ease-in-out' : 'hidden translate-x-full transition-transform duration-500 ease-in-out'}`}>
-				<h3>Items</h3>
-				<div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
-				{users.filter(user => user.userRole.endsWith('_screen')).map((user, index) => (
-            <WebRTCVideo
-              key={index}
-              email={user.email}
-              userRole={user.userRole}
-              stream={user.stream}
-              videoEnabled={user.videoEnabled}
-              audioEnabled={user.audioEnabled}
-              audioDisabledByTeacher={user.audioDisabledByTeacher}
-              screenShareEnabled={user.screenShareEnabled}
-              screenShareDisabledByTeacher={user.screenShareDisabledByTeacher}
-              muted={true}
-              isScreenShare={true} // 화면 공유용 비디오임을 명시
-            />
+  return (
+    <div
+      className={`${styles.videoContainer} ${
+        isFullscreen
+          ? "flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg top-0 left-0 z-50 gap-4"
+          : "flex flex-wrap items-center justify-center w-full h-full bg-discordChatBg gap-4"
+      }`}
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div
+        className={`${
+          isFullscreen
+            ? "fixed top-0 left-0 w-full h-full z-50 bg-black grid grid-cols-12 gap-4"
+            : "grid grid-cols-12 gap-4 w-full h-screen"
+        } ${
+          isChatOpen || isItemsOpen || isQuizOpen
+            ? "mr-[300px] transition-margin-right duration-500 ease-in-out"
+            : "transition-margin-right duration-500 ease-in-out"
+        } flex flex-wrap items-center justify-center bg-discordChatBg`}
+      >
+        <div className="col-span-6 flex items-center justify-center">
+          <div style={{ display: "inline-block" }}>
+            <div
+              style={{ position: "relative", width: 600, height: 338 }}
+              className={`${styles.videoContainer}`}
+            >
+              <video
+                className="w-full h-full bg-black rounded-2xl"
+                onClick={toggleFullscreen}
+                muted={isMuted}
+                ref={localVideoRef}
+                autoPlay
+                controls={false}
+              />
+            </div>
+            {showControls && (
+              <div
+                className={`absolute bottom-0 left-0 right-0 flex justify-around items-center p-3 rounded-lg ${
+                  showControls
+                    ? "translate-y-0 opacity-100 transition-transform transition-opacity duration-500 ease-in-out"
+                    : "translate-y-full opacity-0 transition-transform transition-opacity duration-500 ease-in-out"
+                } bg-opacity-80 bg-gradient-to-t from-black to-transparent z-10`}
+              >
+                <div className="grid grid-cols-12 ">
+                  <div className="col-span-2"></div>
+                  <div className="col-span-8">
+                    <button
+                      onClick={toggleVideo}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      {isVideoEnabled ? "📸 " : "📷 "}
+                    </button>
+                    <button
+                      onClick={toggleAudio}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      {isAudioEnabled ? "🔊" : "🔇"}
+                    </button>
+                    <button
+                      onClick={toggleScreenShare}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      {isScreenShareEnabled ? "🖥️" : "🖥️"}
+                    </button>
+                    <button
+                      onClick={toggleFullscreen2}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      ⛶ {isFullscreen ? "" : ""}
+                    </button>
+                    <button
+                      onClick={toggleChat}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      {isChatOpen ? "💬" : "💬"}
+                    </button>
+                    <button
+                      onClick={toggleItems}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      {isItemsOpen ? "👜" : "👜"}
+                    </button>
+                    <button
+                      onClick={toggleQuiz}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      {isItemsOpen ? "🎓" : "🎓"}
+                    </button>
+                  </div>
+                  <div className="col-span-2"></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="col-span-6 flex items-center justify-center">
+          <div style={{ display: "inline-block" }}>
+            {goScreenShare && (
+              <WebrtcTeacherScreenShare
+                roomId={roomId}
+                userEmail={userEmail + "_screen"}
+                userRole={userRole + "_screen"}
+                toggleScreenShareFunc={toggleScreenShareFunc}
+                screenShareStopSignal={screenShareStopSignal}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+      <div
+        className={`grid grid-cols-12 gap-4 w-full mt-4 ${
+          isChatOpen || isItemsOpen ? "mr-[320px]" : "mr-0"
+        } transition-margin duration-500 ease-in-out`}
+      >
+        {users.map((user, index) => (
+          <div
+            key={index}
+            className="col-span-6 flex items-center justify-center"
+          >
+            {user.userRole.endsWith("_screen") ? null : (
+              <div className="flex flex-col">
+                <div className="flex-grow">
+                  <div className="flex h-4">
+                    <div className="w-1/2 flex items-center justify-center text-white">
+                      {userRole === "TEACHER" &&
+                        user?.userRole === "STUDENT" && (
+                          <button
+                            onClick={() =>
+                              toggleStudentMic(
+                                user.id,
+                                user.audioDisabledByTeacher
+                              )
+                            }
+                            className="mt-2"
+                          >
+                            {user.audioDisabledByTeacher
+                              ? "마이크 허용"
+                              : "마이크 금지"}
+                          </button>
+                        )}
+                    </div>
+                    <div className="w-1/2 flex items-center justify-center text-white">
+                      {userRole === "TEACHER" &&
+                        user?.userRole === "STUDENT" && (
+                          <button
+                            onClick={() =>
+                              toggleStudentScreenShare(
+                                user.id,
+                                user.email,
+                                user.screenShareDisabledByTeacher
+                              )
+                            }
+                            className="mt-2"
+                          >
+                            {user.screenShareDisabledByTeacher
+                              ? "화면공유 허용"
+                              : "화면공유 금지"}
+                          </button>
+                        )}
+                    </div>
+                  </div>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <WebRTCVideo
+                      email={user.email}
+                      userRole={user.userRole}
+                      stream={user.stream}
+                      videoEnabled={user.videoEnabled}
+                      audioEnabled={user.audioEnabled}
+                      audioDisabledByTeacher={user.audioDisabledByTeacher}
+                      screenShareEnabled={user.screenShareEnabled}
+                      screenShareDisabledByTeacher={
+                        user.screenShareDisabledByTeacher
+                      }
+                      muted={
+                        userRole !== "TEACHER" && user.userRole !== "TEACHER"
+                      }
+                      isScreenShare={false}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <div
+        className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-1/5 p-4 bg-discordChatBg2 text-discordText ${
+          isChatOpen
+            ? "translate-x-0 transition-transform duration-500 ease-in-out"
+            : "hidden translate-x-full transition-transform duration-500 ease-in-out"
+        }`}
+      >
+        <h3 className="mt-2 mb-5 text-2xl font-semibold">채팅</h3>
+        <div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
+          {messages.map((msg, idx) => (
+            <p key={idx}>{msg}</p>
           ))}
-				</div>
+        </div>
+        <form onSubmit={handleSendMessage}>
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="메세지 전송"
+            className="border-2 my-2 border-discordChatBg2 p-2 w-full bg-discordChatBg text-discordText"
+          />
+          <button
+            type="submit"
+            className="mb-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2"
+          >
+            전송
+          </button>
+        </form>
+      </div>
+      <div
+        className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${
+          isItemsOpen
+            ? "translate-x-0 transition-transform duration-500 ease-in-out"
+            : "hidden translate-x-full transition-transform duration-500 ease-in-out"
+        }`}
+      >
+        <h3>Items</h3>
+        <div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
+          {users
+            .filter((user) => user.userRole.endsWith("_screen"))
+            .map((user, index) => (
+              <WebRTCVideo
+                key={index}
+                email={user.email}
+                userRole={user.userRole}
+                stream={user.stream}
+                videoEnabled={user.videoEnabled}
+                audioEnabled={user.audioEnabled}
+                audioDisabledByTeacher={user.audioDisabledByTeacher}
+                screenShareEnabled={user.screenShareEnabled}
+                screenShareDisabledByTeacher={user.screenShareDisabledByTeacher}
+                muted={true}
+                isScreenShare={true} // 화면 공유용 비디오임을 명시
+              />
+            ))}
+        </div>
+      </div>
 
-			</div>
+      {isQuizModalOpen && selectedQuiz && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[100]">
+          <div className="bg-white rounded-lg shadow-lg w-[500px] relative">
+            {/* Close Button Overlapping DetailQuiz */}
+            <button
+              onClick={handleCloseQuizModal}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
+            >
+              &times;
+            </button>
 
-			{isQuizModalOpen && selectedQuiz && (
-				<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[100]">
-				<div className="bg-white rounded-lg shadow-lg w-[500px] relative">
-					{/* Close Button Overlapping DetailQuiz */}
-					<button
-					onClick={handleCloseQuizModal}
-					className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
-					>
-					&times;
-					</button>
+            {/* DetailQuiz Component Centered */}
+            <div className="flex justify-center items-center">
+              <div className="rounded-lg overflow-hidden w-full">
+                {/* 선생님 실제버전 경우에는 trialVersion false, isTeacher true */}
+                <DetailQuiz
+                  initialQuizData={selectedQuiz}
+                  onClose={handleCloseQuizModal}
+                  trialVersion={false}
+                  isTeacher={true}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-					{/* DetailQuiz Component Centered */}
-					<div className="flex justify-center items-center">
-					<div className="rounded-lg overflow-hidden w-full">
-						{/* 선생님 실제버전 경우에는 trialVersion false, isTeacher true */}
-						<DetailQuiz
-						initialQuizData={selectedQuiz}
-						onClose={handleCloseQuizModal}
-						trialVersion={false}
-						isTeacher={true}
-						/>
-					</div>
-					</div>
-				</div>
-				</div>
-			)}
+      <div
+        className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-1/5 p-4 bg-discordChatBg2 text-discordText ${
+          isQuizOpen
+            ? "translate-x-0 transition-transform duration-500 ease-in-out"
+            : "hidden translate-x-full transition-transform duration-500 ease-in-out"
+        }`}
+      >
+        <h3 className="my-2 text-2xl font-semibold">퀴즈 목록</h3>
+        <div className="border border-discordChatBg2 p-3 h-5/6 overflow-y-auto bg-discordChatBg text-discordText">
+          {/* 퀴즈에 넣을 내용 */}
+          {quizzes !== null && quizzes.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {quizzes.map((quiz) => (
+                <button
+                  key={quiz.quiz_id}
+                  onClick={() => {
+                    setSelectedQuiz(quiz);
+                    setIsQuizModalOpen(true);
+                    console.log("click!!!!");
+                  }}
+                  className="w-full text-left bg-blue-200 text-blue-900 p-3 rounded hover:bg-blue-300 transition"
+                >
+                  <strong>문제 {quiz.quiz_number}:</strong> {quiz.question}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div>퀴즈가 없습니다.</div>
+          )}
 
-			<div className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${isQuizOpen ? 'translate-x-0 transition-transform duration-500 ease-in-out' : 'hidden translate-x-full transition-transform duration-500 ease-in-out'}`}>
-				<h3>Quiz</h3>
-				<div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
-					{/* 퀴즈에 넣을 내용 */}
-					{
-						quizzes !== null && quizzes.length > 0 ? (
-							<div className="flex flex-col gap-2">
-							{quizzes.map((quiz) => (
-								<button
-								key={quiz.quiz_id}
-								onClick={
-									() => {
-										setSelectedQuiz(quiz)
-    									setIsQuizModalOpen(true)
-										console.log("clicke!!!!")
-									}
-								}
-								className="w-full text-left bg-blue-200 text-blue-900 p-3 rounded hover:bg-blue-300 transition"
-								>
-								<strong>문제 {quiz.quiz_number}:</strong> {quiz.question}
-								</button>
-							))}
-							</div>
-						) : (
-							<div>퀴즈가 없습니다.</div>
-						)
-					}
-
-					{/* 퀴즈에 넣을 내용 */}
-				</div>
-
-				<button onClick={handleSendMessage} className="mt-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2">
-					전송
-				</button>
-			</div>
-		</div>
-	);
+          {/* 퀴즈에 넣을 내용 */}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default WebrtcTeacher;

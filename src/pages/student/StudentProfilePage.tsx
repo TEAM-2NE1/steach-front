@@ -3,7 +3,7 @@ import { FaPencilAlt, FaHistory } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import ProfileLectureHistory from "../../components/student/ProfileLectureHistory";
 import UpdateMyInfo from "../../components/student/studentMyInfo/StudentMyInfo";
-import ScheduledLectures from "../../components/student/MyLecture";
+import StudentMyCurricula from "../../components/student/MyLecture";
 
 const StudentProfilePage: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -46,7 +46,7 @@ const StudentProfilePage: React.FC = () => {
             onClick={() => handleTabClick(0)}
           >
             <FaPencilAlt className="size-8 my-2" />
-            <h2 className="whitespace-nowrap">내 강의</h2>
+            <h2 className="whitespace-nowrap">내 커리큘럼</h2>
           </button>
           <button
             className={`my-2 text-lg p-3 ${
@@ -75,7 +75,7 @@ const StudentProfilePage: React.FC = () => {
       <div className="col-span-10">
         <div className="flex">
           <div className="flex-1 p-3">
-            {selectedTab === 0 && <ScheduledLectures />}
+            {selectedTab === 0 && <StudentMyCurricula />}
             {selectedTab === 1 && <ProfileLectureHistory />}
             {selectedTab === 2 && <UpdateMyInfo />}
           </div>
