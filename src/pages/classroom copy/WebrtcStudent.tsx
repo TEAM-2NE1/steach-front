@@ -14,6 +14,8 @@ import { AppDispatch } from "../../store.tsx";
 import { useParams } from "react-router-dom";
 import styles from "./WebrtcStudent.module.css";
 import html2canvas from "html2canvas";
+import { QuizDetailForm } from '../../interface/quiz/QuizInterface.ts';
+import DetailQuiz from '../../components/quiz/QuizBlock.tsx';
 
 const pc_config = {
   iceServers: [
@@ -59,720 +61,632 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showControls, setShowControls] = useState(false);
-  const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const dispatch = useDispatch<AppDispatch>();
-  const { lecture_id } = useParams();
-  //
-  const divRef = useRef<HTMLDivElement>(null);
-  const MAX_WIDTH = 854;
-  const MAX_HEIGHT = 480;
-  const TOLERANCE = 10;
-  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
-  const [accDdResult, setAccDdResult] = useState<number[]>([]);
-  const [cntAFK, setCntAFK] = useState<number>(0);
-  const [cntFocus, setCntFocus] = useState<number>(0);
-  const [cntDrowsy, setCntDrowsy] = useState<number>(0);
-  const [notFocusTime, setNotFocusTime] = useState<number>(0);
+	const [showControls, setShowControls] = useState(false);
+	const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
+	const [isChatOpen, setIsChatOpen] = useState(false);
+	const dispatch = useDispatch<AppDispatch>();
+	const { lecture_id } = useParams();
+	// 
+	const divRef = useRef<HTMLDivElement>(null);
+	const MAX_WIDTH = 854;
+	const MAX_HEIGHT = 480;
+	const TOLERANCE = 10;
+	const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+	const [accDdResult, setAccDdResult] = useState<number[]>([]);
+	const [cntAFK, setCntAFK] = useState<number>(0);
+	const [cntFocus, setCntFocus] = useState<number>(0);
+	const [cntDrowsy, setCntDrowsy] = useState<number>(0);
+	const [notFocusTime, setNotFocusTime] = useState<number>(0);
 
-  const getDrowsiness = async () => {
-    if (!divRef.current) return;
+	//퀴즈모달 ======================================
+	//퀴즈모달 출력 여부
+	const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
 
-    try {
-      const div = divRef.current;
-      const canvas = await html2canvas(div, { scale: 2 });
+	//퀴즈모달 닫기
+	const handleCloseQuizModal = () => {
+		setIsQuizModalOpen(false);
+		setSelectedQuiz(null);
+	};
 
-      const originalWidth = canvas.width;
-      const originalHeight = canvas.height;
-      let width = originalWidth;
-      let height = originalHeight;
+	//현재 퀴즈
+	const [selectedQuiz, setSelectedQuiz] = useState<QuizDetailForm | null>(null);
+	//==============================================
 
-      if (originalWidth > MAX_WIDTH || originalHeight > MAX_HEIGHT) {
-        const widthRatio = MAX_WIDTH / originalWidth;
-        const heightRatio = MAX_HEIGHT / originalHeight;
-        const scaleRatio = Math.min(widthRatio, heightRatio);
+	//선생님이 퀴즈를 시작했을 때 rtc에서 호출하는 함수
+	const openQuiz = (quiz: QuizDetailForm) => {
+		setSelectedQuiz(quiz)
+		setIsQuizModalOpen(true)
+	}
 
-        width = originalWidth * scaleRatio;
-        height = originalHeight * scaleRatio;
-      }
+	const getDrowsiness = async () => {
+		if (!divRef.current) return;
 
-      const resizedCanvas = document.createElement("canvas");
-      resizedCanvas.width = width;
-      resizedCanvas.height = height;
-      const ctx = resizedCanvas.getContext("2d");
+		try {
+			const div = divRef.current;
+			const canvas = await html2canvas(div, { scale: 2 });
 
-      if (ctx) {
-        ctx.drawImage(canvas, 0, 0, width, height);
-      }
+			const originalWidth = canvas.width;
+			const originalHeight = canvas.height;
+			let width = originalWidth;
+			let height = originalHeight;
 
-      resizedCanvas.toBlob((blob) => {
-        if (blob !== null) {
-          const formData = new FormData();
-          // saveAs(blob, "res.png");
-          formData.append("file", blob, "focus.png");
+			if (originalWidth > MAX_WIDTH || originalHeight > MAX_HEIGHT) {
+				const widthRatio = MAX_WIDTH / originalWidth;
+				const heightRatio = MAX_HEIGHT / originalHeight;
+				const scaleRatio = Math.min(widthRatio, heightRatio);
 
-          // Upload the resized image
-          fetch("https://steach.ssafy.io/drowsiness", {
-            method: "POST",
-            body: formData,
-          })
-            .then((response) => response.text())
-            .then((result) => {
-              saveAccddRes(parseInt(result, 10));
-            })
-            .catch((error) => {
-              console.error("[Drowsiness Detection] Error:", error);
-            });
-        }
-      });
-    } catch (error) {
-      console.error("Error converting div to image:", error);
-    }
-  };
+				width = originalWidth * scaleRatio;
+				height = originalHeight * scaleRatio;
+			}
 
-  const saveAccddRes = (value: number) => {
-    // First, update the counts based on the new value
-    setCntAFK((prevCntAFK) => (value === -1 ? prevCntAFK + 1 : prevCntAFK));
-    setCntFocus((prevCntFocus) =>
-      value === 0 ? prevCntFocus + 1 : prevCntFocus
-    );
-    setCntDrowsy((prevCntDrowsy) =>
-      value === 1 ? prevCntDrowsy + 1 : prevCntDrowsy
-    );
-    setNotFocusTime((prevNotFocusTime) =>
-      value === -1 || value === 1 ? prevNotFocusTime + 1 : prevNotFocusTime
-    );
+			const resizedCanvas = document.createElement("canvas");
+			resizedCanvas.width = width;
+			resizedCanvas.height = height;
+			const ctx = resizedCanvas.getContext("2d");
 
-    setAccDdResult((prevValues) => {
-      // Add the new value to the array
-      const updatedValues = [...prevValues, value];
+			if (ctx) {
+				ctx.drawImage(canvas, 0, 0, width, height);
+			}
 
-      // If the length exceeds TOLERANCE, we need to adjust counts
-      if (updatedValues.length > TOLERANCE) {
-        const firstOfAccDdRes = updatedValues.shift(); // Remove the oldest value and adjust counts
+			resizedCanvas.toBlob((blob) => {
+				if (blob !== null) {
+					const formData = new FormData();
+					// saveAs(blob, "res.png");
+					formData.append("file", blob, "focus.png");
 
-        // Adjust counts based on the removed value
-        setCntAFK((prevCntAFK) =>
-          firstOfAccDdRes === -1 ? prevCntAFK - 1 : prevCntAFK
-        );
-        setCntFocus((prevCntFocus) =>
-          firstOfAccDdRes === 0 ? prevCntFocus - 1 : prevCntFocus
-        );
-        setCntDrowsy((prevCntDrowsy) =>
-          firstOfAccDdRes === 1 ? prevCntDrowsy - 1 : prevCntDrowsy
-        );
-      }
+					// Upload the resized image
+					fetch("https://steach.ssafy.io/drowsiness", {
+						method: "POST",
+						body: formData,
+					})
+						.then((response) => response.text())
+						.then((result) => {
+							saveAccddRes(parseInt(result, 10));
+						})
+						.catch((error) => {
+							console.error("[Drowsiness Detection] Error:", error);
+						});
+				}
+			});
+		} catch (error) {
+			console.error("Error converting div to image:", error);
+		}
+	};
 
-      // Return the updated array to setAccDdResult
-      return updatedValues;
-    });
-  };
+	const saveAccddRes = (value: number) => {
+		// First, update the counts based on the new value
+		setCntAFK((prevCntAFK) => (value === -1 ? prevCntAFK + 1 : prevCntAFK));
+		setCntFocus((prevCntFocus) => (value === 0 ? prevCntFocus + 1 : prevCntFocus));
+		setCntDrowsy((prevCntDrowsy) => (value === 1 ? prevCntDrowsy + 1 : prevCntDrowsy));
+		setNotFocusTime((prevNotFocusTime) => (value === -1 || value === 1 ? prevNotFocusTime + 1 : prevNotFocusTime));
 
-  useEffect(() => {
-    if (cntAFK >= TOLERANCE) {
-      setCntAFK(0);
-      setCntFocus(0);
-      setCntDrowsy(0);
-      setAccDdResult([]); // Clear the accDdResult array
-      askComeBack();
-      reportToTeacher("afk");
-    } else if (cntDrowsy >= TOLERANCE) {
-      setCntAFK(0);
-      setCntFocus(0);
-      setCntDrowsy(0);
-      setAccDdResult([]); // Clear the accDdResult array
-      wakeStudent();
-      reportToTeacher("sleep");
-    }
-  }, [cntAFK, cntDrowsy]); // Dependencies array to watch for changes
+		setAccDdResult((prevValues) => {
+			// Add the new value to the array
+			const updatedValues = [...prevValues, value];
 
-  const reportToTeacher = (type: string) => {
-    if (socketRef.current) {
-      socketRef.current.emit("report_to_teacher", {
-        userId: socketRef.current.id,
-        email: userEmail,
-        type: type,
-      });
-    }
-  };
+			// If the length exceeds TOLERANCE, we need to adjust counts
+			if (updatedValues.length > TOLERANCE) {
+				const firstOfAccDdRes = updatedValues.shift(); // Remove the oldest value and adjust counts
 
-  const startDrowsinessDetection = () => {
-    if (!intervalId) {
-      const id = setInterval(getDrowsiness, 2000);
-      setIntervalId(id);
-    }
-    setCntAFK(0);
-    setCntDrowsy(0);
-  };
+				// Adjust counts based on the removed value
+				setCntAFK((prevCntAFK) => (firstOfAccDdRes === -1 ? prevCntAFK - 1 : prevCntAFK));
+				setCntFocus((prevCntFocus) => (firstOfAccDdRes === 0 ? prevCntFocus - 1 : prevCntFocus));
+				setCntDrowsy((prevCntDrowsy) => (firstOfAccDdRes === 1 ? prevCntDrowsy - 1 : prevCntDrowsy));
+			}
 
-  const stopDrowsinessDetection = () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-      setIntervalId(null);
-    }
-    setCntAFK(0);
-    setCntDrowsy(0);
-  };
+			// Return the updated array to setAccDdResult
+			return updatedValues;
+		});
+	};
 
-  const askComeBack = () => {
-    console.log(
-      `[Focus Detection] Away From Keyboard for ${TOLERANCE * 2}초 detected!!!`
-    );
-  };
+	useEffect(() => {
+		if (cntAFK >= TOLERANCE) {
+			setCntAFK(0);
+			setCntFocus(0);
+			setCntDrowsy(0);
+			setAccDdResult([]); // Clear the accDdResult array
+			askComeBack();
+			reportToTeacher('afk');
+		} else if (cntDrowsy >= TOLERANCE) {
+			setCntAFK(0);
+			setCntFocus(0);
+			setCntDrowsy(0);
+			setAccDdResult([]); // Clear the accDdResult array
+			wakeStudent();
+			reportToTeacher('sleep');
+		}
+	}, [cntAFK, cntDrowsy]); // Dependencies array to watch for changes
 
-  const wakeStudent = () => {
-    console.log(
-      `[Drowsiness Detection] Drowsy for ${TOLERANCE * 2}초 detected!!!`
-    );
-  };
+	const reportToTeacher = (type: string) => {
+		if (socketRef.current) {
+			socketRef.current.emit('report_to_teacher', {
+				userId: socketRef.current.id,
+				email: userEmail,
+				type: type
+			});
+		}
+	}
 
-  const toggleScreenShare = () => {
-    if (!goScreenShare) {
-      setScreenShareStopSignal(false);
-      toggleScreenShareFunc();
-    } else {
-      setScreenShareStopSignal(true);
-    }
-  };
 
-  const toggleScreenShareFunc = () => {
-    if (goScreenShare) {
-      setGoScreenShare(false);
-      setIsScreenShareEnabled(false);
-      if (socketRef.current) {
-        socketRef.current.emit("toggle_media", {
-          userId: socketRef.current.id,
-          email: userEmail,
-          videoEnabled: isVideoEnabled,
-          audioEnabled: isAudioEnabled,
-          audioDisabledByTeacher: isAudioDisabledByTeacher,
-          screenShareEnabled: false,
-          screenShareDisabledByTeacher: isScreenShareDisabledByTeacher,
-        });
-      }
-    } else {
-      setGoScreenShare(true);
-      setIsScreenShareEnabled(true);
-      if (socketRef.current) {
-        socketRef.current.emit("toggle_media", {
-          userId: socketRef.current.id,
-          email: userEmail,
-          videoEnabled: isVideoEnabled,
-          audioEnabled: isAudioEnabled,
-          audioDisabledByTeacher: isAudioDisabledByTeacher,
-          screenShareEnabled: true,
-          screenShareDisabledByTeacher: isScreenShareDisabledByTeacher,
-        });
-      }
-    }
-  };
+	const startDrowsinessDetection = () => {
+		if (!intervalId) {
+			const id = setInterval(getDrowsiness, 2000);
+			setIntervalId(id);
+		}
+		setCntAFK(0);
+		setCntDrowsy(0);
+	};
 
-  const getLocalStream = useCallback(async () => {
-    try {
-      const localStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: {
-          width: 1920,
-          height: 1080,
-        },
-      });
-      localStreamRef.current = localStream;
-      if (localVideoRef.current) localVideoRef.current.srcObject = localStream;
-      if (!socketRef.current) return;
+	const stopDrowsinessDetection = () => {
+		if (intervalId) {
+			clearInterval(intervalId);
+			setIntervalId(null);
+		}
+		setCntAFK(0);
+		setCntDrowsy(0);
+	};
 
-      const videoTrack = localStreamRef.current?.getVideoTracks()[0];
-      const audioTrack = localStreamRef.current?.getAudioTracks()[0];
-      videoTrack.enabled = false;
-      audioTrack.enabled = false;
+	const askComeBack = () => {
+		console.log(`[Focus Detection] Away From Keyboard for ${TOLERANCE * 2}초 detected!!!`);
+	}
 
-      socketRef.current.emit("join_room", {
-        room: roomId,
-        email: userEmail,
-        userRole: userRole,
-        videoEnabled: false,
-        audioEnabled: false,
-        audioDisabledByTeacher: false,
-      });
-    } catch (e) {
-      console.log(`getUserMedia error: ${e}`);
-    }
-  }, [roomId, userEmail, userRole]);
+	const wakeStudent = () => {
+		console.log(`[Drowsiness Detection] Drowsy for ${TOLERANCE * 2}초 detected!!!`);
+	}
 
-  const createPeerConnection = useCallback(
-    (
-      socketID: string,
-      email: string,
-      role: string,
-      videoEnabled: boolean,
-      audioEnabled: boolean,
-      audioDisabledByTeacher: boolean,
-      screenShareEnabled: boolean,
-      screenShareDisabledByTeacher: boolean
-    ) => {
-      try {
-        const pc = new RTCPeerConnection(pc_config);
-        if (email === userEmail + "_screen") return;
 
-        pc.onicecandidate = (e) => {
-          if (socketRef.current && e.candidate) {
-            socketRef.current.emit("candidate", {
-              candidate: e.candidate,
-              candidateSendID: socketRef.current.id,
-              candidateReceiveID: socketID,
-            });
-          }
-        };
+	const toggleScreenShare = () => {
+		if(!goScreenShare){
+			setScreenShareStopSignal(false);
+			toggleScreenShareFunc();
+		}else{
+			setScreenShareStopSignal(true);
+		}
+	}
 
-        pc.oniceconnectionstatechange = (e) => {
-          console.log(e);
-        };
+	const toggleScreenShareFunc = () => {
+		if(goScreenShare){
+			setGoScreenShare(false);
+			setIsScreenShareEnabled(false);
+			if (socketRef.current) {
+				socketRef.current.emit('toggle_media', {
+					userId: socketRef.current.id,
+					email: userEmail,
+					videoEnabled: isVideoEnabled,
+					audioEnabled: isAudioEnabled,
+					audioDisabledByTeacher: isAudioDisabledByTeacher,
+					screenShareEnabled: false,
+					screenShareDisabledByTeacher: isScreenShareDisabledByTeacher
+				});
+			}
+		}else{
+			setGoScreenShare(true);
+			setIsScreenShareEnabled(true);
+			if (socketRef.current) {
+				socketRef.current.emit('toggle_media', {
+					userId: socketRef.current.id,
+					email: userEmail,
+					videoEnabled: isVideoEnabled,
+					audioEnabled: isAudioEnabled,
+					audioDisabledByTeacher: isAudioDisabledByTeacher,
+					screenShareEnabled: true,
+					screenShareDisabledByTeacher: isScreenShareDisabledByTeacher
+				});
+			}
+		}
+	}
 
-        pc.ontrack = (e) => {
-          setUsers((oldUsers) =>
-            oldUsers
-              .filter((user) => user.id !== socketID)
-              .concat({
-                id: socketID,
-                email,
-                userRole: role,
-                stream: e.streams[0],
-                videoEnabled: videoEnabled,
-                audioEnabled: audioEnabled,
-                audioDisabledByTeacher: audioDisabledByTeacher,
-                screenShareEnabled: screenShareEnabled,
-                screenShareDisabledByTeacher: screenShareDisabledByTeacher,
-              })
-          );
-        };
+	const getLocalStream = useCallback(async () => {
+		try {
+			const localStream = await navigator.mediaDevices.getUserMedia({
+				audio: true,
+				video: {
+					width: 1920,
+					height: 1080,
+				},
+			});
+			localStreamRef.current = localStream;
+			if (localVideoRef.current) localVideoRef.current.srcObject = localStream;
+			if (!socketRef.current) return;
 
-        if (localStreamRef.current) {
-          localStreamRef.current.getTracks().forEach((track) => {
-            if (localStreamRef.current) {
-              pc.addTrack(track, localStreamRef.current);
-            }
-          });
-        }
+			const videoTrack = localStreamRef.current?.getVideoTracks()[0];
+			const audioTrack = localStreamRef.current?.getAudioTracks()[0];
+			videoTrack.enabled = false;
+			audioTrack.enabled = false;
 
-        return pc;
-      } catch (e) {
-        console.error(e);
-        return undefined;
-      }
-    },
-    []
-  );
+			socketRef.current.emit('join_room', {
+				room: roomId,
+				email: userEmail,
+				userRole: userRole,
+				videoEnabled: false,
+				audioEnabled: false,
+				audioDisabledByTeacher: false
+			});
+		} catch (e) {
+			console.log(`getUserMedia error: ${e}`);
+		}
+	}, [roomId, userEmail, userRole]);
 
-  const toggleVideo = () => {
-    const videoTrack = localStreamRef.current?.getVideoTracks()[0];
-    if (videoTrack) {
-      videoTrack.enabled = !videoTrack.enabled;
-      setIsVideoEnabled(videoTrack.enabled);
-      if (socketRef.current) {
-        socketRef.current.emit("toggle_media", {
-          userId: socketRef.current.id,
-          email: userEmail,
-          videoEnabled: videoTrack.enabled,
-          audioEnabled: isAudioEnabled,
-          audioDisabledByTeacher: isAudioDisabledByTeacher,
-          screenShareEnabled: isScreenShareEnabled,
-          screenShareDisabledByTeacher: isScreenShareDisabledByTeacher,
-        });
-      }
-      if (!videoTrack.enabled) {
-        console.log("Start DD");
-        startDrowsinessDetection();
-      } else {
-        console.log("Stop DD");
-        stopDrowsinessDetection();
-      }
-    }
-  };
+	const createPeerConnection = useCallback((socketID: string, email: string, role: string, videoEnabled: boolean, audioEnabled: boolean, audioDisabledByTeacher: boolean, screenShareEnabled: boolean, screenShareDisabledByTeacher: boolean) => {
+		try {
+			const pc = new RTCPeerConnection(pc_config);
+			if(email === userEmail + '_screen') return;
 
-  const toggleAudio = () => {
-    const audioTrack = localStreamRef.current?.getAudioTracks()[0];
-    if (audioTrack && !isAudioDisabledByTeacher) {
-      audioTrack.enabled = !audioTrack.enabled;
-      setIsAudioEnabled(audioTrack.enabled);
-      if (socketRef.current) {
-        socketRef.current.emit("toggle_media", {
-          userId: socketRef.current.id,
-          email: userEmail,
-          videoEnabled: isVideoEnabled,
-          audioEnabled: audioTrack.enabled,
-          audioDisabledByTeacher: isAudioDisabledByTeacher,
-          screenShareEnabled: isScreenShareEnabled,
-          screenShareDisabledByTeacher: isScreenShareDisabledByTeacher,
-        });
-      }
-    }
-  };
+			pc.onicecandidate = (e) => {
+				if (socketRef.current && e.candidate) {
+					socketRef.current.emit('candidate', {
+						candidate: e.candidate,
+						candidateSendID: socketRef.current.id,
+						candidateReceiveID: socketID,
+					});
+				}
+			};
 
-  const offAudio = () => {
-    const audioTrack = localStreamRef.current?.getAudioTracks()[0];
-    if (audioTrack && !isAudioDisabledByTeacher) {
-      audioTrack.enabled = false;
-      setIsAudioEnabled(false);
-      setIsAudioDisabledByTeacher(true);
-      if (socketRef.current) {
-        socketRef.current.emit("toggle_student_mic_complete", {
-          userId: socketRef.current.id,
-          email: userEmail,
-          // videoEnabled: true,
-          audioEnabled: audioTrack.enabled,
-          audioDisabledByTeacher: true,
-        });
-      }
-    }
-  };
+			pc.oniceconnectionstatechange = (e) => {
+				console.log(e);
+			};
 
-  const allowAudio = () => {
-    const audioTrack = localStreamRef.current?.getAudioTracks()[0];
-    if (audioTrack && isAudioDisabledByTeacher) {
-      audioTrack.enabled = false;
-      setIsAudioEnabled(false);
-      setIsAudioDisabledByTeacher(false);
-      if (socketRef.current) {
-        socketRef.current.emit("toggle_student_mic_complete", {
-          userId: socketRef.current.id,
-          email: userEmail,
-          // videoEnabled: true,
-          audioEnabled: audioTrack.enabled,
-          audioDisabledByTeacher: false,
-        });
-      }
-    }
-  };
+			pc.ontrack = (e) => {
+				setUsers((oldUsers) =>
+					oldUsers
+						.filter((user) => user.id !== socketID)
+						.concat({
+							id: socketID,
+							email,
+							userRole: role,
+							stream: e.streams[0],
+							videoEnabled: videoEnabled,
+							audioEnabled: audioEnabled,
+							audioDisabledByTeacher: audioDisabledByTeacher,
+							screenShareEnabled: screenShareEnabled,
+							screenShareDisabledByTeacher: screenShareDisabledByTeacher
+						}),
+				);
+			};
 
-  const allowScreenShare = () => {
-    setIsScreenShareEnabled(false);
-    setIsScreenShareDisabledByTeacher(false);
-    if (socketRef.current) {
-      socketRef.current.emit("toggle_student_screen_share_complete", {
-        userId: socketRef.current.id,
-        // videoEnabled: true,
-        userEmail: userEmail,
-        screenShareEnabled: false,
-        screenShareDisabledByTeacher: false,
-      });
-    }
-  };
+			if (localStreamRef.current) {
+				localStreamRef.current.getTracks().forEach((track) => {
+					if (localStreamRef.current) {
+						pc.addTrack(track, localStreamRef.current);
+					}
+				});
+			}
 
-  const banScreenShare = () => {
-    console.log("화면공유 금지됩니다");
-    setIsScreenShareEnabled(false);
-    setIsScreenShareDisabledByTeacher(true);
-    if (socketRef.current) {
-      socketRef.current.emit("toggle_student_screen_share_complete", {
-        userId: socketRef.current.id,
-        // videoEnabled: true,
-        userEmail: userEmail,
-        screenShareEnabled: false,
-        screenShareDisabledByTeacher: true,
-      });
-    }
-    setGoScreenShare(false);
-  };
+			return pc;
+		} catch (e) {
+			console.error(e);
+			return undefined;
+		}
+	}, []);
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newMessage.trim() !== "") {
-      if (socketRef.current) {
-        socketRef.current.emit("send_chat", {
-          senderRole: userRole,
-          senderEmail: userEmail,
-          message: newMessage,
-        });
-        setNewMessage("");
-      }
-    }
-  };
+	const toggleVideo = () => {
+		const videoTrack = localStreamRef.current?.getVideoTracks()[0];
+		if (videoTrack) {
+			videoTrack.enabled = !videoTrack.enabled;
+			setIsVideoEnabled(videoTrack.enabled);
+			if (socketRef.current) {
+				socketRef.current.emit('toggle_media', {
+					userId: socketRef.current.id,
+					email: userEmail,
+					videoEnabled: videoTrack.enabled,
+					audioEnabled: isAudioEnabled,
+					audioDisabledByTeacher: isAudioDisabledByTeacher,
+					screenShareEnabled: isScreenShareEnabled,
+					screenShareDisabledByTeacher: isScreenShareDisabledByTeacher
+				});
+			}
+			if(!videoTrack.enabled){
+				console.log('Start DD');
+				startDrowsinessDetection();
+			}else{
+				console.log('Stop DD');
+				stopDrowsinessDetection();
+			}
+		}
+	};
 
-  useEffect(() => {
-    socketRef.current = io.connect(SOCKET_SERVER_URL);
-    getLocalStream();
+	const toggleAudio = () => {
+		const audioTrack = localStreamRef.current?.getAudioTracks()[0];
+		if (audioTrack && !isAudioDisabledByTeacher) {
+			audioTrack.enabled = !audioTrack.enabled;
+			setIsAudioEnabled(audioTrack.enabled);
+			if (socketRef.current) {
+				socketRef.current.emit('toggle_media', {
+					userId: socketRef.current.id,
+					email: userEmail,
+					videoEnabled: isVideoEnabled,
+					audioEnabled: audioTrack.enabled,
+					audioDisabledByTeacher: isAudioDisabledByTeacher,
+					screenShareEnabled: isScreenShareEnabled,
+					screenShareDisabledByTeacher: isScreenShareDisabledByTeacher
+				});
+			}
+		}
+	};
 
-    socketRef.current.on(
-      "all_users",
-      (
-        allUsers: Array<{
-          id: string;
-          email: string;
-          userRole: string;
-          videoEnabled: boolean;
-          audioEnabled: boolean;
-          audioDisabledByTeacher: boolean;
-          offerSendScreenShareEnabled: boolean;
-          offerSendScreenShareDisabledByTeacher: boolean;
-        }>
-      ) => {
-        allUsers.forEach(async (user) => {
-          if (!localStreamRef.current) return;
-          const pc = createPeerConnection(
-            user.id,
-            user.email,
-            user.userRole,
-            user.videoEnabled,
-            user.audioEnabled,
-            user.audioDisabledByTeacher,
-            user.offerSendScreenShareEnabled,
-            user.offerSendScreenShareDisabledByTeacher
-          );
-          if (pc && socketRef.current) {
-            pcsRef.current = { ...pcsRef.current, [user.id]: pc };
-            try {
-              const localSdp = await pc.createOffer({
-                offerToReceiveAudio: true,
-                offerToReceiveVideo: true,
-              });
-              await pc.setLocalDescription(new RTCSessionDescription(localSdp));
-              socketRef.current.emit("offer", {
-                sdp: localSdp,
-                offerSendID: socketRef.current.id,
-                offerSendEmail: userEmail,
-                offerSendRole: userRole,
-                offerReceiveID: user.id,
-              });
-            } catch (e) {
-              console.error(e);
-            }
-          }
-        });
-      }
-    );
+	const offAudio = () => {
+		const audioTrack = localStreamRef.current?.getAudioTracks()[0];
+		if (audioTrack && !isAudioDisabledByTeacher) {
+			audioTrack.enabled = false;
+			setIsAudioEnabled(false);
+			setIsAudioDisabledByTeacher(true);
+			if (socketRef.current) {
+				socketRef.current.emit('toggle_student_mic_complete', {
+					userId: socketRef.current.id,
+					email: userEmail,
+					// videoEnabled: true,
+					audioEnabled: audioTrack.enabled,
+					audioDisabledByTeacher: true
+				});
+			}
+		}
+	};
 
-    socketRef.current.on(
-      "getOffer",
-      async (data: {
-        sdp: RTCSessionDescription;
-        offerSendID: string;
-        offerSendEmail: string;
-        offerSendRole: string;
-        offerSendVideoEnabled: boolean;
-        offerSendAudioEnabled: boolean;
-        offerSendAudioDisabledByTeacher: boolean;
-        offerSendScreenShareEnabled: boolean;
-        offerSendScreenShareDisabledByTeacher: boolean;
-      }) => {
-        const {
-          sdp,
-          offerSendID,
-          offerSendEmail,
-          offerSendRole,
-          offerSendVideoEnabled,
-          offerSendAudioEnabled,
-          offerSendAudioDisabledByTeacher,
-          offerSendScreenShareEnabled,
-          offerSendScreenShareDisabledByTeacher,
-        } = data;
-        if (!localStreamRef.current) return;
-        const pc = createPeerConnection(
-          offerSendID,
-          offerSendEmail,
-          offerSendRole,
-          offerSendVideoEnabled,
-          offerSendAudioEnabled,
-          offerSendAudioDisabledByTeacher,
-          offerSendScreenShareEnabled,
-          offerSendScreenShareDisabledByTeacher
-        );
-        if (pc && socketRef.current) {
-          pcsRef.current = { ...pcsRef.current, [offerSendID]: pc };
-          try {
-            await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-            const localSdp = await pc.createAnswer({
-              offerToReceiveVideo: true,
-              offerToReceiveAudio: true,
-            });
-            await pc.setLocalDescription(new RTCSessionDescription(localSdp));
-            socketRef.current.emit("answer", {
-              sdp: localSdp,
-              answerSendID: socketRef.current.id,
-              answerReceiveID: offerSendID,
-            });
-          } catch (e) {
-            console.error(e);
-          }
-        }
-      }
-    );
+	const allowAudio = () => {
+		const audioTrack = localStreamRef.current?.getAudioTracks()[0];
+		if (audioTrack && isAudioDisabledByTeacher) {
+			audioTrack.enabled = false;
+			setIsAudioEnabled(false);
+			setIsAudioDisabledByTeacher(false);
+			if (socketRef.current) {
+				socketRef.current.emit('toggle_student_mic_complete', {
+					userId: socketRef.current.id,
+					email: userEmail,
+					// videoEnabled: true,
+					audioEnabled: audioTrack.enabled,
+					audioDisabledByTeacher: false
+				});
+			}
+		}
+	};
 
-    socketRef.current.on(
-      "getAnswer",
-      (data: { sdp: RTCSessionDescription; answerSendID: string }) => {
-        const { sdp, answerSendID } = data;
-        console.log("get answer");
-        const pc: RTCPeerConnection = pcsRef.current[answerSendID];
-        if (pc) {
-          pc.setRemoteDescription(new RTCSessionDescription(sdp));
-        }
-      }
-    );
 
-    socketRef.current.on(
-      "getCandidate",
-      async (data: {
-        candidate: RTCIceCandidateInit;
-        candidateSendID: string;
-      }) => {
-        console.log("get candidate");
-        const pc: RTCPeerConnection = pcsRef.current[data.candidateSendID];
-        if (pc) {
-          await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-          console.log("candidate add success");
-        }
-      }
-    );
+	const allowScreenShare = () => {
+		setIsScreenShareEnabled(false);
+		setIsScreenShareDisabledByTeacher(false);
+		if (socketRef.current) {
+			socketRef.current.emit('toggle_student_screen_share_complete', {
+				userId: socketRef.current.id,
+				// videoEnabled: true,
+				userEmail: userEmail,
+				screenShareEnabled: false,
+				screenShareDisabledByTeacher: false
+			});
+		}
+	};
 
-    socketRef.current.on("user_exit", (data: { id: string }) => {
-      if (pcsRef.current[data.id]) {
-        pcsRef.current[data.id].close();
-        delete pcsRef.current[data.id];
-        setUsers((oldUsers) => oldUsers.filter((user) => user.id !== data.id));
-      }
-    });
+	const banScreenShare = () => {
+		console.log('화면공유 금지됩니다');
+		setIsScreenShareEnabled(false);
+		setIsScreenShareDisabledByTeacher(true);
+		if (socketRef.current) {
+			socketRef.current.emit('toggle_student_screen_share_complete', {
+				userId: socketRef.current.id,
+				// videoEnabled: true,
+				userEmail: userEmail,
+				screenShareEnabled: false,
+				screenShareDisabledByTeacher: true
+			});
+		}
+		setGoScreenShare(false);
+	};
 
-    socketRef.current.on(
-      "update_media",
-      (data: {
-        userId: string;
-        videoEnabled: boolean;
-        audioEnabled: boolean;
-        audioDisabledByTeacher: boolean;
-        screenShareEnabled: boolean;
-        screenShareDisabledByTeacher: boolean;
-      }) => {
-        setUsers((oldUsers) =>
-          oldUsers.map((user) =>
-            user.id === data.userId
-              ? {
-                  ...user,
-                  videoEnabled: data.videoEnabled,
-                  audioEnabled: data.audioEnabled,
-                  audioDisabledByTeacher: data.audioDisabledByTeacher,
-                  screenShareEnabled: data.screenShareEnabled,
-                  screenShareDisabledByTeacher:
-                    data.screenShareDisabledByTeacher,
-                }
-              : user
-          )
-        );
-      }
-    );
 
-    socketRef.current.on(
-      "toggle_student_mic",
-      (data: { userId: string; audioDisabledByTeacher: boolean }) => {
-        if (data.audioDisabledByTeacher) {
-          if (data.userId === socketRef.current?.id) {
-            setIsAudioDisabledByTeacher(data.audioDisabledByTeacher);
-            setIsAudioEnabled(false);
-          }
-          offAudio();
-        } else {
-          if (data.userId === socketRef.current?.id) {
-            setIsAudioDisabledByTeacher(data.audioDisabledByTeacher);
-            setIsAudioEnabled(false);
-          }
-          allowAudio();
-        }
+	const handleSendMessage = () => {
+		if (newMessage.trim() !== '') {
+			if (socketRef.current) {
+				socketRef.current.emit('send_chat', {
+					senderRole: userRole,
+					senderEmail: userEmail,
+					message: newMessage
+				});
+				setNewMessage('');
+			}
+		}
+	};
 
-        setUsers((oldUsers) =>
-          oldUsers.map((user) =>
-            user.id === data.userId
-              ? { ...user, audioDisabledByTeacher: data.audioDisabledByTeacher }
-              : user
-          )
-        );
-      }
-    );
+	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === 'Enter') {
+			handleSendMessage
+		}
+	}
 
-    socketRef.current.on(
-      "receive_chat",
-      (data: {
-        senderRole: string;
-        senderEmail: string;
-        receivedChat: string;
-      }) => {
-        setMessages((oldMessages) => [
-          ...oldMessages,
-          `[${data.senderEmail}] ${data.receivedChat}`,
-        ]);
-      }
-    );
+	useEffect(() => {
+		socketRef.current = io.connect(SOCKET_SERVER_URL);
+		getLocalStream();
 
-    socketRef.current.on(
-      "toggle_student_screen_share",
-      (data: {
-        userId: string;
-        userEmail: string;
-        screenShareDisabledByTeacher: boolean;
-      }) => {
-        console.log(
-          `Teacher toggled student's screen share ${data.userId}: screenShareDisabledByTeacher=${data.screenShareDisabledByTeacher}`
-        );
-        if (userEmail === data.userEmail) {
-          if (data.screenShareDisabledByTeacher) {
-            if (data.userId === socketRef.current?.id) {
-              setIsScreenShareDisabledByTeacher(true);
-              setIsScreenShareEnabled(false);
-            }
-            banScreenShare();
-          } else {
-            if (data.userId === socketRef.current?.id) {
-              setIsScreenShareDisabledByTeacher(false);
-              setIsScreenShareEnabled(false);
-            }
-            allowScreenShare();
-          }
+		socketRef.current.on('all_users', (allUsers: Array<{ id: string; email: string; userRole: string; videoEnabled: boolean; audioEnabled: boolean; audioDisabledByTeacher: boolean; offerSendScreenShareEnabled: boolean; offerSendScreenShareDisabledByTeacher: boolean; }>) => {
+			allUsers.forEach(async (user) => {
+				if (!localStreamRef.current) return;
+				const pc = createPeerConnection(user.id, user.email, user.userRole, user.videoEnabled, user.audioEnabled, user.audioDisabledByTeacher, user.offerSendScreenShareEnabled, user.offerSendScreenShareDisabledByTeacher);
+				if (pc && socketRef.current) {
+					pcsRef.current = { ...pcsRef.current, [user.id]: pc };
+					try {
+						const localSdp = await pc.createOffer({
+							offerToReceiveAudio: true,
+							offerToReceiveVideo: true,
+						});
+						await pc.setLocalDescription(new RTCSessionDescription(localSdp));
+						socketRef.current.emit('offer', {
+							sdp: localSdp,
+							offerSendID: socketRef.current.id,
+							offerSendEmail: userEmail,
+							offerSendRole: userRole,
+							offerReceiveID: user.id,
+						});
+					} catch (e) {
+						console.error(e);
+					}
+				}
+			});
+		});
 
-          setUsers((oldUsers) =>
-            oldUsers.map((user) =>
-              user.id === data.userId
-                ? {
-                    ...user,
-                    screenShareDisabledByTeacher:
-                      data.screenShareDisabledByTeacher,
-                  }
-                : user
-            )
-          );
-        }
-      }
-    );
+		socketRef.current.on(
+			'getOffer',
+			async (data: {
+				sdp: RTCSessionDescription;
+				offerSendID: string;
+				offerSendEmail: string;
+				offerSendRole: string;
+				offerSendVideoEnabled: boolean;
+				offerSendAudioEnabled: boolean;
+				offerSendAudioDisabledByTeacher: boolean;
+				offerSendScreenShareEnabled: boolean;
+				offerSendScreenShareDisabledByTeacher: boolean;
+			}) => {
+				const { sdp, offerSendID, offerSendEmail, offerSendRole, offerSendVideoEnabled, offerSendAudioEnabled, offerSendAudioDisabledByTeacher, offerSendScreenShareEnabled, offerSendScreenShareDisabledByTeacher} = data;
+				if (!localStreamRef.current) return;
+				const pc = createPeerConnection(offerSendID, offerSendEmail, offerSendRole, offerSendVideoEnabled, offerSendAudioEnabled, offerSendAudioDisabledByTeacher, offerSendScreenShareEnabled, offerSendScreenShareDisabledByTeacher);
+				if (pc && socketRef.current) {
+					pcsRef.current = { ...pcsRef.current, [offerSendID]: pc };
+					try {
+						await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+						const localSdp = await pc.createAnswer({
+							offerToReceiveVideo: true,
+							offerToReceiveAudio: true,
+						});
+						await pc.setLocalDescription(new RTCSessionDescription(localSdp));
+						socketRef.current.emit('answer', {
+							sdp: localSdp,
+							answerSendID: socketRef.current.id,
+							answerReceiveID: offerSendID,
+						});
+					} catch (e) {
+						console.error(e);
+					}
+				}
+			},
+		);
 
-    socketRef.current.on("lecture_end", () => {
-      (notFocusTime * 2) / 60;
+		socketRef.current.on(
+			'getAnswer',
+			(data: { sdp: RTCSessionDescription; answerSendID: string }) => {
+				const { sdp, answerSendID } = data;
+				console.log('get answer');
+				const pc: RTCPeerConnection = pcsRef.current[answerSendID];
+				if (pc) {
+					pc.setRemoteDescription(new RTCSessionDescription(sdp));
+				}
+			},
+		);
 
-      // 선생님이 강의종료 버튼을 누르면 이 버튼이 눌림.
-      // 여기에 백엔드 서버로 notFocusTime을 업로드하는 코드를 넣으면 됨
+		socketRef.current.on(
+			'getCandidate',
+			async (data: { candidate: RTCIceCandidateInit; candidateSendID: string }) => {
+				console.log('get candidate');
+				const pc: RTCPeerConnection = pcsRef.current[data.candidateSendID];
+				if (pc) {
+					await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+					console.log('candidate add success');
+				}
+			},
+		);
 
-      // 아래는 P2P 커넥션 끊는 코드임. 주석 풀고 사용하면 됨.
-      // if (socketRef.current) {
-      // 	socketRef.current.disconnect();
-      // }
-      // users.forEach((user) => {
-      // 	if (pcsRef.current[user.id]) {
-      // 		pcsRef.current[user.id].close();
-      // 		delete pcsRef.current[user.id];
-      // 	}
-      // });
-    });
+		socketRef.current.on('user_exit', (data: { id: string }) => {
+			if (pcsRef.current[data.id]) {
+				pcsRef.current[data.id].close();
+				delete pcsRef.current[data.id];
+				setUsers((oldUsers) => oldUsers.filter((user) => user.id !== data.id));
+			}
+		});
 
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
-      users.forEach((user) => {
-        if (pcsRef.current[user.id]) {
-          pcsRef.current[user.id].close();
-          delete pcsRef.current[user.id];
-        }
-      });
-    };
-  }, [createPeerConnection, getLocalStream]);
+		socketRef.current.on('update_media', (data: { userId: string; videoEnabled: boolean; audioEnabled: boolean; audioDisabledByTeacher: boolean, screenShareEnabled: boolean, screenShareDisabledByTeacher: boolean }) => {
+			setUsers((oldUsers) =>
+				oldUsers.map((user) =>
+					user.id === data.userId
+						? { ...user, videoEnabled: data.videoEnabled, audioEnabled: data.audioEnabled, audioDisabledByTeacher: data.audioDisabledByTeacher, screenShareEnabled: data.screenShareEnabled, screenShareDisabledByTeacher: data.screenShareDisabledByTeacher}
+						: user,
+				),
+			);
+		});
 
-  // ---------------
+		socketRef.current.on('toggle_student_mic', (data: { userId: string; audioDisabledByTeacher: boolean }) => {
+
+			if(data.audioDisabledByTeacher){
+				if (data.userId === socketRef.current?.id) {
+					setIsAudioDisabledByTeacher(data.audioDisabledByTeacher);
+					setIsAudioEnabled(false);
+				}
+				offAudio();
+			}else{
+				if (data.userId === socketRef.current?.id) {
+					setIsAudioDisabledByTeacher(data.audioDisabledByTeacher);
+					setIsAudioEnabled(false);
+				}
+				allowAudio();
+			}
+
+			setUsers((oldUsers) =>
+				oldUsers.map((user) =>
+					user.id === data.userId
+						? { ...user, audioDisabledByTeacher: data.audioDisabledByTeacher }
+						: user,
+				),
+			);
+		});
+
+		socketRef.current.on('receive_chat', (data: { senderRole: string; senderEmail: string; receivedChat: string }) => {
+			setMessages((oldMessages) => [...oldMessages, `[${data.senderEmail}] ${data.receivedChat}`]);
+		});
+
+		socketRef.current.on('toggle_student_screen_share', (data: { userId: string; userEmail: string; screenShareDisabledByTeacher: boolean }) => {
+			console.log(`Teacher toggled student's screen share ${data.userId}: screenShareDisabledByTeacher=${data.screenShareDisabledByTeacher}`);
+			if(userEmail === data.userEmail){
+				if(data.screenShareDisabledByTeacher){
+					if (data.userId === socketRef.current?.id) {
+						setIsScreenShareDisabledByTeacher(true);
+						setIsScreenShareEnabled(false);
+					}
+					banScreenShare();
+				}else{
+					if (data.userId === socketRef.current?.id) {
+						setIsScreenShareDisabledByTeacher(false);
+						setIsScreenShareEnabled(false);
+					}
+					allowScreenShare();
+				}
+
+				setUsers((oldUsers) =>
+					oldUsers.map((user) =>
+						user.id === data.userId
+							? { ...user, screenShareDisabledByTeacher: data.screenShareDisabledByTeacher }
+							: user,
+					),
+				);
+			}
+		});
+
+		socketRef.current.on('lecture_end', () => {
+			notFocusTime * 2 / 60
+			
+
+			// 선생님이 강의종료 버튼을 누르면 이 버튼이 눌림.
+			// 여기에 백엔드 서버로 notFocusTime을 업로드하는 코드를 넣으면 됨
+
+			// 아래는 P2P 커넥션 끊는 코드임. 주석 풀고 사용하면 됨.
+			// if (socketRef.current) {
+			// 	socketRef.current.disconnect();
+			// }
+			// users.forEach((user) => {
+			// 	if (pcsRef.current[user.id]) {
+			// 		pcsRef.current[user.id].close();
+			// 		delete pcsRef.current[user.id];
+			// 	}
+			// });
+		});
+
+		return () => {
+			if (socketRef.current) {
+				socketRef.current.disconnect();
+			}
+			users.forEach((user) => {
+				if (pcsRef.current[user.id]) {
+					pcsRef.current[user.id].close();
+					delete pcsRef.current[user.id];
+				}
+			});
+		};
+	}, [createPeerConnection, getLocalStream]);
 
   const toggleFullscreen = () => {
     if (localVideoRef.current) {
@@ -1024,6 +938,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
       </div>
     </div>
   );
+
 };
 
 export default WebrtcStudent;
