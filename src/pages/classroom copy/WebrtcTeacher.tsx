@@ -7,10 +7,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../store";
 import { fetchLectureQuiz } from "../../store/QuizSlice";
 // import { QuizResponseDTO } from '../../components/quiz/QuizListComponent.tsx';
-import { QuizFetchListForm, QuizState } from '../../interface/quiz/QuizInterface.ts';
+import { QuizDetailForm, QuizFetchListForm, QuizState } from '../../interface/quiz/QuizInterface.ts';
 import { AsyncThunkAction, Dispatch, AnyAction } from '@reduxjs/toolkit';
 import { useParams } from 'react-router-dom';
 import styles from './WebrtcStudent.module.css';
+import DetailQuiz from '../../components/quiz/QuizBlock.tsx';
 // import DetailQuiz from "./QuizBlock";
 // import { QuizResponseDTO } from "./QuizListComponent";
 
@@ -72,12 +73,20 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
   const [chating, setChating] = useState(false);
 
   // 퀴즈 모달
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [selectedQuiz, setSelectedQuiz] = useState<QuizResponseDTO | null>(
-  //   null
-	// );
-	// const { status } = useSelector((state: RootState) => (state.quiz as QuizState));
-  // const quzzies = useSelector((state: RootState) => (state.quiz as QuizState).quizzes);
+	//퀴즈모달 출력 여부
+	const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+
+	//퀴즈모달 닫기
+	const handleCloseQuizModal = () => {
+		setIsQuizModalOpen(false);
+		setSelectedQuiz(null);
+	};
+
+	//클릭한 퀴즈
+	const [selectedQuiz, setSelectedQuiz] = useState<QuizDetailForm | null>(null);
+
+	//퀴즈
+	let quizzes = useSelector((state:RootState) => state.quiz.quizzes)
 
 
   // 이 drawer을 켰을 때 퀴즈 리스트를 불러오기
@@ -678,11 +687,62 @@ const toggleQuiz = () => {
 				</div>
 
 			</div>
+
+			{isQuizModalOpen && selectedQuiz && (
+				<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[100]">
+				<div className="bg-white rounded-lg shadow-lg w-[500px] relative">
+					{/* Close Button Overlapping DetailQuiz */}
+					<button
+					onClick={handleCloseQuizModal}
+					className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
+					>
+					&times;
+					</button>
+
+					{/* DetailQuiz Component Centered */}
+					<div className="flex justify-center items-center">
+					<div className="rounded-lg overflow-hidden w-full">
+						{/* 선생님 실제버전 경우에는 trialVersion false, isTeacher true */}
+						<DetailQuiz
+						initialQuizData={selectedQuiz}
+						onClose={handleCloseQuizModal}
+						trialVersion={false}
+						isTeacher={true}
+						/>
+					</div>
+					</div>
+				</div>
+				</div>
+			)}
+
 			<div className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${isQuizOpen ? 'translate-x-0 transition-transform duration-500 ease-in-out' : 'hidden translate-x-full transition-transform duration-500 ease-in-out'}`}>
 				<h3>Quiz</h3>
 				<div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
 					{/* 퀴즈에 넣을 내용 */}
-					<p>해당 내용 지우고 작성하면 됨</p>
+					{
+						quizzes !== null && quizzes.length > 0 ? (
+							<div className="flex flex-col gap-2">
+							{quizzes.map((quiz) => (
+								<button
+								key={quiz.quiz_id}
+								onClick={
+									() => {
+										setSelectedQuiz(quiz)
+    									setIsQuizModalOpen(true)
+										console.log("clicke!!!!")
+									}
+								}
+								className="w-full text-left bg-blue-200 text-blue-900 p-3 rounded hover:bg-blue-300 transition"
+								>
+								<strong>문제 {quiz.quiz_number}:</strong> {quiz.question}
+								</button>
+							))}
+							</div>
+						) : (
+							<div>퀴즈가 없습니다.</div>
+						)
+					}
+
 					{/* 퀴즈에 넣을 내용 */}
 				</div>
 
