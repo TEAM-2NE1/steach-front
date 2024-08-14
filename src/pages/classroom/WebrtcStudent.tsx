@@ -19,8 +19,9 @@ import DetailQuiz from "../../components/quiz/QuizBlock.tsx";
 import { studentFocusTime } from "../../store/MeetingSlice.tsx";
 import { BASE_URL, getAuthToken } from "../../api/BASE_URL.ts";
 import axios from "axios";
-import alarmImage from '../../assets/alarm.png';
-import alarmAudio from '../../assets/alarm.mp3';
+// import alarmImage from '../../assets/alarm.png';
+import alarmImage from '../../assets/LOGO.jpg'
+// import alarmAudio from '../../assets/alarm.mp3';
 import { finalLectureSlice } from "../../store/LectureSlice.tsx";
 
 const pc_config = {
@@ -148,7 +149,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 			duration: 400, // Total duration of one complete shake cycle
 			iterations: Infinity
 		});
-		setAudioElement(new Audio(alarmAudio));
+		// setAudioElement(new Audio(alarmAudio));
 		if(audioElement){
 			audioElement.loop = true;
 			audioElement.play();
