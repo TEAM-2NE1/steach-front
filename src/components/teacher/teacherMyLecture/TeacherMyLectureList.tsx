@@ -36,6 +36,7 @@ const TeacherMyLectureList: React.FC = () => {
   const lectures = useSelector(
     (state: RootState) => (state.curriculum as CurriculasState).selectlectures
   );
+
   const status = useSelector(
     (state: RootState) => (state.curriculum as CurriculasState).status
   );
@@ -168,14 +169,14 @@ const TeacherMyLectureList: React.FC = () => {
                                 </main>
                               </div>
                               <div className="flex justify-center items-center col-span-1">
-                                {daysAgo > 0 ? (
+                                {daysAgo > 0 && lecture.is_completed ? (
                                   <TeacherMyLectureListButton
                                     lectureState={"completed"}
                                     lectureId={lecture.lecture_id}
                                     curriculaId={curricula_id}
                                     username={username}
                                   />
-                                ) : daysAgo < 0 ? (
+                                ) : daysAgo < 0 && !lecture.is_completed ? (
                                   <TeacherMyLectureListButton
                                     lectureState={"scheduled"}
                                     lectureId={lecture.lecture_id}
