@@ -86,7 +86,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm }) => {
 };
 
 const Modal2: React.FC<ModalProps2> = ({ isOpen, report }) => {
-	const navigate = useNavigate();
+  const navigate = useNavigate();
+  const aa = () => {
+    navigate('/home')
+    window.location.replace(window.location.href);
+  }
 	if (!isOpen) return null;
 	
   return (
@@ -111,7 +115,7 @@ const Modal2: React.FC<ModalProps2> = ({ isOpen, report }) => {
               <p>퀴즈 정답 평균 : {report?.average_correct_number}개</p>
 				</div>
         <button 
-          onClick={() => navigate('/home')} 
+          onClick={aa} 
           className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
         >
           수업 종료
@@ -772,7 +776,12 @@ const handleMouseEnter = () => {
 
 	return (
 		<>
-			    <div className="relative">
+		<div className={`${styles.videoContainer} ${isFullscreen ? 'flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg top-0 left-0 z-50 gap-4' : 'flex flex-wrap items-center justify-center w-full h-full bg-discordChatBg gap-4'}`}
+			onMouseEnter={handleMouseEnter}
+			onMouseMove={handleMouseMove}
+			onMouseLeave={handleMouseLeave}
+		>
+      <div>
       <button 
         onClick={openModal} 
         className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-2xl hover:bg-red-600"
@@ -782,11 +791,6 @@ const handleMouseEnter = () => {
       <Modal isOpen={isModalOpen} onClose={closeModal} onConfirm={confirmAction} />
 				<Modal2 isOpen={isModal2Open} report={report} />
 			</div>
-		<div className={`${styles.videoContainer} ${isFullscreen ? 'flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg top-0 left-0 z-50 gap-4' : 'flex flex-wrap items-center justify-center w-full h-full bg-discordChatBg gap-4'}`}
-			onMouseEnter={handleMouseEnter}
-			onMouseMove={handleMouseMove}
-			onMouseLeave={handleMouseLeave}
-		>
 			<div className={`${isFullscreen ? 'fixed top-0 left-0 w-full h-full z-50 bg-black grid grid-cols-12 gap-4' : 'grid grid-cols-12 gap-4 w-full h-screen'} ${isChatOpen || isItemsOpen || isQuizOpen ? 'mr-[300px] transition-margin-right duration-500 ease-in-out' : 'transition-margin-right duration-500 ease-in-out'} flex flex-wrap items-center justify-center bg-discordChatBg`}>
 				<div className="col-span-6 flex items-center justify-center">
 					<div style={{ display: 'inline-block' }}>

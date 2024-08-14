@@ -521,11 +521,6 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 		}
 	};
 
-	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-		if (event.key === 'Enter') {
-			handleSendMessage
-		}
-	}
 
 	useEffect(() => {
 		socketRef.current = io.connect(SOCKET_SERVER_URL);
