@@ -3,11 +3,16 @@ import {
   LectureSeries,
   Lecture,
   PatchLecture,
+  StudentQuizDto,
+  StudentInfoByLectureDto,
+  LectureReport,
 } from "../interface/Curriculainterface";
 import { fetchCurriculumLectures } from "../api/lecture/curriculumAPI";
 import {
   getLectureDetailApi,
   patchLectureDetailApi,
+  startLecture,
+  reportLecture,
 } from "../api/lecture/lectureAPI";
 import axios from "axios";
 
@@ -16,7 +21,7 @@ import axios from "axios";
 export interface LecturesState {
   lectureslist: LectureSeries | null;
   lecture: Lecture | null;
-  students_quizzes_by_lecture_dto: [];
+  lectureReport: LectureReport | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -25,7 +30,7 @@ export interface LecturesState {
 const initialState: LecturesState = {
   lectureslist: null,
   lecture: null,
-  students_quizzes_by_lecture_dto: [],
+  lectureReport: null,
   status: "idle",
   error: null,
 };
@@ -40,7 +45,7 @@ export const getLecturelist = createAsyncThunk<LectureSeries, string>(
 );
 
 // 강의 단일 정보 가져오기
-export const getLectureDetail = createAsyncThunk<Lecture, number>(
+export const getLectureDetail = createAsyncThunk(
   "lectures/getDetail",
   async (lectureId: number, thunkAPI) => {
     try {
@@ -74,6 +79,43 @@ export const patchLectureDetail = createAsyncThunk<Lecture, PatchLecture>(
     }
   }
 );
+
+// 강의 시작하기
+export const startLectureSlice = createAsyncThunk<Lecture, string>(
+    "lectures/start",
+    async (lectureId: string, thunkAPI) => {
+      try {
+        const data = await startLecture(lectureId);
+  
+        return data;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          return thunkAPI.rejectWithValue(error.response.data);
+        }
+        return thunkAPI.rejectWithValue(error);
+      }
+    }
+);
+
+
+// 강의 report 전송(강사전용)
+export const reportLectureSlice = createAsyncThunk<LectureReport, string>(
+    "lectures/report",
+    async (lectureId: string, thunkAPI) => {
+      try {
+        const data = await reportLecture(lectureId);
+  
+        return data;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          return thunkAPI.rejectWithValue(error.response.data);
+        }
+        return thunkAPI.rejectWithValue(error);
+      }
+    }
+);
+  
+
 
 // 강의 슬라이스
 const lecturesSlice = createSlice({
@@ -109,6 +151,35 @@ const lecturesSlice = createSlice({
         }
       )
       .addCase(getLectureDetail.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to fetch lectures";
+      })
+      // 강의 시작하기 addCase
+      .addCase(startLectureSlice.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        startLectureSlice.fulfilled,
+        (state) => {
+          state.status = "succeeded";
+        }
+      )
+      .addCase(startLectureSlice.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to fetch lectures";
+      })
+      // 강의 report addCase
+      .addCase(reportLectureSlice.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        reportLectureSlice.fulfilled,
+        (state, action) => {
+          state.status = "succeeded";
+          state.lectureReport = action.payload;
+        }
+      )
+      .addCase(reportLectureSlice.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
       });

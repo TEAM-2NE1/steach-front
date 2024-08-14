@@ -8,6 +8,7 @@ import { AppDispatch } from '../../store.tsx';
 import { useParams } from 'react-router-dom';
 import styles from './WebrtcStudent.module.css';
 import html2canvas from "html2canvas";
+import { studentFocusTime } from '../../store/MeetingSlice.tsx'
 
 const pc_config = {
 	iceServers: [
@@ -61,6 +62,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 	const [cntFocus, setCntFocus] = useState<number>(0);
 	const [cntDrowsy, setCntDrowsy] = useState<number>(0);
 	const [notFocusTime, setNotFocusTime] = useState<number>(0);
+	const [sleepTime, setSleepTime] = useState<number>(0);
 
 
 	const getDrowsiness = async () => {
@@ -126,6 +128,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 		setCntFocus((prevCntFocus) => (value === 0 ? prevCntFocus + 1 : prevCntFocus));
 		setCntDrowsy((prevCntDrowsy) => (value === 1 ? prevCntDrowsy + 1 : prevCntDrowsy));
 		setNotFocusTime((prevNotFocusTime) => (value === -1 || value === 1 ? prevNotFocusTime + 1 : prevNotFocusTime));
+		setSleepTime(Math.floor(notFocusTime * 2 / 60))
 
 		setAccDdResult((prevValues) => {
 			// Add the new value to the array
@@ -145,6 +148,20 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 			return updatedValues;
 		});
 	};
+
+	useEffect(() => {
+		const calculatedSleepTime = Math.floor(notFocusTime * 2 / 60);
+
+		if (calculatedSleepTime !== sleepTime && calculatedSleepTime > 0) {
+			setSleepTime(calculatedSleepTime);
+		}
+	}, [notFocusTime])
+	
+	useEffect(() => {
+    if (sleepTime > 0 && lecture_id) {
+			studentFocusTime({lecture_Id: lecture_id, sleepTimeData: {sleep_time: sleepTime}})
+    }
+  }, [sleepTime]);
 
 	useEffect(() => {
 		if (cntAFK >= TOLERANCE) {
@@ -624,22 +641,21 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 		});
 
 		socketRef.current.on('lecture_end', () => {
-			notFocusTime * 2 / 60
 			
 
 			// 선생님이 강의종료 버튼을 누르면 이 버튼이 눌림.
 			// 여기에 백엔드 서버로 notFocusTime을 업로드하는 코드를 넣으면 됨
 
 			// 아래는 P2P 커넥션 끊는 코드임. 주석 풀고 사용하면 됨.
-			// if (socketRef.current) {
-			// 	socketRef.current.disconnect();
-			// }
-			// users.forEach((user) => {
-			// 	if (pcsRef.current[user.id]) {
-			// 		pcsRef.current[user.id].close();
-			// 		delete pcsRef.current[user.id];
-			// 	}
-			// });
+			if (socketRef.current) {
+				socketRef.current.disconnect();
+			}
+			users.forEach((user) => {
+				if (pcsRef.current[user.id]) {
+					pcsRef.current[user.id].close();
+					delete pcsRef.current[user.id];
+				}
+			});
 		});
 
 		return () => {

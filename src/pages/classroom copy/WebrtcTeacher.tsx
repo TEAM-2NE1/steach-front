@@ -9,8 +9,11 @@ import { fetchLectureQuiz } from "../../store/QuizSlice";
 // import { QuizResponseDTO } from '../../components/quiz/QuizListComponent.tsx';
 import { QuizFetchListForm, QuizState } from '../../interface/quiz/QuizInterface.ts';
 import { AsyncThunkAction, Dispatch, AnyAction } from '@reduxjs/toolkit';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styles from './WebrtcStudent.module.css';
+import { reportLectureSlice } from '../../store/LectureSlice.tsx';
+import { LectureReport } from '../../interface/Curriculainterface.tsx';
+import { report } from 'process';
 // import DetailQuiz from "./QuizBlock";
 // import { QuizResponseDTO } from "./QuizListComponent";
 
@@ -30,6 +33,80 @@ interface WebrtcProps {
 	userEmail: string;
 	userRole: string;
 }
+
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+interface ModalProps2 {
+  isOpen: boolean;
+	report: LectureReport | null
+}
+
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm }) => {
+	if (!isOpen) return null;
+	
+  return (
+		<div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h2 className="text-xl font-bold mb-4">강의 종료</h2>
+        <p className="mb-6">정말 강의를 종료하시겠습니까?</p>
+        <div className="flex justify-end">
+          <button 
+            onClick={onConfirm} 
+            className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600"
+						>
+            예
+          </button>
+          <button 
+            onClick={onClose} 
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+						>
+            아니요
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Modal2: React.FC<ModalProps2> = ({ isOpen, report }) => {
+	const navigate = useNavigate();
+	if (!isOpen) return null;
+	
+  return (
+		<div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-[400px]">
+				<div className="grid grid-cols-2 grid-rows-2 gap-2">
+				{report?.student_info_by_lecture_dto_list.map((user, index) => (
+					<div key={index}>
+              <div className="mx-3 my-4 p-4 bg-white border-2 border-hardBeige rounded-md shadow-md">
+                <p>이름: {user.student_name}</p>
+								<p>참여도: {user.focus_ratio} %</p>
+                <p>점수: {user.total_quiz_score}점</p>
+                <p>정답: 총 {user.correct_number}개</p>
+              </div>
+                </div>
+              ))}
+        </div>
+				<div className="mx-3 p-4 my-4 bg-white border-2 border-hardBeige rounded-md shadow-md">
+				<p>평균 집중 시간 : {report?.average_focus_minute}분</p>
+              <p>수업 참여도 : {report?.average_focus_ratio}%</p>
+              <p>퀴즈 점수 평균 : {report?.average_total_quiz_score}점</p>
+              <p>퀴즈 정답 평균 : {report?.average_correct_number}개</p>
+				</div>
+        <button 
+          onClick={() => navigate('/home')} 
+          className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+        >
+          수업 종료
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) => {
 	const socketRef = useRef<SocketIOClient.Socket>();
@@ -52,6 +129,9 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 	const [isChatOpen, setIsChatOpen] = useState(false);
 	const [isItemsOpen, setIsItemsOpen] = useState(false);
 	const [isQuizOpen, setIsQuizOpen] = useState(false);
+	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	const [isModal2Open, setIsModal2Open] = useState<boolean>(false);
+	
 // --------------------------------------------------------------
 	const dispatch = useDispatch<AppDispatch>();
 	const { lecture_id } = useParams();
@@ -84,11 +164,38 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) =
 	useEffect(() => {
 		if (lecture_id) {
 			dispatch(fetchLectureQuiz(lecture_id));
+			dispatch(reportLectureSlice(lecture_id))
 		}
-  }, []);
+  }, [dispatch]);
+	const report = useSelector((state: RootState) => (state.lectures.lectureReport));
+	console.log(report)
 
+	// ----------------------------------------------------------------
+	const openModal = () => {
+    setIsModalOpen(true);
+  };
 
-// ----------------------------------------------------------------
+  const closeModal = () => {
+    setIsModalOpen(false);
+	};
+	
+	const openModal2 = () => {
+    setIsModal2Open(true);
+  };
+
+  const closeModal2 = () => {
+    setIsModal2Open(false);
+  };
+
+	const confirmAction = () => {
+		// if (socketRef.current) {
+		// 	socketRef.current.emit('lecture_end');
+		// }
+		openModal2();
+    closeModal();
+  };
+	
+
 const handleMouseEnter = () => {
 	setShowControls(true);
 	if (hideControlsTimeout.current) {
@@ -518,6 +625,17 @@ const toggleQuiz = () => {
 	}, [createPeerConnection, getLocalStream]);
 
 	return (
+		<>
+			    <div className="relative">
+      <button 
+        onClick={openModal} 
+        className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-2xl hover:bg-red-600"
+      >
+        강의 종료
+      </button>
+      <Modal isOpen={isModalOpen} onClose={closeModal} onConfirm={confirmAction} />
+				<Modal2 isOpen={isModal2Open} onClose={closeModal2} report={report} />
+			</div>
 		<div className={`${styles.videoContainer} ${isFullscreen ? 'flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg top-0 left-0 z-50 gap-4' : 'flex flex-wrap items-center justify-center w-full h-full bg-discordChatBg gap-4'}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseMove={handleMouseMove}
@@ -571,7 +689,8 @@ const toggleQuiz = () => {
 									className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
 									>
 									{isItemsOpen ? '🎓' : '🎓'}
-								</button>
+										</button>
+
 					</div>
 								<div className='col-span-2'></div>
 				</div>
@@ -690,7 +809,8 @@ const toggleQuiz = () => {
 					전송
 				</button>
 			</div>
-		</div>
+			</div>
+		</>
 	);
 };
 

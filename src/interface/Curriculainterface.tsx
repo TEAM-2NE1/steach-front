@@ -113,3 +113,25 @@ export interface PageInterface {
   page: number;
   nowpage: number;
 }
+
+export interface StudentQuizDto {
+  score: number;
+  student_choice: string;
+}
+
+export interface StudentInfoByLectureDto {
+  student_name: string;
+  student_quiz_by_lecture_dtos: StudentQuizDto[];
+  focus_ratio: number;
+  focus_minute: number;
+  total_quiz_score: number;
+  correct_number: number;
+}
+
+export interface LectureReport {
+  student_info_by_lecture_dto_list: StudentInfoByLectureDto[];
+  average_focus_ratio: number;
+  average_focus_minute: number;
+  average_total_quiz_score: number;
+  average_correct_number: number;
+}

@@ -45,14 +45,20 @@ export const patchLectureDetailApi = async (lectureData: PatchLecture) => {
       },
     }
   );
-
+  
   return response.data;
 };
 
 // 강의 시작하기
-export const startLecture = async (lectureId: number) => {
+export const startLecture = async (lectureId: string) => {
+  const token = getAuthToken();
   const response = await axios.patch(
-    `${BASE_URL}/api/v1/lectures/start/${lectureId}`
+    `${BASE_URL}/api/v1/lectures/start/${lectureId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
   return response.data;
 };
@@ -66,9 +72,15 @@ export const fetchFinalLectureDetails = async (lectureId: number) => {
 };
 
 // Check if student attended the lecture
-export const checkLectureAttendance = async (lectureId: number) => {
+export const reportLecture = async (lectureId: string) => {
+  const token = getAuthToken();
   const response = await axios.get(
-    `${BASE_URL}/api/v1/lectures/check/${lectureId}`
+    `${BASE_URL}/api/v1/lectures/report/${lectureId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
   return response.data;
 };

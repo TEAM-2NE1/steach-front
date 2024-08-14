@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import WebrtcTeacher from "./WebrtcTeacher";
 import WebrtcStudent from "./WebrtcStudent";
 import { useParams } from 'react-router-dom';
+import { startLectureSlice } from '../../store/LectureSlice'
 
 const Classroom = () => {
   const [page, setPage] = useState("gate");
@@ -26,8 +27,11 @@ const Classroom = () => {
       alert("Please choose a role.");
       return;
     } else if (role === "TEACHER") {
-      setPage("WebrtcTeacher");
-      setHidden(1);
+      if (lecture_id) {
+        setPage("WebrtcTeacher");
+        startLectureSlice(lecture_id)
+        setHidden(1);
+      }
     } else if (role === "STUDENT") {
       setPage("WebrtcStudent");
       setHidden(1);
