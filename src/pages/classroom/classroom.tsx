@@ -3,6 +3,8 @@ import WebrtcTeacher from "./WebrtcTeacher";
 import WebrtcStudent from "./WebrtcStudent";
 import { useParams } from 'react-router-dom';
 import { startLectureSlice } from '../../store/LectureSlice'
+import { AppDispatch } from "../../store";
+import { useDispatch } from "react-redux";
 
 const Classroom = () => {
   const [page, setPage] = useState("gate");
@@ -11,6 +13,7 @@ const Classroom = () => {
   const [role, setRole] = useState("");
   const [hidden, setHidden] = useState(0);
   const { lecture_id } = useParams<string>();
+  const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
     const localStorageUserData = localStorage.getItem("auth");
@@ -24,6 +27,10 @@ const Classroom = () => {
     }
   }, [lecture_id]);
 
+  useEffect(() => {
+    
+  })
+
   const handleEnterClick = () => {
     if (role === "") {
       alert("Please choose a role.");
@@ -31,7 +38,8 @@ const Classroom = () => {
     } else if (role === "TEACHER") {
       if (lecture_id) {
         setPage("WebrtcTeacher");
-        startLectureSlice(lecture_id)
+        
+        dispatch(startLectureSlice(lecture_id))
         setHidden(1);
       }
     } else if (role === "STUDENT") {
