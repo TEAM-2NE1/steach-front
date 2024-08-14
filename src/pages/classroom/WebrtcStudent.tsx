@@ -111,12 +111,11 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 				Authorization: `Bearer ${token}`,
 			  },
 			});
-			setSelectedQuiz(response.data.quiz_response_dtos);
+			setSelectedQuiz(response.data);
+			setIsQuizModalOpen(true)
 		  } catch (err) {
 			console.log(err)
 		  }
-
-		setIsQuizModalOpen(true)
 	}
 
 	const getDrowsiness = async () => {
@@ -689,6 +688,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 		});
 
 		socketRef.current.on('quiz_start', (data: { quizId: string }) => {
+			//퀴즈모달 켜기
 			openQuiz(data.quizId)
 		});
 
@@ -942,6 +942,34 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
           </div>
         ))}
       </div>
+
+	  {isQuizModalOpen && selectedQuiz && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg w-[500px] relative">
+            {/* Close Button Overlapping DetailQuiz */}
+            <button
+              onClick={handleCloseQuizModal}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
+            >
+              &times;
+            </button>
+
+            {/* DetailQuiz Component Centered */}
+            <div className="flex justify-center items-center">
+              <div className="rounded-lg overflow-hidden w-full">
+                {/* 학생인 경우에는 trialVersion, isTeacher false */}
+                <DetailQuiz
+                  initialQuizData={selectedQuiz}
+                  onClose={handleCloseQuizModal}
+                  trialVersion={false}
+                  isTeacher={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div
         className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${
           isChatOpen
