@@ -160,8 +160,8 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
   }, [isTransitioning, data ? data.current : 0]);
 
   return (
-    <div style={{ width: '70%' }}>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+    <div style={{ width: '70%', height: '136px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, height: '100%' }}>
         {displayedList.map((item, index) => {
           const currentRank = data.current.find(currentItem => currentItem.name === item.name)?.rank;
           const currentScore = data.current.find(currentItem => currentItem.name === item.name)?.score;
