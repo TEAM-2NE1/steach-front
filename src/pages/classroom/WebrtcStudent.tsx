@@ -17,6 +17,8 @@ import html2canvas from "html2canvas";
 import { QuizDetailForm } from '../../interface/quiz/QuizInterface.ts';
 import DetailQuiz from '../../components/quiz/QuizBlock.tsx';
 import { studentFocusTime } from '../../store/MeetingSlice.tsx'
+import { BASE_URL, getAuthToken } from "../../api/BASE_URL.ts";
+import axios from "axios";
 
 const pc_config = {
   iceServers: [
@@ -101,8 +103,19 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 	//==============================================
 
 	//선생님이 퀴즈를 시작했을 때 rtc에서 호출하는 함수
-	const openQuiz = (quiz: QuizDetailForm) => {
-		setSelectedQuiz(quiz)
+	const openQuiz = async (quizId: string) => {
+		const token = getAuthToken();
+		try {
+			const response = await axios.get(`${BASE_URL}/api/v1/quizzes/${quizId}`, {
+			  headers: {
+				Authorization: `Bearer ${token}`,
+			  },
+			});
+			setSelectedQuiz(response.data.quiz_response_dtos);
+		  } catch (err) {
+			console.log(err)
+		  }
+
 		setIsQuizModalOpen(true)
 	}
 
@@ -678,6 +691,10 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 					),
 				);
 			}
+		});
+
+		socketRef.current.on('quiz_start', (data: { quizId: string }) => {
+			openQuiz(data.quizId)
 		});
 
 		socketRef.current.on('lecture_end', () => {
