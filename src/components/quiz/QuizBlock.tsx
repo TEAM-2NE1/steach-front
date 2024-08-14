@@ -157,7 +157,11 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
           setStatisticData({ statistics: response.data.statistics }); // 데이터 설정
           
           let prev = getPrevRankDataFromLocalStorage();
+
+          console.log("&&&&&&&&&&&#########++++++++++++===================")
           console.log(prev);
+          console.log(response.data.current)
+          console.log("&&&&&&&&&&&#########++++++++++++===================")
           
           const rankData = {
             prev: prev ?? response.data.current, // prev가 null이면 response.data.current 사용
