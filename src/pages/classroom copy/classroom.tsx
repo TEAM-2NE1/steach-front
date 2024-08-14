@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import WebrtcTeacher from "./WebrtcTeacher";
 import WebrtcStudent from "./WebrtcStudent";
 import { useParams } from 'react-router-dom';
@@ -13,8 +13,10 @@ const Classroom = () => {
   const { lecture_id } = useParams<string>();
 
   useEffect(() => {
-    const localStorageUserData = localStorage.getItem('auth');
-    const userData = localStorageUserData ? JSON.parse(localStorageUserData) : null;
+    const localStorageUserData = localStorage.getItem("auth");
+    const userData = localStorageUserData
+      ? JSON.parse(localStorageUserData)
+      : null;
     if (userData?.email && lecture_id) {
       setRole(userData.role);
       setRoomId(lecture_id);
@@ -39,7 +41,7 @@ const Classroom = () => {
   };
 
   return (
-    <div className="flex flex-col pt-20 bg-discordChatBg">
+    <div className="flex flex-col bg-discordChatBg">
       <div id="gate">
         <div className="hidden">
           <select
@@ -47,7 +49,9 @@ const Classroom = () => {
             value={role}
             onChange={(e) => setRole(e.target.value)}
           >
-            <option value="" disabled>Choose...</option>
+            <option value="" disabled>
+              Choose...
+            </option>
             <option value="TEACHER">Teacher</option>
             <option value="STUDENT">Student</option>
           </select>
@@ -70,17 +74,29 @@ const Classroom = () => {
           <button
             id="btn_enter"
             onClick={handleEnterClick}
-            className={hidden === 1 ? 'hidden' : 'm-96 p-5 w-48 bg-red-200 rounded-md text-white font-bold hover:bg-red-300 whitespace-nowrap'}
+            className={
+              hidden === 1
+                ? "hidden"
+                : "m-96 p-5 w-48 bg-red-200 rounded-md text-white font-bold hover:bg-red-300 whitespace-nowrap"
+            }
           >
             강의실 입장하기
           </button>
         </div>
         <div className="flex-grow flex items-center justify-center">
           {page === "WebrtcTeacher" && (
-            <WebrtcTeacher roomId={roomId} userEmail={userEmail} userRole={role} />
+            <WebrtcTeacher
+              roomId={roomId}
+              userEmail={userEmail}
+              userRole={role}
+            />
           )}
           {page === "WebrtcStudent" && (
-            <WebrtcStudent roomId={roomId} userEmail={userEmail} userRole={role} />
+            <WebrtcStudent
+              roomId={roomId}
+              userEmail={userEmail}
+              userRole={role}
+            />
           )}
         </div>
       </div>

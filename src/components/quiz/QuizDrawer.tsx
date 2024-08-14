@@ -267,7 +267,7 @@ const QuizDrawer: React.FC = () => {
                   initialQuizData={selectedQuiz}
                   onClose={handleCloseModal}
                   trialVersion={false}
-                  {...{ trialTimer: 5 }}
+                  isTeacher={false}
                 />
               </div>
             </div>

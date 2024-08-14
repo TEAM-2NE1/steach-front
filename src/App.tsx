@@ -30,12 +30,13 @@ import QuizTestPage from "./components/quiz/page/QuizTestPage.tsx";
 import TeacherQuizListPage from "./components/quiz/page/TeacherQuizListPage.tsx";
 import StudentQuizListPage from "./components/quiz/page/StudentQuizListPage.tsx";
 import TeacherQuizListPageTrial from "./components/quiz/page/TeacherQuizListPageTrial.tsx";
-
+import StudentMyLectureList from "./components/student/StudentMyLectureList.tsx";
 
 const App: React.FC = () => {
-
-  const hideNavbarRoutes = [''];
-  const hideNavbar = hideNavbarRoutes.includes(location.pathname) || /\/classroom\/\d+/.test(location.pathname);
+  const hideNavbarRoutes = [""];
+  const hideNavbar =
+    hideNavbarRoutes.includes(location.pathname) ||
+    /\/classroom\/\d+/.test(location.pathname);
   return (
     <div>
       <ToastContainer autoClose={1500} />
@@ -46,6 +47,10 @@ const App: React.FC = () => {
         <Route
           path="/student/profile/:username"
           element={<StudentProfilePage />}
+        ></Route>
+        <Route
+          path="/student/profile/:username/curricula/:curricula_id"
+          element={<StudentMyLectureList />}
         ></Route>
         <Route path="/user/login" element={<LoginPage />}></Route>
         <Route path="/user/signup" element={<SignUpPage />}></Route>
