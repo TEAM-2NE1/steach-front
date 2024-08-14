@@ -326,7 +326,7 @@ const LectureDetail: React.FC = () => {
           </Accordion>
           <div></div>
         </div>
-        <div className="sticky top-24 lg:right-24 xl:right-44 right-0 h-1/2 w-96 bg-white ml-10 mt-3 p-4 flex flex-col rounded-lg border-2 border-gray-400">
+        <div className="sticky top-24 lg:right-24 xl:right-44 right-0 h-96 w-96 bg-white ml-10 mt-3 p-4 flex flex-col rounded-lg border-2 border-gray-400">
           <h3 className="text-3xl font-bold ml-4 mb-4 text-red-600">무료</h3>
           <h3 className="text-2xl font-bold mb-4">{lectures?.title}</h3>
           {userData &&

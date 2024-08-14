@@ -61,7 +61,7 @@ const TeacherInfoDetail: React.FC = () => {
     
     
     return (
-      <div className="w-9/12 bg-moreBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
+      <div className="w-9/12 bg-white border-2 border-hardBeige rounded-xl shadow-md p-6 my-12 mx-auto relative">
       <h1 className="my-2 p-2 text-center text-6xl text-lightNavy">{teacherData?.nickname} 선생님 정보</h1>
           {status === "loading" && <Spinner />}
           {status === "failed" && error}

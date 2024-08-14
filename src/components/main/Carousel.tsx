@@ -5,10 +5,10 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 const imageUrls = [
-  "http://steach.ssafy.io:8082/img-upload/display/my/ttmdhvxbgb무제-3.png",
-  "http://steach.ssafy.io:8082/img-upload/display/my/gdqhhamtsh무제-2.png",
-  "http://steach.ssafy.io:8082/img-upload/display/my/iidswopebx무제-1.png",
-  "http://steach.ssafy.io:8082/img-upload/display/my/rlyahgomzo무제-4.png",
+  "https://steach.ssafy.io/img-upload/display/my/ttmdhvxbgb무제-3.png",
+  "https://steach.ssafy.io/img-upload/display/my/gdqhhamtsh무제-2.png",
+  "https://steach.ssafy.io/img-upload/display/my/iidswopebx무제-1.png",
+  "https://steach.ssafy.io/img-upload/display/my/rlyahgomzo무제-4.png",
 ];
 
 const generateSlides = (urls: string[]) => {
