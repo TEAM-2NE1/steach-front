@@ -71,6 +71,7 @@ const PatchQuiz: React.FC = () => {
           choices: ["", "", "", ""],
           question: "",
           answers: 1,
+          time:5,
         },
       ]);
     }

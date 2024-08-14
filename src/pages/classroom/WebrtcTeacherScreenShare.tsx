@@ -28,6 +28,7 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 	const localScreenShareRef = useRef<HTMLVideoElement>(null);
 	const localScreenShareStreamRef = useRef<MediaStream>();
 	const [users, setUsers] = useState<WebRTCUser[]>([]);
+
 	useEffect(() => {
 		if(screenShareStopSignal){
 			const videoTrack = localScreenShareStreamRef.current?.getVideoTracks()[0];
@@ -39,12 +40,22 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 		}
 	}, [screenShareStopSignal]);
 
+	const toggleFullscreen = () => {
+    if (localScreenShareRef.current) {
+      if (!document.fullscreenElement) {
+        localScreenShareRef.current.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+	};
+
 	const getLocalStream = useCallback(async () => {
 		try {
 			const localScreenShareStream = await navigator.mediaDevices.getDisplayMedia({
 				video: {
-					width: 240,
-					height: 135,
+					width: 1920,
+					height: 1080,
 					cursor: 'always'
 				} as MediaTrackConstraints,
 				audio: false
@@ -269,11 +280,11 @@ const WebrtcTeacherScreenShare: React.FC<WebrtcProps> = ({ roomId, userEmail, us
 
 	return (
 		<div>
-			<p>선생님 화면공유 화면</p>
 			<video
+				onClick={toggleFullscreen}
 				style={{
-					width: 240,
-					height: 135,
+					width: 600,
+					height: 338,
 					margin: 5,
 					backgroundColor: 'lightskyblue',
 				}}

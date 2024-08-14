@@ -1,129 +1,261 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import io from 'socket.io-client';
-import WebRTCVideo from '../../components/video/index.tsx';
-import { WebRTCUser } from '../../types/index.ts';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  KeyboardEvent,
+} from "react";
+import io from "socket.io-client";
+import WebRTCVideo from "../../components/video/index.tsx";
+import { WebRTCUser } from "../../types/index.ts";
 import WebrtcStudentScreenShare from "./WebrtcStudentScreenShare.tsx";
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../store.tsx';
-import { useParams } from 'react-router-dom';
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store.tsx";
+import { useParams } from "react-router-dom";
+import styles from "./WebrtcStudent.module.css";
+import html2canvas from "html2canvas";
+import { QuizDetailForm } from '../../interface/quiz/QuizInterface.ts';
+import DetailQuiz from '../../components/quiz/QuizBlock.tsx';
+import { studentFocusTime } from '../../store/MeetingSlice.tsx'
 
 const pc_config = {
-	iceServers: [
-		{
-			urls: 'stun:stun.l.google.com:19302',
-		},
-	],
+  iceServers: [
+    {
+      urls: "stun:stun.l.google.com:19302",
+    },
+  ],
 };
 
-const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const SOCKET_SERVER_URL = `${protocol}//${window.location.hostname}:${window.location.port ? window.location.port : '5000'}`;
+const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+const SOCKET_SERVER_URL = `${protocol}//${window.location.hostname}:${
+  window.location.port ? window.location.port : "5000"
+}`;
 
 interface WebrtcProps {
-	roomId: string;
-	userEmail: string;
-	userRole: string;
+  roomId: string;
+  userEmail: string;
+  userRole: string;
 }
 
-const WebrtcStudent: React.FC<WebrtcProps> = ({ roomId, userEmail, userRole }) => {
-	const socketRef = useRef<SocketIOClient.Socket>();
-	const pcsRef = useRef<{ [socketId: string]: RTCPeerConnection }>({});
-	const localVideoRef = useRef<HTMLVideoElement>(null);
-	const localStreamRef = useRef<MediaStream>();
-	const [users, setUsers] = useState<WebRTCUser[]>([]);
-	const [isVideoEnabled, setIsVideoEnabled] = useState(false);
-	const [isAudioEnabled, setIsAudioEnabled] = useState(false);
-	const [isAudioDisabledByTeacher, setIsAudioDisabledByTeacher] = useState(false);
-	const [isScreenShareEnabled, setIsScreenShareEnabled] = useState(false);
-	const [isScreenShareDisabledByTeacher, setIsScreenShareDisabledByTeacher] = useState(false);
-	const [messages, setMessages] = useState<string[]>([]);
-	const [newMessage, setNewMessage] = useState('');
-	const [goScreenShare, setGoScreenShare] = useState(false);
-	const [screenShareStopSignal, setScreenShareStopSignal] = useState(false);
+const WebrtcStudent: React.FC<WebrtcProps> = ({
+  roomId,
+  userEmail,
+  userRole,
+}) => {
+  const socketRef = useRef<SocketIOClient.Socket>();
+  const pcsRef = useRef<{ [socketId: string]: RTCPeerConnection }>({});
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const localStreamRef = useRef<MediaStream>();
+  const [users, setUsers] = useState<WebRTCUser[]>([]);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(false);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+  const [isAudioDisabledByTeacher, setIsAudioDisabledByTeacher] =
+    useState(false);
+  const [isScreenShareEnabled, setIsScreenShareEnabled] = useState(false);
+  const [isScreenShareDisabledByTeacher, setIsScreenShareDisabledByTeacher] =
+    useState(false);
+  const [messages, setMessages] = useState<string[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [goScreenShare, setGoScreenShare] = useState(false);
+  const [screenShareStopSignal, setScreenShareStopSignal] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+	const [showControls, setShowControls] = useState(false);
+	const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
+	const [isChatOpen, setIsChatOpen] = useState(false);
+	const dispatch = useDispatch<AppDispatch>();
+	const { lecture_id } = useParams();
+	// 
+	const divRef = useRef<HTMLDivElement>(null);
+	const MAX_WIDTH = 854;
+	const MAX_HEIGHT = 480;
+	const TOLERANCE = 10;
+	const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+	const [accDdResult, setAccDdResult] = useState<number[]>([]);
+	const [cntAFK, setCntAFK] = useState<number>(0);
+	const [cntFocus, setCntFocus] = useState<number>(0);
+	const [cntDrowsy, setCntDrowsy] = useState<number>(0);
+	const [notFocusTime, setNotFocusTime] = useState<number>(0);
+	const [sleepTime, setSleepTime] = useState<number>(0);
+	
+	console.log('cntAFK',cntAFK)
+	console.log('cntFocus',cntFocus)
+	console.log('cntDrowsy',cntDrowsy)
+	console.log('notFocusTime',notFocusTime)
+	console.log('sleepTime',sleepTime)
 
-// --------------------------------------------------------------
-const dispatch = useDispatch<AppDispatch>();
-const { lecture_id } = useParams();
+	//퀴즈모달 ======================================
+	//퀴즈모달 출력 여부
+	const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
 
-// drawer 여닫기
-const [open, setOpen] = useState(false);
+	//퀴즈모달 닫기
+	const handleCloseQuizModal = () => {
+		setIsQuizModalOpen(false);
+		setSelectedQuiz(null);
+	};
 
-// 마이크 음소거 여부
-const [isMicroPhoneMute, setIsMicroPhoneMute] = useState(false);
+	//현재 퀴즈
+	const [selectedQuiz, setSelectedQuiz] = useState<QuizDetailForm | null>(null);
+	//==============================================
 
-// 소리 음소거 여부
-const [isAudioMute, setIsAudioMute] = useState(false);
-
-// 화면 출력 여부
-const [isOnVideo, setIsOnVideo] = useState(false);
-
-// 화면 출력 여부
-const [chating, setChating] = useState(false);
-
-// // 퀴즈 모달
-// const [isModalOpen, setIsModalOpen] = useState(false);
-// const [selectedQuiz, setSelectedQuiz] = useState<QuizResponseDTO | null>(
-// 	null
-// );
-// const { status } = useSelector((state: RootState) => (state.quiz as QuizState));
-// const quzzies = useSelector((state: RootState) => (state.quiz as QuizState).quizzes);
-
-// Drawer 여는 함수
-const showDrawer = () => {
-	if (open) {
-		setOpen(false);
-	} else {
-		setOpen(true);
+	//선생님이 퀴즈를 시작했을 때 rtc에서 호출하는 함수
+	const openQuiz = (quiz: QuizDetailForm) => {
+		setSelectedQuiz(quiz)
+		setIsQuizModalOpen(true)
 	}
-};
 
-// Drawer 닫는 함수
-const onClose = () => {
-	setOpen(false);
-};
+	const getDrowsiness = async () => {
+		if (!divRef.current) return;
 
-// 마이크 음소거 여부 핸들러 함수
-const handleIsMicroPhoneMute = () => {
-	if (isMicroPhoneMute) {
-		setIsMicroPhoneMute(false);
-	} else {
-		setIsMicroPhoneMute(true);
+		try {
+			const div = divRef.current;
+			const canvas = await html2canvas(div, { scale: 2 });
+
+			const originalWidth = canvas.width;
+			const originalHeight = canvas.height;
+			let width = originalWidth;
+			let height = originalHeight;
+
+			if (originalWidth > MAX_WIDTH || originalHeight > MAX_HEIGHT) {
+				const widthRatio = MAX_WIDTH / originalWidth;
+				const heightRatio = MAX_HEIGHT / originalHeight;
+				const scaleRatio = Math.min(widthRatio, heightRatio);
+
+				width = originalWidth * scaleRatio;
+				height = originalHeight * scaleRatio;
+			}
+
+			const resizedCanvas = document.createElement("canvas");
+			resizedCanvas.width = width;
+			resizedCanvas.height = height;
+			const ctx = resizedCanvas.getContext("2d");
+
+			if (ctx) {
+				ctx.drawImage(canvas, 0, 0, width, height);
+			}
+
+			resizedCanvas.toBlob((blob) => {
+				if (blob !== null) {
+					const formData = new FormData();
+					saveAs(blob, "res.png");
+					formData.append("file", blob, "focus.png");
+
+					// Upload the resized image
+					fetch("https://steach.ssafy.io/drowsiness", {
+						method: "POST",
+						body: formData,
+					})
+						.then((response) => response.text())
+						.then((result) => {
+							saveAccddRes(parseInt(result, 10));
+						})
+						.catch((error) => {
+							console.error("[Drowsiness Detection] Error:", error);
+						});
+				}
+			});
+		} catch (error) {
+			console.error("Error converting div to image:", error);
+		}
+	};
+
+	const saveAccddRes = (value: number) => {
+		// First, update the counts based on the new value
+		setCntAFK((prevCntAFK) => (value === -1 ? prevCntAFK + 1 : prevCntAFK));
+		setCntFocus((prevCntFocus) => (value === 0 ? prevCntFocus + 1 : prevCntFocus));
+		setCntDrowsy((prevCntDrowsy) => (value === 1 ? prevCntDrowsy + 1 : prevCntDrowsy));
+		setNotFocusTime((prevNotFocusTime) => (value === -1 || value === 1 ? prevNotFocusTime + 1 : prevNotFocusTime));
+		setSleepTime(Math.floor(notFocusTime * 2 / 60))
+
+		setAccDdResult((prevValues) => {
+			// Add the new value to the array
+			const updatedValues = [...prevValues, value];
+
+			// If the length exceeds TOLERANCE, we need to adjust counts
+			if (updatedValues.length > TOLERANCE) {
+				const firstOfAccDdRes = updatedValues.shift(); // Remove the oldest value and adjust counts
+
+				// Adjust counts based on the removed value
+				setCntAFK((prevCntAFK) => (firstOfAccDdRes === -1 ? prevCntAFK - 1 : prevCntAFK));
+				setCntFocus((prevCntFocus) => (firstOfAccDdRes === 0 ? prevCntFocus - 1 : prevCntFocus));
+				setCntDrowsy((prevCntDrowsy) => (firstOfAccDdRes === 1 ? prevCntDrowsy - 1 : prevCntDrowsy));
+			}
+
+			// Return the updated array to setAccDdResult
+			return updatedValues;
+		});
+	};
+
+	useEffect(() => {
+		const calculatedSleepTime = Math.floor(notFocusTime * 2 / 60);
+		console.log('calculatedSleepTime', calculatedSleepTime)
+		if (calculatedSleepTime !== sleepTime && calculatedSleepTime > 0) {
+			setSleepTime(calculatedSleepTime);
+		}
+	}, [notFocusTime])
+	
+	useEffect(() => {
+    if (sleepTime > 0 && lecture_id) {
+			studentFocusTime({lecture_Id: lecture_id, sleepTimeData: {sleep_time: sleepTime}})
+    }
+  }, [sleepTime]);
+
+	useEffect(() => {
+		if (cntAFK >= TOLERANCE) {
+			setCntAFK(0);
+			setCntFocus(0);
+			setCntDrowsy(0);
+			setAccDdResult([]); // Clear the accDdResult array
+			askComeBack();
+			reportToTeacher('afk');
+		} else if (cntDrowsy >= TOLERANCE) {
+			setCntAFK(0);
+			setCntFocus(0);
+			setCntDrowsy(0);
+			setAccDdResult([]); // Clear the accDdResult array
+			wakeStudent();
+			reportToTeacher('sleep');
+		}
+	}, [cntAFK, cntDrowsy]); // Dependencies array to watch for changes
+
+	const reportToTeacher = (type: string) => {
+		if (socketRef.current) {
+			socketRef.current.emit('report_to_teacher', {
+				userId: socketRef.current.id,
+				email: userEmail,
+				type: type
+			});
+		}
 	}
-};
 
-// 소리 음소거 여부 핸들러 함수
-const handleIsAudioMute = () => {
-	if (isAudioMute) {
-		setIsAudioMute(false);
-	} else {
-		setIsAudioMute(true);
+
+	const startDrowsinessDetection = () => {
+		if (!intervalId) {
+			const id = setInterval(getDrowsiness, 2000);
+			setIntervalId(id);
+		}
+		setCntAFK(0);
+		setCntDrowsy(0);
+	};
+
+	const stopDrowsinessDetection = () => {
+		if (intervalId) {
+			clearInterval(intervalId);
+			setIntervalId(null);
+		}
+		setCntAFK(0);
+		setCntDrowsy(0);
+	};
+
+	const askComeBack = () => {
+		console.log(`[Focus Detection] Away From Keyboard for ${TOLERANCE * 2}초 detected!!!`);
 	}
-};
 
-// 자신의 화면 출력 여부 핸들러 함수
-const handleIsOnVideo = () => {
-	if (isOnVideo) {
-		setIsOnVideo(false);
-	} else {
-		setIsOnVideo(true);
+	const wakeStudent = () => {
+		console.log(`[Drowsiness Detection] Drowsy for ${TOLERANCE * 2}초 detected!!!`);
 	}
-};
-
-// // 퀴즈 모달 핸들러 함수
-
-// const handleCloseModal = () => {
-// 	setIsModalOpen(false);
-// 	setSelectedQuiz(null);
-// };
-
-// //모달켜지기
-// const handleButtonClick = () => {
-// 	setIsModalOpen(true);
-// };
-
-
-
-// ----------------------------------------------------------------
-
 
 
 	const toggleScreenShare = () => {
@@ -172,8 +304,8 @@ const handleIsOnVideo = () => {
 			const localStream = await navigator.mediaDevices.getUserMedia({
 				audio: true,
 				video: {
-					width: 240,
-					height: 240,
+					width: 1920,
+					height: 1080,
 				},
 			});
 			localStreamRef.current = localStream;
@@ -241,7 +373,6 @@ const handleIsOnVideo = () => {
 						pc.addTrack(track, localStreamRef.current);
 					}
 				});
-			} else {
 			}
 
 			return pc;
@@ -266,6 +397,13 @@ const handleIsOnVideo = () => {
 					screenShareEnabled: isScreenShareEnabled,
 					screenShareDisabledByTeacher: isScreenShareDisabledByTeacher
 				});
+			}
+			if(!videoTrack.enabled){
+				console.log('Start DD');
+				startDrowsinessDetection();
+			}else{
+				console.log('Stop DD');
+				stopDrowsinessDetection();
 			}
 		}
 	};
@@ -357,7 +495,8 @@ const handleIsOnVideo = () => {
 	};
 
 
-	const handleSendMessage = () => {
+	const handleSendMessage = (e:React.FormEvent) => {
+		e.preventDefault();
 		if (newMessage.trim() !== '') {
 			if (socketRef.current) {
 				socketRef.current.emit('send_chat', {
@@ -369,6 +508,12 @@ const handleIsOnVideo = () => {
 			}
 		}
 	};
+
+	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === 'Enter') {
+			handleSendMessage
+		}
+	}
 
 	useEffect(() => {
 		socketRef.current = io.connect(SOCKET_SERVER_URL);
@@ -477,13 +622,6 @@ const handleIsOnVideo = () => {
 						: user,
 				),
 			);
-
-			// if (data.userId === socketRef.current?.id) {
-			// 	setIsAudioDisabledByTeacher(data.audioDisabledByTeacher);
-			// 	if (data.audioDisabledByTeacher) {
-			// 		setIsAudioEnabled(false);
-			// 	}
-			// }
 		});
 
 		socketRef.current.on('toggle_student_mic', (data: { userId: string; audioDisabledByTeacher: boolean }) => {
@@ -542,6 +680,24 @@ const handleIsOnVideo = () => {
 			}
 		});
 
+		socketRef.current.on('lecture_end', () => {
+			
+
+			// 선생님이 강의종료 버튼을 누르면 이 버튼이 눌림.
+			// 여기에 백엔드 서버로 notFocusTime을 업로드하는 코드를 넣으면 됨
+
+			// 아래는 P2P 커넥션 끊는 코드임. 주석 풀고 사용하면 됨.
+			if (socketRef.current) {
+				socketRef.current.disconnect();
+			}
+			users.forEach((user) => {
+				if (pcsRef.current[user.id]) {
+					pcsRef.current[user.id].close();
+					delete pcsRef.current[user.id];
+				}
+			});
+		});
+
 		return () => {
 			if (socketRef.current) {
 				socketRef.current.disconnect();
@@ -555,75 +711,261 @@ const handleIsOnVideo = () => {
 		};
 	}, [createPeerConnection, getLocalStream]);
 
-	return (
-		<div>
-			<p>학생 화면!!!</p>
-			<div style={{display: 'inline-block'}}>
-				<video
-					style={{
-						width: 240,
-						height: 240,
-						margin: 5,
-						backgroundColor: 'black',
-					}}
-					muted
-					ref={localVideoRef}
-					autoPlay
-				/>
-				<p>당신은 {userRole} 입니다.</p>
-				<p>카메라 상태: {isVideoEnabled ? 'ON' : 'OFF'} </p>
-				<p>마이크 상태: {isAudioEnabled ? 'ON' : 'OFF'} </p>
-				<p>화면공유 상태: {isScreenShareEnabled ? 'ON' : 'OFF'} </p>
-				<p>마이크 권한(발언권): {isAudioDisabledByTeacher ? 'X' : 'O'}</p>
-				<p>화면공유 권한: {isScreenShareDisabledByTeacher ? 'X' : 'O'}</p>
-				<button onClick={toggleVideo}>
-					{isVideoEnabled ? 'Turn Off Video' : 'Turn On Video'}
-				</button>
-				<button onClick={toggleAudio} disabled={isAudioDisabledByTeacher}>
-					{isAudioEnabled ? 'Turn Off Audio' : 'Turn On Audio'}
-				</button>
-				<button id="btn_start_screen_share" onClick={toggleScreenShare} disabled={isScreenShareDisabledByTeacher}>
-					{isScreenShareEnabled ? '화면공유 중지하기' : '화면공유 시작하기'}
-				</button>
-			</div>
-			<div style={{display: 'inline-block'}}>
-				{goScreenShare && (
-					<WebrtcStudentScreenShare roomId={roomId} userEmail={userEmail + '_screen'} userRole={userRole + '_screen'} toggleScreenShareFunc={toggleScreenShareFunc} screenShareStopSignal={screenShareStopSignal}/>
-				)}
-			</div>
-			{users.map((user, index) => (
-				<div key={index}>
-					<WebRTCVideo
-						email={user.email}
-						userRole={user.userRole}
-						stream={user.stream}
-						videoEnabled={user.videoEnabled}
-						audioEnabled={user.audioEnabled}
-						audioDisabledByTeacher={user.audioDisabledByTeacher}
-						screenShareEnabled={user.screenShareEnabled}
-						screenShareDisabledByTeacher={user.screenShareDisabledByTeacher}
-						//아랫줄 주석 치면 어케 되나?
-						muted={userRole.toUpperCase() !== 'teacher'.toUpperCase() && user.userRole.toUpperCase() !== 'teacher'.toUpperCase()} // Students can only see the teacher's video
-					/>
-				</div>
-			))}
-			<div>
-				<h3>Chat</h3>
-				<div>
-					{messages.map((msg, idx) => (
-						<p key={idx}>{msg}</p>
-					))}
-				</div>
-				<input
-					type="text"
-					value={newMessage}
-					onChange={(e) => setNewMessage(e.target.value)}
-					placeholder="Type a message"
-				/>
-				<button onClick={handleSendMessage}>Send</button>
-			</div>
-		</div>
-	);
+  const toggleFullscreen = () => {
+    if (localVideoRef.current) {
+      if (!document.fullscreenElement) {
+        localVideoRef.current.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+  };
+
+  const toggleFullscreen2 = () => {
+    setIsFullscreen((prev) => !prev);
+  };
+
+  const toggleChat = () => {
+    setIsChatOpen((prev) => !prev);
+  };
+
+  const handleTimeUpdate = () => {
+    if (localVideoRef.current) {
+      setCurrentTime(localVideoRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (localVideoRef.current) {
+      setDuration(localVideoRef.current.duration);
+    }
+  };
+
+  const handleFullscreenChange = () => {
+    setShowControls(true);
+    showControlsTemporarily();
+    if (!document.fullscreenElement) {
+      setShowControls(false);
+    }
+  };
+
+  const handleMouseEnter = () => {
+    setShowControls(true);
+    if (hideControlsTimeout.current) {
+      clearTimeout(hideControlsTimeout.current);
+    }
+  };
+
+  const handleMouseMove = () => {
+    showControlsTemporarily();
+  };
+
+  const handleMouseLeave = () => {
+    setShowControls(false);
+    if (hideControlsTimeout.current) {
+      clearTimeout(hideControlsTimeout.current);
+    }
+  };
+
+  const showControlsTemporarily = () => {
+    setShowControls(true);
+    if (hideControlsTimeout.current) {
+      clearTimeout(hideControlsTimeout.current);
+    }
+    hideControlsTimeout.current = setTimeout(() => {
+      setShowControls(false);
+    }, 2000);
+  };
+
+  useEffect(() => {
+    if (localVideoRef.current) {
+      localVideoRef.current.addEventListener("timeupdate", handleTimeUpdate);
+      localVideoRef.current.addEventListener(
+        "loadedmetadata",
+        handleLoadedMetadata
+      );
+      document.addEventListener("fullscreenchange", handleFullscreenChange);
+      return () => {
+        localVideoRef.current?.removeEventListener(
+          "timeupdate",
+          handleTimeUpdate
+        );
+        localVideoRef.current?.removeEventListener(
+          "loadedmetadata",
+          handleLoadedMetadata
+        );
+        document.removeEventListener(
+          "fullscreenchange",
+          handleFullscreenChange
+        );
+      };
+    }
+  }, []);
+
+  return (
+    <div
+      className={`${styles.videoContainer} ${
+        isFullscreen
+          ? "flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg top-0 left-0 z-50 gap-4"
+          : "flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg gap-4"
+      }`}
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div
+        className={`${
+          isFullscreen
+            ? "fixed top-0 left-0 w-full h-full z-50 bg-black grid grid-cols-12 gap-4"
+            : "grid grid-cols-12 gap-4 w-full"
+        } ${
+          isChatOpen
+            ? "mr-[300px] transition-margin-right duration-500 ease-in-out"
+            : "transition-margin-right duration-500 ease-in-out"
+        } flex flex-wrap items-center justify-center bg-discordChatBg`}
+      >
+        <div className="col-span-6 flex items-center justify-center">
+          <div style={{ display: "inline-block" }}>
+            <div
+              ref={divRef}
+              style={{ position: "relative", width: 600, height: 338 }}
+              className={`${styles.videoContainer}`}
+            >
+              <video
+                className="w-full h-full bg-black rounded-2xl"
+                onClick={toggleFullscreen}
+                muted={isMuted}
+                ref={localVideoRef}
+                autoPlay
+                controls={false}
+              />
+            </div>
+            {showControls && (
+              <div
+                className={`absolute bottom-0 left-0 right-0 flex justify-around items-center p-3 rounded-lg ${
+                  showControls
+                    ? "translate-y-0 opacity-100 transition-transform transition-opacity duration-500 ease-in-out"
+                    : "translate-y-full opacity-0 transition-transform transition-opacity duration-500 ease-in-out"
+                } bg-opacity-80 bg-gradient-to-t from-black to-transparent z-10`}
+              >
+                <div className="grid grid-cols-12 ">
+                  <div className="col-span-2"></div>
+                  <div className="col-span-8">
+                    <button
+                      onClick={toggleVideo}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      {isVideoEnabled ? "📸 " : "📷 "}
+                    </button>
+                    <button
+                      onClick={toggleAudio}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      {isAudioEnabled ? "🔊" : "🔇"}
+                    </button>
+                    <button
+                      onClick={toggleScreenShare}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      {isScreenShareEnabled ? "🖥️" : "🖥️"}
+                    </button>
+                    <button
+                      onClick={toggleFullscreen2}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      ⛶ {isFullscreen ? "" : ""}
+                    </button>
+                    <button
+                      onClick={toggleChat}
+                      className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    >
+                      {isChatOpen ? "💬" : "💬"}
+                    </button>
+                  </div>
+                  <div className="col-span-2"></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="col-span-6 flex items-center justify-center">
+          <div style={{ display: "inline-block" }}>
+            {goScreenShare && (
+              <WebrtcStudentScreenShare
+                roomId={roomId}
+                userEmail={userEmail + "_screen"}
+                userRole={userRole + "_screen"}
+                toggleScreenShareFunc={toggleScreenShareFunc}
+                screenShareStopSignal={screenShareStopSignal}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={`grid grid-cols-12 gap-4 w-full mt-4 ${
+          isChatOpen ? "mr-[320px]" : "mr-0"
+        } transition-margin duration-500 ease-in-out`}
+      >
+        {users.map((user, index) => (
+          <div
+            key={index}
+            className="col-span-6 flex items-center justify-center"
+          >
+            <WebRTCVideo
+              email={user.email}
+              userRole={user.userRole}
+              stream={user.stream}
+              videoEnabled={user.videoEnabled}
+              audioEnabled={user.audioEnabled}
+              audioDisabledByTeacher={user.audioDisabledByTeacher}
+              screenShareEnabled={user.screenShareEnabled}
+              screenShareDisabledByTeacher={user.screenShareDisabledByTeacher}
+              muted={
+                userRole.toUpperCase() !== "teacher".toUpperCase() &&
+                user.userRole.toUpperCase() !== "teacher".toUpperCase()
+              }
+            />
+          </div>
+        ))}
+      </div>
+      <div
+        className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${
+          isChatOpen
+            ? "translate-x-0 transition-transform duration-500 ease-in-out"
+            : "hidden translate-x-full transition-transform duration-500 ease-in-out"
+        }`}
+      >
+        <h3 className="my-2 text-2xl font-semibold">채팅</h3>
+        <div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
+          {messages.map((msg, idx) => (
+            <p key={idx}>{msg}</p>
+          ))}
+        </div>
+        <form onSubmit={handleSendMessage}>
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="메세지 전송"
+            className="border-2 my-2 border-discordChatBg2 p-2 w-full bg-discordChatBg text-discordText"
+          />
+          <button
+            type="submit"
+            className="mb-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2"
+          >
+            전송
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+
 };
 
 export default WebrtcStudent;
+function saveAs(blob: Blob, arg1: string) {
+	throw new Error("Function not implemented.");
+}
+

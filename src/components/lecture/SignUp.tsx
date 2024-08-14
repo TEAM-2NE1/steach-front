@@ -7,7 +7,7 @@ import banner from "../../assets/banner2.jpg";
 import { SignUpLecture } from "../../api/lecture/curriculumAPI.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store.tsx";
-import { CurriculaFormData } from "../../interface/Curriculainterface.tsx";
+import { Curricula, CurriculaFormData } from "../../interface/Curriculainterface.tsx";
 
 import type { Editor } from "@toast-ui/react-editor";
 import ToastEditor from "../main/ToastEditor.tsx";
@@ -65,22 +65,17 @@ const LectureSignUp: React.FC = () => {
   };
 
   const getContents = () => {
-    const markdownContent = editorRef.current
-      ?.getInstance()
-      .getMarkdown()
-      .replace(/(?:\r\n|\r|\n)/g, "\\\\n");
+    // const markdownContent = editorRef.current
+    //   ?.getInstance()
+    //   .getMarkdown()
+    //   .replace(/(?:\r\n|\r|\n)/g, "\\\\n");
     const htmlContent = editorRef.current?.getInstance().getHTML();
     setFormData((prevFormData) => ({
       ...prevFormData,
       information: encodeHtml(htmlContent),
     }));
 
-    console.log(
-      "[Toast Editor - Markdown]\n",
-      markdownContent,
-      "\n\n[Toast Editor - HTML]\n",
-      htmlContent
-    );
+
   };
 
   const handleChange = (
@@ -132,25 +127,30 @@ const LectureSignUp: React.FC = () => {
     return new XMLSerializer().serializeToString(doc.body);
   };
 
-  // 생성 핸들러 함수
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    getContents();
+    await getContents();
     const formDataToSend = {
       ...formData,
       intro: formData.intro,
       information: formData.information,
       weekdays_bitmask: formatBitmask(formData.weekdays_bitmask),
     };
-    const response = await dispatch(SignUpLecture(formDataToSend));
-
-    if (response.meta.requestStatus === "fulfilled" && curriculaData) {
-      const lastElement = curriculaData.at(-1);
-      navigate(`/curricula/detail/${lastElement?.curriculum_id}`);
-      toast.success("생성되었습니다!", {
-        position: "top-right",
-      });
-    } else {
+    try {
+      const Postcurricula = await dispatch(SignUpLecture(formDataToSend));
+      const curriculaData = Postcurricula.payload as Curricula;
+      if (curriculaData?.curriculum_id !== undefined) {
+        navigate(`/curricula/detail/${curriculaData?.curriculum_id}`)
+        toast.success("수정되었습니다!", {
+          position: "top-right",
+        });
+      } else {
+        navigate('/home')
+        toast.success("수정되었습니다!", {
+          position: "top-right",
+        });
+      }
+    } catch (error) {
       toast.error("에러 발생!", {
         position: "top-right",
       });
@@ -182,7 +182,7 @@ const LectureSignUp: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <FormControl>
             <div className="flex items-center mb-5">
-              <FormLabel htmlFor="title" className="mt-3 ml-3 mr-8 text-2xl ">
+              <FormLabel htmlFor="title" className="mt-3 ml-3 mr-8 text-lg ">
                 커리큘럼 제목
               </FormLabel>
               <Input
@@ -194,7 +194,7 @@ const LectureSignUp: React.FC = () => {
                 className="border-2 rounded-lg w-1/3 p-2 mt-3"
                 required
               />
-              <FormLabel htmlFor="sub_title" className="mt-3 mx-3 text-2xl ">
+              <FormLabel htmlFor="sub_title" className="mt-3 mx-3 text-lg ">
                 커리큘럼 부제목
               </FormLabel>
               <Input
@@ -209,7 +209,7 @@ const LectureSignUp: React.FC = () => {
             </div>
             <hr></hr>
             <div className="flex items-center mb-5">
-              <FormLabel htmlFor="category" className="mt-3 mx-3 text-2xl">
+              <FormLabel htmlFor="category" className="mt-3 mx-3 text-lg">
                 커리큘럼 대분류
               </FormLabel>
               <select
@@ -228,7 +228,7 @@ const LectureSignUp: React.FC = () => {
                 <option value="7">EDUCATION</option>
                 <option value="8">ETC</option>
               </select>
-              <FormLabel htmlFor="sub_category" className="mt-3 mx-3 text-2xl">
+              <FormLabel htmlFor="sub_category" className="mt-3 mx-3 text-lg">
                 커리큘럼 중분류
               </FormLabel>
               <Input

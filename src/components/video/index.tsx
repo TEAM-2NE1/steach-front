@@ -102,8 +102,8 @@ const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audi
 	}else{
 		return (
 			<Container>
-				<UserLabel className='text-white'>{email}</UserLabel>
 				<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen}/>
+				<UserLabel className='text-white'>{email}</UserLabel>
 				{/* <UserRoleLabel>{userRole}</UserRoleLabel>
 				<Indicator>Video: {videoEnabled ? 'On' : 'Off'}</Indicator>
 				<Indicator>Audio: {audioEnabled && !audioDisabledByTeacher ? 'On' : 'Off'}</Indicator>
