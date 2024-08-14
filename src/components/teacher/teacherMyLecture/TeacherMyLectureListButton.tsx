@@ -115,7 +115,7 @@ const TeacherMyLectureListButton: React.FC<TeacherMyLectureListButtonProps> = ({
               navigate(`/classroom/${lectureId}`);
             }}
           >
-            강의 시작하기
+            강의실 입장하기
           </Button>
           <Popover placement="right-start">
             <PopoverTrigger>

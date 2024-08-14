@@ -59,6 +59,7 @@ export type Lectures = Array<{
   lecture_order: number;
   lecture_start_time: string;
   lecture_end_time: string;
+  is_completed: boolean;
 }>;
 
 // 단일 강의 인터페이스
@@ -68,6 +69,7 @@ export interface Lecture {
   lecture_order: number;
   lecture_start_time: string;
   lecture_end_time: string;
+  is_completed: boolean;
 }
 
 // 강의 상세 수정 인터페이스

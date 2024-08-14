@@ -16,21 +16,8 @@ const Footer: React.FC = () => {
         <div className="my-2 text-sm">
           {"대표자: 조시현 | 대표전화 : 1577-1234  | 사업자번호 : 112-12-11212"}
         </div>
-        <section>
-          <ul className="list-none my-2">
-            <li className="inline mx-2.5">
-              <a
-                href="/privacy"
-                className="text-white no-underline hover:underline"
-              >
-                Privacy Policy
-              </a>
-            </li>
-          </ul>
-        </section>
       </section>
     </footer>
   );
 };
-
 export default Footer;

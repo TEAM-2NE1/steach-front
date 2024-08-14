@@ -17,7 +17,6 @@ import {
   getCurriculaDetail,
   getCurriculaLectureList,
 } from "../../store/CurriculaSlice";
-import TeacherMyLectureListButton from "../teacher/teacherMyLecture/TeacherMyLectureListButton";
 import Spinner from "../main/spinner/Spinner";
 import defaultImg from "../../assets/default.png";
 
@@ -164,9 +163,9 @@ const StudentMyLectureList: React.FC = () => {
                                 </div>
                                 <div className="flex justify-center items-center col-span-1">
                                   {daysAgo > 0 ? (
-                                    <button className="p-3 bg-red-200 rounded-md text-white font-semibold hover:bg-red-300">
-                                      리포트 보기
-                                    </button>
+                                    <p className="p-3 rounded-md text-green-400 font-semibold ">
+                                      종료된 강의
+                                    </p>
                                   ) : daysAgo < 0 ? (
                                     <p className="text-red-500 font-semibold">
                                       예정된 강의

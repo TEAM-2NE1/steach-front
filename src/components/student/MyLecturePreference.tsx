@@ -23,6 +23,7 @@ const MyLecturePreference: React.FC = () => {
     Engineering: 0,
     Foreign_language: 0,
   });
+  const [isRadarChartData, setIsRadarChartData] = useState<boolean>(false);
 
   ChartJS.register(
     RadialLinearScale,
@@ -36,15 +37,19 @@ const MyLecturePreference: React.FC = () => {
   const fetchSecondData = async () => {
     const response = await fetchStudentRadarChartApi();
 
-    setRadarChartData({
-      Korean: response.Korean,
-      Math: response.Math,
-      Social: response.Social,
-      Science: response.Science,
-      Arts_And_Physical: response.Arts_And_Physical,
-      Engineering: response.Engineering,
-      Foreign_language: response.Foreign_language,
-    });
+    if (response) {
+      setRadarChartData({
+        Korean: response.Korean,
+        Math: response.Math,
+        Social: response.Social,
+        Science: response.Science,
+        Arts_And_Physical: response.Arts_And_Physical,
+        Engineering: response.Engineering,
+        Foreign_language: response.Foreign_language,
+      });
+    } else {
+      setIsRadarChartData(true);
+    }
   };
 
   useEffect(() => {
@@ -88,18 +93,32 @@ const MyLecturePreference: React.FC = () => {
   };
 
   return (
-    <Box className="h-full">
-      <Card className="h-full">
-        <CardHeader className="text-center">
+    <>
+      {isRadarChartData && (
+        <Box className="h-full">
+          <Card className="h-full">
+            <CardHeader className="text-center">
+              <h2 className="text-4xl font-semibold text-lightNavy">
+                나의 수업 선호도
+              </h2>
+            </CardHeader>
+            <CardBody className="flex justify-center items-center h-full">
+              <Radar data={data} options={options} />
+            </CardBody>
+          </Card>
+        </Box>
+      )}
+      {!isRadarChartData && (
+        <div className="flex flex-col items-center align-center p-5 h-full text-center">
           <h2 className="text-4xl font-semibold text-lightNavy">
             나의 수업 선호도
           </h2>
-        </CardHeader>
-        <CardBody className="flex justify-center items-center h-full">
-          <Radar data={data} options={options} />
-        </CardBody>
-      </Card>
-    </Box>
+          <p className="my-auto text-xl text-red-500">
+            정보가 없습니다 ㅠㅠ 강의를 수강해주세요.
+          </p>
+        </div>
+      )}
+    </>
   );
 };
 
