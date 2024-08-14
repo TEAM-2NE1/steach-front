@@ -343,10 +343,10 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
           </div>
         )}
 
-        {/* 시계 블록 */}
+        {/* 타이머 블록 */}
         <div
           id="clock"
-          className={`absolute top-[5%] right-1 ml-0 opacity-0 text-white text-center transition-opacity duration-500 w-[40px] h-[40px] leading-[40px] rounded-full ${clockColor} ${
+          className={`absolute top-[5%] left-3 ml-0 opacity-0 text-white text-center transition-opacity duration-500 w-[40px] h-[40px] leading-[40px] rounded-full ${clockColor} ${
             showChoices && !showStatistic ? "opacity-100" : "opacity-0"
           }`}
           style={{}}
@@ -434,12 +434,27 @@ const DetailQuiz: React.FC<DetailQuizProps> = ({
               selectedChoice={selectedChoice}
               showAnswer={showAnswer}
               onClick={handleChoiceClick}
-              index={index} // 1부터 시작하도록 전달
+              index={index} 
             />
           );
         })}
       </div>
-      <div style={{ height: "10px" }} />
+      {/* 4문항 미만일 때 반응형 만들기(2-> 1, 1-> 1) */}
+      {initialQuizData.choices.length < 3 &&
+        Array.from({ length: Math.ceil(initialQuizData.choices.length/2) }).map((_, idx) => (
+          <div key={`placeholder-${idx}`} style={{ visibility: 'hidden' }}>
+            <QuizChoiceButton
+              choiceSentence=""
+              isCorrectChoice={false}
+              isClicked={false}
+              selectedChoice={null}
+              showAnswer={false}
+              onClick={() => {}}
+              index={initialQuizData.choices.length + idx + 1} // continuing the index
+            />
+          </div>
+        ))}
+      <div style={{ height: "5px" }} />
     </div>
   );
 };
