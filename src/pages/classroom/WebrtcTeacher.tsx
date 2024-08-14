@@ -22,7 +22,7 @@ import { AsyncThunkAction, Dispatch, AnyAction } from "@reduxjs/toolkit";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "./WebrtcStudent.module.css";
 import DetailQuiz from "../../components/quiz/QuizBlock.tsx";
-import { reportLectureSlice } from '../../store/LectureSlice.tsx';
+import { finalLectureSlice, reportLectureSlice } from '../../store/LectureSlice.tsx';
 import { LectureReport } from '../../interface/Curriculainterface.tsx';
 import { report } from 'process';
 // import DetailQuiz from "./QuizBlock";
@@ -35,7 +35,6 @@ const pc_config = {
     },
   ],
 };
-
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const SOCKET_SERVER_URL = `${protocol}//${window.location.hostname}:${
   window.location.port ? window.location.port : "5000"
@@ -55,14 +54,16 @@ interface ModalProps {
 
 interface ModalProps2 {
   isOpen: boolean;
-	report: LectureReport | null
+  report: LectureReport | null
+  lectureid: string | undefined
 }
 
+
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm }) => {
-	if (!isOpen) return null;
+  if (!isOpen) return null;
 	
   return (
-		<div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <h2 className="text-xl font-bold mb-4">강의 종료</h2>
         <p className="mb-6">정말 강의를 종료하시겠습니까?</p>
@@ -85,16 +86,20 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm }) => {
   );
 };
 
-const Modal2: React.FC<ModalProps2> = ({ isOpen, report }) => {
+const Modal2: React.FC<ModalProps2> = ({ isOpen, report, lectureid }) => {
   const navigate = useNavigate();
-  const aa = () => {
-    navigate('/home')
-    window.location.replace(window.location.href);
+  const dispatch = useDispatch<AppDispatch>();
+  const onConfirm = async () => {
+    if (lectureid) {
+      await dispatch(finalLectureSlice(lectureid))
+      navigate('/home')
+      window.location.replace(window.location.href);
+    }
   }
 	if (!isOpen) return null;
 	
   return (
-		<div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-[400px]">
 				<div className="grid grid-cols-2 grid-rows-2 gap-2">
 				{report?.student_info_by_lecture_dto_list.map((user, index) => (
@@ -115,7 +120,7 @@ const Modal2: React.FC<ModalProps2> = ({ isOpen, report }) => {
               <p>퀴즈 정답 평균 : {report?.average_correct_number}개</p>
 				</div>
         <button 
-          onClick={aa} 
+          onClick={onConfirm} 
           className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
         >
           수업 종료
@@ -217,9 +222,9 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({
   };
 
 	const confirmAction = () => {
-		// if (socketRef.current) {
-		// 	socketRef.current.emit('lecture_end');
-		// }
+		if (socketRef.current) {
+			socketRef.current.emit('lecture_end');
+		}
 		openModal2();
     closeModal();
   };
@@ -788,8 +793,8 @@ const handleMouseEnter = () => {
       >
         강의 종료
       </button>
-      <Modal isOpen={isModalOpen} onClose={closeModal} onConfirm={confirmAction} />
-				<Modal2 isOpen={isModal2Open} report={report} />
+      <Modal isOpen={isModalOpen} onClose={closeModal} onConfirm={openModal2} />
+          <Modal2 isOpen={isModal2Open} report={report} lectureid={lecture_id} />
 			</div>
 			<div className={`${isFullscreen ? 'fixed top-0 left-0 w-full h-full z-50 bg-black grid grid-cols-12 gap-4' : 'grid grid-cols-12 gap-4 w-full h-screen'} ${isChatOpen || isItemsOpen || isQuizOpen ? 'mr-[300px] transition-margin-right duration-500 ease-in-out' : 'transition-margin-right duration-500 ease-in-out'} flex flex-wrap items-center justify-center bg-discordChatBg`}>
 				<div className="col-span-6 flex items-center justify-center">
