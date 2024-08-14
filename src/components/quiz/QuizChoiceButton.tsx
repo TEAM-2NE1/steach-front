@@ -1,4 +1,3 @@
-// QuizChoiceButton.tsx
 import React from 'react';
 
 interface QuizChoiceButtonProps {
@@ -50,11 +49,23 @@ const QuizChoiceButton: React.FC<QuizChoiceButtonProps> = ({
     }
   };
 
+  // Determine the font size based on the length of the choiceSentence
+  let fontSize;
+  if (choiceSentence.length >= 32) {
+    fontSize = '13px';
+  } else if (choiceSentence.length >= 20) {
+    fontSize = '14px';
+  } else if (choiceSentence.length >= 12) {
+    fontSize = '16px';
+  } else {
+    fontSize = '18px';
+  }
+
   return (
     <button
       onClick={() => onClick(index)}
       style={{
-        fontSize: '18px',
+        fontSize: fontSize,
         padding: '10px 20px',
         cursor: 'pointer',
         transition: 'background-color 0.3s',
@@ -68,23 +79,15 @@ const QuizChoiceButton: React.FC<QuizChoiceButtonProps> = ({
             : getChoiceColor(index).backgroundColor
           : getChoiceColor(index).backgroundColor,
         color: 'white',
-
-        // 1. 아직 클릭 안했으면 1
-        // 2. 클릭했다면 
-          // 3. 아직 정답공개 안됐을 때
-            // 4. 내가 클릭한거면 1 클릭안한거면 0.2
-              // 5. 정답공개됐다면
-                // 6. 내가 클릭한거면 1, 정답이면 1, 아니면 0.2
-
-        opacity: (
-          !isClicked? 
-            1 : 
-            (
-              !showAnswer?
-                ((selectedChoice === index)? 1 : 0.2)
-                : ((selectedChoice === index || isCorrectChoice)? 1 : 0.2)
-            )
-        ),
+        opacity: !isClicked
+          ? 1
+          : !showAnswer
+          ? selectedChoice === index
+            ? 1
+            : 0.2
+          : selectedChoice === index || isCorrectChoice
+          ? 1
+          : 0.2,
         textAlign: 'left',
         paddingLeft: '10px',
       }}
