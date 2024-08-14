@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
 import { fetchStudentAICareerRecommend } from "../../store/userInfo/StudentProfileSlice";
 import {
   Card,
@@ -8,9 +10,6 @@ import {
   Box,
   StackDivider,
 } from "@chakra-ui/react";
-import { useDispatch } from "react-redux";
-import { AppDispatch, RootState } from "../../store";
-import { useSelector } from "react-redux";
 
 const CareerRecommendation: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
