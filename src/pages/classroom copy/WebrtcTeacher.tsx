@@ -6,12 +6,12 @@ import React, {
   KeyboardEvent,
 } from "react";
 import io from "socket.io-client";
-import WebRTCVideo from "../../components/video";
-import { WebRTCUser } from "../../types";
+import WebRTCVideo from "../../components/video/index.tsx";
+import { WebRTCUser } from "../../types/index.ts";
 import WebrtcTeacherScreenShare from "./WebrtcTeacherScreenShare.tsx";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "../../store";
-import { fetchLectureQuiz } from "../../store/QuizSlice";
+import { RootState, AppDispatch } from "../../store.tsx";
+import { fetchLectureQuiz } from "../../store/QuizSlice.tsx";
 // import { QuizResponseDTO } from '../../components/quiz/QuizListComponent.tsx';
 import {
   QuizDetailForm,
@@ -487,6 +487,14 @@ const handleMouseEnter = () => {
         });
         setNewMessage("");
       }
+    }
+  };
+
+  const startQuiz = (quizId: string) => {
+    if (socketRef.current) {
+      socketRef.current.emit("quiz_start", {
+        quizId: quizId
+      });
     }
   };
 
@@ -986,6 +994,7 @@ const handleMouseEnter = () => {
                   onClick={() => {
                     setSelectedQuiz(quiz);
                     setIsQuizModalOpen(true);
+                    startQuiz(quiz.quiz_id.toString())
                     console.log("click!!!!");
                   }}
                   className="w-full text-left bg-blue-200 text-blue-900 p-3 rounded hover:bg-blue-300 transition"

@@ -17,6 +17,8 @@ import html2canvas from "html2canvas";
 import { QuizDetailForm } from '../../interface/quiz/QuizInterface.ts';
 import DetailQuiz from '../../components/quiz/QuizBlock.tsx';
 import { studentFocusTime } from '../../store/MeetingSlice.tsx'
+import axios from "axios";
+import { BASE_URL, getAuthToken } from "../../api/BASE_URL.ts";
 
 const pc_config = {
   iceServers: [
@@ -79,6 +81,12 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 	const [cntDrowsy, setCntDrowsy] = useState<number>(0);
 	const [notFocusTime, setNotFocusTime] = useState<number>(0);
 	const [sleepTime, setSleepTime] = useState<number>(0);
+	
+	console.log('cntAFK',cntAFK)
+	console.log('cntFocus',cntFocus)
+	console.log('cntDrowsy',cntDrowsy)
+	console.log('notFocusTime',notFocusTime)
+	console.log('sleepTime',sleepTime)
 
 	//퀴즈모달 ======================================
 	//퀴즈모달 출력 여부
@@ -95,8 +103,19 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 	//==============================================
 
 	//선생님이 퀴즈를 시작했을 때 rtc에서 호출하는 함수
-	const openQuiz = (quiz: QuizDetailForm) => {
-		setSelectedQuiz(quiz)
+	const openQuiz = async (quizId: string) => {
+		const token = getAuthToken();
+		try {
+			const response = await axios.get(`${BASE_URL}/api/v1/quizzes/${quizId}`, {
+			  headers: {
+				Authorization: `Bearer ${token}`,
+			  },
+			});
+			setSelectedQuiz(response.data.quiz_response_dtos);
+		  } catch (err) {
+			console.log(err)
+		  }
+
 		setIsQuizModalOpen(true)
 	}
 
@@ -133,7 +152,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 			resizedCanvas.toBlob((blob) => {
 				if (blob !== null) {
 					const formData = new FormData();
-					// saveAs(blob, "res.png");
+					saveAs(blob, "res.png");
 					formData.append("file", blob, "focus.png");
 
 					// Upload the resized image
@@ -184,7 +203,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 
 	useEffect(() => {
 		const calculatedSleepTime = Math.floor(notFocusTime * 2 / 60);
-
+		console.log('calculatedSleepTime', calculatedSleepTime)
 		if (calculatedSleepTime !== sleepTime && calculatedSleepTime > 0) {
 			setSleepTime(calculatedSleepTime);
 		}
@@ -489,7 +508,8 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 	};
 
 
-	const handleSendMessage = () => {
+	const handleSendMessage = (e:React.FormEvent) => {
+		e.preventDefault();
 		if (newMessage.trim() !== '') {
 			if (socketRef.current) {
 				socketRef.current.emit('send_chat', {
@@ -671,6 +691,11 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 					),
 				);
 			}
+		});
+
+		socketRef.current.on('quiz_start', (data: { quizId: string }) => {
+			//startQuiz(data.quizId);
+			openQuiz(data.quizId)
 		});
 
 		socketRef.current.on('lecture_end', () => {
@@ -958,3 +983,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 };
 
 export default WebrtcStudent;
+function saveAs(blob: Blob, arg1: string) {
+	throw new Error("Function not implemented.");
+}
+
