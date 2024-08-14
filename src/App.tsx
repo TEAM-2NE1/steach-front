@@ -11,13 +11,12 @@ import LectureSignUpPage from "./pages/lecture/SignUpPage.tsx";
 import TeacherProfilePage from "./pages/teacher/TeacherProfilePage.tsx";
 import MyInfoDetailPage from "./pages/teacher/MyInfoDetailPage.tsx";
 import TeacherMyLectureList from "./components/teacher/teacherMyLecture/TeacherMyLectureList.tsx";
-import Classroom from "./pages/classroom/classroom.tsx";
-import ClassroomCopy from "./pages/classroom copy/classroom.tsx";
+import Classroom from "./pages/classroom/classroom.tsx"
 // import ProfileLectureHistory from "./components/teacher/LectureReport.tsx";
 import QuizManagementPage from "./pages/quiz/QuizManagementPage.tsx";
 import CreateQuiz from "./components/teacher/quiz/CreateQuiz.tsx";
 import PatchQuiz from "./components/teacher/quiz/PatchQuiz.tsx";
-import LectureReport from "./components/teacher/LectureReport.tsx";
+import LectureReport from "./components/teacher/LectureReport.tsx"
 import Game from "./pages/game/gamepage.tsx";
 import Man from "./pages/sub/Man.tsx";
 import Cat from "./pages/sub/Cat.tsx";
@@ -57,7 +56,7 @@ const App: React.FC = () => {
         {/* <Route path="/classroom/:lecture_id" element={<Classroom />}></Route> */}
         <Route
           path="/classroom/:lecture_id"
-          element={<ClassroomCopy />}
+          element={<Classroom />}
         ></Route>
         <Route
           path="/curricula/detail/:id"

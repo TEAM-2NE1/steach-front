@@ -14,6 +14,7 @@ interface RankingsProps {
 }
 
 const RankingsList: React.FC<RankingsProps> = ({ data }) => {
+  // 이전 리스트와 애니메이션 초기 상태 설정
   const [displayedList, setDisplayedList] = useState<Ranking[]>(
     data ? data.prev : []
   );
@@ -24,15 +25,67 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
     data ? data.prev.map((item) => item.rank) : []
   );
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isTranslationg2, setIsTransitioning2] = useState(false);
+  const [isTransitioning2, setIsTransitioning2] = useState(false);
+
+  // useEffect(() => {
+  //   // current 리스트에 있는 항목 중 prev에 없었던 항목을 추가
+  //   const newItems = data.current.filter(
+  //     (currentItem) => !data.prev.some((prevItem) => prevItem.name === currentItem.name)
+  //   );
+
+  //   if (newItems.length > 0) {
+  //     setDisplayedList((prevList) => [...prevList, ...newItems]);
+  //     setAnimatedScores((prevScores) => [
+  //       ...prevScores,
+  //       ...newItems.map((item) => 0), // 새로운 항목의 초기 점수는 0
+  //     ]);
+  //     setAnimatedRanks((prevRanks) => [
+  //       ...prevRanks,
+  //       ...newItems.map((item) => item.rank), // 새로운 항목의 초기 순위 설정
+  //     ]);
+  //   }
+
+  //   const timeout = setTimeout(() => {
+  //     setIsTransitioning(true); // 전환 시작
+  //   }, 50); // 딜레이 조정 가능
+
+  //   return () => clearTimeout(timeout); // 타임아웃 정리
+  // }, [data]);
 
   useEffect(() => {
+    // current 리스트에 있는 항목 중 prev에 없었던 항목을 추가
+    const newItems = data.current.filter(
+      (currentItem) => !data.prev.some((prevItem) => prevItem.name === currentItem.name)
+    );
+  
+    if (newItems.length > 0) {
+      setDisplayedList((prevList) => {
+        // 중복을 방지하기 위해 기존 리스트에 없는 항목만 추가
+        const updatedList = [...prevList];
+        newItems.forEach((newItem) => {
+          if (!updatedList.some((item) => item.name === newItem.name)) {
+            updatedList.push(newItem);
+          }
+        });
+        return updatedList;
+      });
+      setAnimatedScores((prevScores) => [
+        ...prevScores,
+        ...newItems.map((item) => 0), // 새로운 항목의 초기 점수는 0
+      ]);
+      setAnimatedRanks((prevRanks) => [
+        ...prevRanks,
+        ...newItems.map((item) => item.rank), // 새로운 항목의 초기 순위 설정
+      ]);
+    }
+  
     const timeout = setTimeout(() => {
       setIsTransitioning(true); // 전환 시작
     }, 50); // 딜레이 조정 가능
-
+  
     return () => clearTimeout(timeout); // 타임아웃 정리
   }, [data]);
+  
 
   useEffect(() => {
     if (isTransitioning) {
@@ -43,7 +96,11 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
       const interval = setInterval(() => {
         setAnimatedScores((prevScores) =>
           prevScores.map((score, index) => {
-            const targetScore = data ? data.current[index].score : 0;
+            if (!data || !data.current || index >= data.current.length) {
+              return score; // 범위를 넘은 경우 기존 점수를 반환
+            }
+
+            const targetScore = data.current[index].score;
             const difference = targetScore - score;
             let step = Math.ceil(difference / totalSteps); // 각 프레임에서 변화할 양
 
@@ -65,7 +122,11 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
       const interval2 = setInterval(() => {
         setAnimatedRanks((prevRank) =>
           prevRank.map((rank, index) => {
-            const targetRank = data ? data.current[index].rank : 0;
+            if (!data || !data.current || index >= data.current.length) {
+              return rank; // 범위를 넘은 경우 기존 점수를 반환
+            }
+
+            const targetRank = data.current[index].rank;
             const difference = targetRank - rank;
             let step = Math.ceil(difference / totalSteps); // 각 프레임에서 변화할 양
 
@@ -99,15 +160,15 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
   }, [isTransitioning, data ? data.current : 0]);
 
   return (
-    <div style={{ width: '70%' }}>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {displayedList.map((item, index) => { // item은 prev
-          const currentRank = data ? data.current.find(currentItem => currentItem.name === item.name)?.rank : -1;
-          const currentScore = data ? data.current.find(currentItem => currentItem.name === item.name)?.score : -1;
+    <div style={{ width: '70%', height: '136px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, height: '100%' }}>
+        {displayedList.map((item, index) => {
+          const currentRank = data.current.find(currentItem => currentItem.name === item.name)?.rank;
+          const currentScore = data.current.find(currentItem => currentItem.name === item.name)?.score;
           const prevRank = item.rank;
 
           // 애니메이션 효과로 부드럽게 사라지게 함
-          const shouldDisappear = isTranslationg2 && (currentRank === -1 || currentScore === -1);
+          const shouldDisappear = isTransitioning2 && (currentRank === undefined || currentScore === undefined);
 
           return (
             <li
@@ -117,7 +178,7 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
                 opacity: shouldDisappear ? 0 : 1,
                 transition: 'opacity 0.5s ease, transform 0.5s ease',
                 transform: (
-                  isTranslationg2 && item.rank !== currentRank && currentRank !== undefined ?
+                  isTransitioning2 && item.rank !== currentRank && currentRank !== undefined ?
                     `translateY(${34 * (currentRank - prevRank)}px)` :
                     'translateY(0)'
                 ),
@@ -126,10 +187,10 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
             >
               <div className="flex items-center justify-between w-full">
                 <div className="text-lg font-semibold">
-                  {isTranslationg2 ? currentRank : Math.round(animatedRanks[index])}. {item.name}
+                  {isTransitioning2 ? currentRank : Math.round(animatedRanks[index])}. {item.name}
                 </div>
                 <div className="text-sm font-semibold text-black text-right">
-                  {isTranslationg2 ? currentScore : Math.round(animatedScores[index])}
+                  {isTransitioning2 ? currentScore : Math.round(animatedScores[index])}
                 </div>
               </div>
             </li>
