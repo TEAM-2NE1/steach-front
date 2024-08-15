@@ -104,19 +104,28 @@ const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audi
 	if(isScreenShare){
 		return (
 			<ScreenContainer>
-				<p> {email.substring(0, email.length-7)}의 화면공유</p>
+				<p> {email.substring(0, email.length-7)} {userRole.toUpperCase().includes('student'.toUpperCase()) ? '학생' : '선생님'}의 화면공유</p>
 				<ScreenVideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen} />
 				{/* <UserLabel>{email}</UserLabel> */}
 			</ScreenContainer>
 		);
 	}else{
-		return (
-			<Container>
-				<UserLabel className='text-white'>{email} 학생</UserLabel>
-				<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen}/>
-			</Container>
-		);
-
+		if(userRole.endsWith('_screen')){
+			return (
+				<Container>
+					<UserLabel className='text-white'>{email.substring(0, email.length-7)} {userRole.toUpperCase() === 'student'.toUpperCase() ? '학생' : '선생님'}의 화면공유</UserLabel>
+					<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen}/>
+				</Container>
+			);
+		}else {
+			return (
+				<Container>
+					<UserLabel
+						className='text-white'>{email} {userRole.toUpperCase() === 'student'.toUpperCase() ? '학생' : '선생님'}</UserLabel>
+					<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen}/>
+				</Container>
+			);
+		}
 	}
 };
 
