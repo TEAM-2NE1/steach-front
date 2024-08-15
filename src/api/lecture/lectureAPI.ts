@@ -18,6 +18,7 @@ export const getLectureDetailApi = async (lectureId: number) => {
     lecture_order: response.data.lecture_order,
     lecture_start_time: response.data.lecture_start_time,
     lecture_end_time: response.data.lecture_end_time,
+    is_completed: response.data.is_completed,
   };
 
   return data;
