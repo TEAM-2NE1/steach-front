@@ -24,6 +24,15 @@ import alarmImage from '../../assets/alarm.png';
 import alarmAudio from '../../assets/alarm.mp3';
 import comebackImage from '../../assets/comeback.png';
 import comebackAudio from '../../assets/comeback.mp3';
+import lecture_close from "../../assets/RTC/lecture_close.png"
+import cam from "../../assets/RTC/cam.png"
+import nocam from "../../assets/RTC/no_cam.png"
+import mic from "../../assets/RTC/mic.png"
+import nomic from "../../assets/RTC/no_mic.png"
+import screenShare from "../../assets/RTC/screen.png"
+import noScreenShare from "../../assets/RTC/no_screen.png"
+import chat from "../../assets/RTC/chat.png"
+import noChat from "../../assets/RTC/no_chat.png"
 
 const pc_config = {
   iceServers: [
@@ -171,7 +180,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 	const [notFocusTime, setNotFocusTime] = useState<number>(0);
   const [sleepTime, setSleepTime] = useState<number>(0);
   
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
 
 	// let audioElement: HTMLAudioElement | null = null;
@@ -813,10 +822,6 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 		socketRef.current.on('lecture_end', () => {
 
 
-			// 선생님이 강의종료 버튼을 누르면 이 버튼이 눌림.
-			// 여기에 백엔드 서버로 notFocusTime을 업로드하는 코드를 넣으면 됨
-
-			// 아래는 P2P 커넥션 끊는 코드임. 주석 풀고 사용하면 됨.
 			if (socketRef.current) {
 				socketRef.current.disconnect();
 			}
@@ -896,6 +901,8 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
     }
   };
 
+  document.body.onmousemove = handleMouseMove;
+
   const showControlsTemporarily = () => {
     setShowControls(true);
     if (hideControlsTimeout.current) {
@@ -938,9 +945,9 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 					? "flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg top-0 left-0 z-50 gap-4"
 					: "flex flex-wrap items-center justify-center w-full h-screen bg-discordChatBg gap-4"
 			}`}
-			onMouseEnter={handleMouseEnter}
-			onMouseMove={handleMouseMove}
-			onMouseLeave={handleMouseLeave}
+			// onMouseEnter={handleMouseEnter}
+			// onMouseMove={handleMouseMove}
+			// onMouseLeave={handleMouseLeave}
 		>
 			<div
 				className={`${
@@ -950,18 +957,19 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 				} ${
 					isChatOpen
 						? "mr-[300px] transition-margin-right duration-500 ease-in-out"
-						: "transition-margin-right duration-500 ease-in-out"
+						: "mr-0 transition-all duration-500 ease-in-out"
 				} flex flex-wrap items-center justify-center bg-discordChatBg`}
 			>
 				<div className="col-span-6 flex items-center justify-center">
 					<div style={{ display: "inline-block" }}>
 						<div
 							ref={divRef}
-							style={{ position: "relative", width: 600, height: 338 }}
+							style={{position: "relative", width: 600, height: 338}}
 							className={`${styles.videoContainer}`}
 						>
+							<p className="font-bold text-white">{userEmail} 학생</p>
 							<video
-								className="w-full h-full bg-black rounded-2xl"
+								className="w-full h-auto bg-black rounded-2xl"
 								onClick={toggleFullscreen}
 								muted={isMuted}
 								ref={localVideoRef}
@@ -971,48 +979,50 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 						</div>
 						{showControls && (
 							<div
-								className={`absolute bottom-0 left-0 right-0 flex justify-around items-center p-3 rounded-lg ${
-									showControls
-										? "translate-y-0 opacity-100 transition-transform transition-opacity duration-500 ease-in-out"
-										: "translate-y-full opacity-0 transition-transform transition-opacity duration-500 ease-in-out"
-								} bg-opacity-80 bg-gradient-to-t from-black to-transparent z-10`}
-							>
-								<div className="grid grid-cols-12 ">
-									<div className="col-span-2"></div>
-									<div className="col-span-8">
-										<button
-											onClick={toggleVideo}
-											className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-										>
-											{isVideoEnabled ? "📸 " : "📷 "}
+								className={`fixed bottom-0 left-0 right-0 flex justify-around items-center p-3 rounded-lg ${showControls ? 'translate-y-0 opacity-100 transition-transform transition-opacity duration-500 ease-in-out' : 'translate-y-full opacity-0 transition-transform transition-opacity duration-500 ease-in-out'} bg-opacity-5 bg-gradient-to-t from-[#111111] to-transparent z-10`}>
+								<div className='grid grid-cols-12 ' style={{marginBottom: '10px', marginTop: '12px'}}>
+									<div className='col-span-2'></div>
+									<div className='col-span-8 flex items-center justify-center'>
+
+										<button onClick={toggleVideo}
+												className="flex items-center justify-center text-white rounded-full border-0 border-white w-14 h-14 mx-3 bg-[#262626]">
+											{isVideoEnabled ? <img src={`${cam}`} className="w-8 h-8"/> :
+												<img src={`${nocam}`} className="w-8 h-8"/>}
 										</button>
-										<button
-											onClick={toggleAudio}
-											className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-										>
-											{isAudioEnabled ? "🔊" : "🔇"}
+										<button onClick={toggleAudio}
+												className="flex items-center justify-center text-white rounded-full border-0 border-white w-14 h-14 mx-3 bg-[#262626]">
+											{isAudioEnabled ? <img src={`${mic}`} className="w-8 h-8"/> :
+												<img src={`${nomic}`} className="w-8 h-8"/>}
 										</button>
-										<button
-											onClick={toggleScreenShare}
-											className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-										>
-											{isScreenShareEnabled ? "🖥️" : "🖥️"}
+										<button onClick={toggleScreenShare}
+												className="flex items-center justify-center text-white rounded-full border-0 border-white w-14 h-14 mx-3 bg-[#262626]">
+											{isScreenShareEnabled ? <img src={`${screenShare}`} className="w-8 h-8"/> :
+												<img src={`${noScreenShare}`} className="w-8 h-8"/>}
 										</button>
 										<button
 											onClick={toggleChat}
-											className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+											className="flex items-center justify-center text-white rounded-full border-0 border-white w-14 h-14 mx-3 bg-[#262626]"
 										>
-											{isChatOpen ? "💬" : "💬"}
+											{isChatOpen ? <img src={`${chat}`} className="w-8 h-8"/> :
+												<img src={`${noChat}`} className="w-8 h-8"/>}
+										</button>
+										<button
+											onClick={function () {
+												history.back();
+											}}
+											className="flex items-center justify-center text-white rounded-full border-0 border-white w-14 h-14 mx-3 bg-red-500"
+										>
+											<img src={`${lecture_close}`} className="w-8 h-8"/>
 										</button>
 									</div>
-									<div className="col-span-2"></div>
+									<div className='col-span-2'></div>
 								</div>
 							</div>
 						)}
 					</div>
 				</div>
 				<div className="col-span-6 flex items-center justify-center">
-					<div style={{ display: "inline-block" }}>
+					<div style={{display: "inline-block"}}>
 						{goScreenShare && (
 							<WebrtcStudentScreenShare
 								roomId={roomId}
@@ -1027,16 +1037,15 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 			</div>
 
 			<div
-				className={`grid grid-cols-12 gap-4 w-full mt-4 mb-10 bg-discordChatBg${
+				className={`grid grid-cols-12 gap-4 w-full mt-4 mb-10 ${
 					isChatOpen ? "mr-[320px]" : "mr-0"
-				} transition-margin duration-500 ease-in-out`}
+				} transition-all duration-500 ease-in-out`}
 			>
-        {users.map((user, index) => (
-          <>
+				{users.map((user, index) => (
 					<div
-						key={index}
+						key={user.id}
 						className="col-span-6 flex items-center justify-center pb-4"
-            >
+					>
 						<WebRTCVideo
 							email={user.email}
 							userRole={user.userRole}
@@ -1047,34 +1056,32 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 							screenShareEnabled={user.screenShareEnabled}
 							screenShareDisabledByTeacher={user.screenShareDisabledByTeacher}
 							muted={
-                userRole.toUpperCase() !== "teacher".toUpperCase() &&
+								userRole.toUpperCase() !== "teacher".toUpperCase() &&
 								user.userRole.toUpperCase() !== "teacher".toUpperCase()
 							}
-            />
+						/>
 					</div>
-        <div className="h-20 bg-discordChatBg"></div>
-              </>
 				))}
 			</div>
 
-      {isQuizModalOpen && selectedQuiz && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-[500px] relative">
-            {/* Close Button Overlapping DetailQuiz */}
-            <button
-              onClick={handleCloseQuizModal}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
-            >
-              &times;
-            </button>
+			{isQuizModalOpen && selectedQuiz && (
+				<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+					<div className="bg-white rounded-lg shadow-lg w-[500px] relative">
+						{/* Close Button Overlapping DetailQuiz */}
+						<button
+							onClick={handleCloseQuizModal}
+							className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
+						>
+							&times;
+						</button>
 
-            {/* DetailQuiz Component Centered */}
-            <div className="flex justify-center items-center">
-              <div className="rounded-lg overflow-hidden w-full">
-                {/* 학생인 경우에는 trialVersion, isTeacher false */}
-                <DetailQuiz
-                  initialQuizData={selectedQuiz}
-                  onClose={handleCloseQuizModal}
+						{/* DetailQuiz Component Centered */}
+						<div className="flex justify-center items-center">
+							<div className="rounded-lg overflow-hidden w-full">
+								{/* 학생인 경우에는 trialVersion, isTeacher false */}
+								<DetailQuiz
+									initialQuizData={selectedQuiz}
+									onClose={handleCloseQuizModal}
                   trialVersion={false}
                   isTeacher={false}
                 />
@@ -1084,37 +1091,38 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
         </div>
       )}
 
-      <div
-        className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${
-          isChatOpen
-            ? "translate-x-0 transition-transform duration-500 ease-in-out"
-            : "hidden translate-x-full transition-transform duration-500 ease-in-out"
-        }`}
-      >
-        <h3 className="my-2 text-2xl font-semibold">채팅</h3>
-        <div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
-          {messages.map((msg, idx) => (
-            <p key={idx}>{msg}</p>
-          ))}
-        </div>
-        <form onSubmit={handleSendMessage}>
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="메세지 전송"
-            className="border-2 my-2 border-discordChatBg2 p-2 w-full bg-discordChatBg text-discordText"
-          />
-          <button
-            type="submit"
-            className="mb-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2"
-          >
-            전송
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+			<div
+				className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${
+					isChatOpen
+						? "translate-x-0 transition-transform duration-500 ease-in-out"
+						: "translate-x-full transition-transform duration-500 ease-in-out"
+				}`}
+			>
+				<h3 className="my-2 text-2xl font-semibold">채팅</h3>
+				<div
+					className="border border-discordChatBg2 p-2 h-[45rem] overflow-y-auto bg-discordChatBg text-discordText">
+					{messages.map((msg, idx) => (
+						<p key={idx}>{msg}</p>
+					))}
+				</div>
+				<form onSubmit={handleSendMessage}>
+					<input
+						type="text"
+						value={newMessage}
+						onChange={(e) => setNewMessage(e.target.value)}
+						placeholder="메세지 전송"
+						className="border-2 my-2 border-discordChatBg2 p-2 w-full bg-discordChatBg text-discordText"
+					/>
+					<button
+						type="submit"
+						className="mb-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2"
+					>
+						전송
+					</button>
+				</form>
+			</div>
+		</div>
+	);
 };
 
 export default WebrtcStudent;

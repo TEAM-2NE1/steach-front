@@ -241,6 +241,7 @@ const LectureSignUp: React.FC = () => {
                 <option value="MATH">MATH</option>
                 <option value="FOREIGN_LANGUAGE">FOREIGN_LANGUAGE</option>
                 <option value="SCIENCE">SCIENCE</option>
+                <option value="SOCIAL">SOCIAL</option>
                 <option value="ENGINEERING">ENGINEERING</option>
                 <option value="ARTS_AND_PHYSICAL">ARTS_AND_PHYSICAL</option>
                 <option value="EDUCATION">EDUCATION</option>
