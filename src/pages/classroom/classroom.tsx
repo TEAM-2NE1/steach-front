@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import WebrtcTeacher from "./WebrtcTeacher";
 import WebrtcStudent from "./WebrtcStudent";
 import { useParams } from 'react-router-dom';
 import { startLectureSlice } from '../../store/LectureSlice'
 import { AppDispatch } from "../../store";
 import { useDispatch } from "react-redux";
+import cam from "../../assets/RTC/cam.png"
+import nocam from "../../assets/RTC/no_cam.png"
 
 const Classroom = () => {
   const [page, setPage] = useState("gate");
@@ -22,7 +24,7 @@ const Classroom = () => {
     const setupLocalStream = async () => {
       try {
         const localStream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
+          audio: false,
           video: {
             width: 1920,
             height: 1080,
@@ -102,45 +104,13 @@ const Classroom = () => {
           <div className="flex justify-center">
             <button
               onClick={toggleVideo}
-              className="p-2 w-18 h-16 bg-gray-200 rounded-full sm:my-10 lg:my-2"
+              className="p-2 flex items-center justify-center border-2 border-white w-14 h-14 bg-[#262626] rounded-full my-10"
               title="Toggle Video"
             >
               {videoEnabled ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  className="mx-auto size-12"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 10l4.553-4.553A1 1 0 0121 5.94v12.12a1 1 0 01-1.447.894L15 14m-6 6h6a2 2 0 002-2V6a2 2 0 00-2-2H9a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
+                  <img src={`${cam}`} className="w-8 h-8" />
               ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  className="mx-auto size-12"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 10l4.553-4.553A1 1 0 0121 5.94v12.12a1 1 0 01-1.447.894L15 14m-6 6h6a2 2 0 002-2V6a2 2 0 00-2-2H9a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 3l18 18"
-                  />
-                </svg>
+                  <img src={`${nocam}`} className="w-8 h-8"/>
               )}
             </button>
           </div>
@@ -175,14 +145,14 @@ const Classroom = () => {
             placeholder="Enter Email"
           />
         </div>
-        <div className="my-16 text-center">
+        <div className="my-12 text-center">
           <button
             id="btn_enter"
             onClick={handleEnterClick}
             className={
               hidden === 1
                 ? "hidden"
-                : "p-5 w-48 bg-red-200 rounded-md text-white font-bold hover:bg-red-300 whitespace-nowrap"
+                : "p-5 w-48 bg-[#787878] rounded-md text-white font-bold hover:bg-[#898989] whitespace-nowrap"
             }
           >
             강의실 입장하기
