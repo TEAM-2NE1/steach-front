@@ -72,7 +72,7 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
     const totalSteps = duration / intervalTime; // 총 프레임 수
 
     let repeatCount1 = 0; // 반복 횟수를 추적하는 변수
-    const maxRepeats1 = 51; // 최대 반복 횟수 설정
+    const maxRepeats1 = 10; // 최대 반복 횟수 설정
     
     const interval = setInterval(() => {
       setAnimatedScores((prevScores) =>
@@ -116,7 +116,7 @@ const RankingsList: React.FC<RankingsProps> = ({ data }) => {
     
 
     let repeatCount2 = 0; // 반복 횟수를 추적하는 변수
-    const maxRepeats2 = 50; // 최대 반복 횟수 설정
+    const maxRepeats2 = 10; // 최대 반복 횟수 설정
 
     const interval2 = setInterval(() => {
       setAnimatedRanks((prevRanks) =>
