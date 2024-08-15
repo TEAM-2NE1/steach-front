@@ -219,14 +219,14 @@ const LectureSignUp: React.FC = () => {
                 onChange={handleChange}
                 className="border-2 rounded-lg w-1/3 p-2 mt-3"
               >
-                <option value="1">KOREAN</option>
-                <option value="2">MATH</option>
-                <option value="3">FOREIGN_LANGUAGE</option>
-                <option value="4">SCIENCE</option>
-                <option value="5">ENGINEERING</option>
-                <option value="6">ARTS_AND_PHYSICAL</option>
-                <option value="7">EDUCATION</option>
-                <option value="8">ETC</option>
+                <option value="KOREAN">KOREAN</option>
+                <option value="MATH">MATH</option>
+                <option value="FOREIGN_LANGUAGE">FOREIGN_LANGUAGE</option>
+                <option value="SCIENCE">SCIENCE</option>
+                <option value="ENGINEERING">ENGINEERING</option>
+                <option value="ARTS_AND_PHYSICAL">ARTS_AND_PHYSICAL</option>
+                <option value="EDUCATION">EDUCATION</option>
+                <option value="ETC">ETC</option>
               </select>
               <FormLabel htmlFor="sub_category" className="mt-3 mx-3 text-lg">
                 커리큘럼 중분류

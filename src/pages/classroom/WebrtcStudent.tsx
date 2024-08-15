@@ -1,9 +1,9 @@
 import React, {
-	useState,
-	useRef,
-	useEffect,
-	useCallback,
-	KeyboardEvent,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  KeyboardEvent,
 } from "react";
 import io from "socket.io-client";
 import WebRTCVideo from "../../components/video/index.tsx";
@@ -26,22 +26,22 @@ import comebackImage from '../../assets/comeback.png';
 import comebackAudio from '../../assets/comeback.mp3';
 
 const pc_config = {
-	iceServers: [
-		{
-			urls: "stun:stun.l.google.com:19302",
-		},
-	],
+  iceServers: [
+    {
+      urls: "stun:stun.l.google.com:19302",
+    },
+  ],
 };
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const SOCKET_SERVER_URL = `${protocol}//${window.location.hostname}:${
-	window.location.port ? window.location.port : "5000"
+  window.location.port ? window.location.port : "5000"
 }`;
 
 interface WebrtcProps {
-	roomId: string;
-	userEmail: string;
-	userRole: string;
+  roomId: string;
+  userEmail: string;
+  userRole: string;
 }
 
 let audioElement: HTMLAudioElement | null = null;
@@ -172,7 +172,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 	const [sleepTime, setSleepTime] = useState<number>(0);
 	// let audioElement: HTMLAudioElement | null = null;
 
-	// console.log('sleepTime',sleepTime)
+  // console.log('sleepTime',sleepTime)
 
 	//퀴즈모달 ======================================
 	//퀴즈모달 출력 여부
@@ -188,37 +188,105 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 	const [selectedQuiz, setSelectedQuiz] = useState<QuizDetailForm | null>(null);
 	//==============================================
 
-	//선생님이 퀴즈를 시작했을 때 rtc에서 호출하는 함수
-	const openQuiz = async (quizId: string) => {
-		const token = getAuthToken();
-		try {
-			const response = await axios.get(`${BASE_URL}/api/v1/quizzes/${quizId}`, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-			setSelectedQuiz(response.data);
-			setIsQuizModalOpen(true)
-		} catch (err) {
-			console.log(err)
-		}
-	}
+  //선생님이 퀴즈를 시작했을 때 rtc에서 호출하는 함수
+  const openQuiz = async (quizId: string) => {
+    const token = getAuthToken();
+    try {
+      const response = await axios.get(`${BASE_URL}/api/v1/quizzes/${quizId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setSelectedQuiz(response.data);
+      setIsQuizModalOpen(true);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-	useEffect(() => {
-		const handleUserInteraction = () => {
-			stopAlarm();
-		};
+  const startAlarm = () => {
+    const imgElement = document.createElement("img");
+    imgElement.src = alarmImage;
+    imgElement.id = "shakingImage";
+    imgElement.style.position = "fixed";
+    imgElement.style.top = "50%";
+    imgElement.style.left = "50%";
+    imgElement.style.transform = "translate(-50%, -50%)";
+    imgElement.style.width = "512px";
+    imgElement.style.height = "512px";
+    imgElement.style.zIndex = "9999";
+    document.body.appendChild(imgElement);
 
-		document.addEventListener('mousemove', handleUserInteraction);
-		document.addEventListener('keydown', handleUserInteraction);
+    const shakeAnimation = [
+      { transform: "translate(-50%, -50%) rotate(20deg)" },
+      { transform: "translate(-50%, -50%) rotate(0deg)", offset: 0.25 },
+      { transform: "translate(-50%, -50%) rotate(20deg)", offset: 0.5 },
+      { transform: "translate(-50%, -50%) rotate(40deg)", offset: 0.75 },
+      { transform: "translate(-50%, -50%) rotate(20deg)" },
+      // { transform: 'translate(-50%, -50%) rotate(0deg)' },
+      // { transform: 'translate(-50%, -50%) rotate(-20deg)', offset: 0.25 },
+      // { transform: 'translate(-50%, -50%) rotate(0deg)', offset: 0.5 },
+      // { transform: 'translate(-50%, -50%) rotate(20deg)', offset: 0.75 },
+      // { transform: 'translate(-50%, -50%) rotate(0deg)' }
+    ];
 
-		return () => {
-			document.removeEventListener('mousemove', handleUserInteraction);
-			document.removeEventListener('keydown', handleUserInteraction);
-		};
-	}, []);
+    imgElement.animate(shakeAnimation, {
+      duration: 400, // Total duration of one complete shake cycle
+      iterations: Infinity,
+    });
+    // setAudioElement(new Audio(alarmAudio));
+    if (audioElement) {
+      audioElement.loop = true;
+      audioElement.play();
+    }
+    // audioElement.loop = true; // Loop the audio indefinitely
+    // audioElement.play();
+  };
 
+  const stopAlarm = () => {
+    const imgElement = document.getElementById("shakingImage");
+    if (imgElement) {
+      imgElement.remove(); // Remove the image from the DOM
+    }
+    if (audioElement !== null) {
+      audioElement.loop = false;
+      audioElement.pause();
+    }
+    console.log("setAudioElement Null");
+    setAudioElement(null);
+    // if (audioElement) {
+    // 	console.log('Audio STOP');
+    // 	audioElement.loop = false;
+    // 	audioElement.pause();
+    // 	audioElement.currentTime = 0; // Reset the audio to the beginning
+    // 	if (!audioElement.paused) {
+    // 		console.error('Audio did not stop as expected');
+    // 	}
+    // 	audioElement = null; // Reset the audio element
+    // }
+  };
+  useEffect(() => {
+    if (audioElement !== null) {
+      audioElement.loop = true;
+      audioElement.play();
+      console.log("useEffect STOP");
+      setAudioElement(null);
+    }
+  }, [audioElement]);
 
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      stopAlarm();
+    };
+
+    document.addEventListener("mousemove", handleUserInteraction);
+    document.addEventListener("keydown", handleUserInteraction);
+
+    return () => {
+      document.removeEventListener("mousemove", handleUserInteraction);
+      document.removeEventListener("keydown", handleUserInteraction);
+    };
+  }, []);
 
 	const getDrowsiness = async () => {
 		if (!divRef.current) return;
@@ -250,11 +318,11 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 				ctx.drawImage(canvas, 0, 0, width, height);
 			}
 
-			resizedCanvas.toBlob((blob) => {
-				if (blob !== null) {
-					const formData = new FormData();
-					// saveAs(blob, "res.png");
-					formData.append("file", blob, "focus.png");
+      resizedCanvas.toBlob((blob) => {
+        if (blob !== null) {
+          const formData = new FormData();
+          // saveAs(blob, "res.png");
+          formData.append("file", blob, "focus.png");
 
 					// Upload the resized image
 					fetch("https://steach.ssafy.io/drowsiness", {
@@ -302,20 +370,25 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 		});
 	};
 
-	useEffect(() => {
-		const calculatedSleepTime = Math.floor(notFocusTime * 2 / 60);
-		console.log('calculatedSleepTime', calculatedSleepTime)
-		if (calculatedSleepTime !== sleepTime && calculatedSleepTime > 0) {
-			setSleepTime(calculatedSleepTime);
-		}
-	}, [notFocusTime])
+  useEffect(() => {
+    const calculatedSleepTime = Math.floor((notFocusTime * 2) / 60);
+    console.log("calculatedSleepTime", calculatedSleepTime);
+    if (calculatedSleepTime !== sleepTime && calculatedSleepTime > 0) {
+      setSleepTime(calculatedSleepTime);
+    }
+  }, [notFocusTime]);
 
-	useEffect(() => {
-		if (sleepTime > 0 && lecture_id) {
-			dispatch(studentFocusTime({lecture_Id: lecture_id, sleepTimeData: {sleep_time: sleepTime}}))
-			console.log("sleepTime 전송")
-		}
-	}, [sleepTime, dispatch]);
+  useEffect(() => {
+    if (sleepTime > 0 && lecture_id) {
+      dispatch(
+        studentFocusTime({
+          lecture_Id: lecture_id,
+          sleepTimeData: { sleep_time: sleepTime },
+        })
+      );
+      console.log("sleepTime 전송");
+    }
+  }, [sleepTime, dispatch]);
 
 	useEffect(() => {
 		if (cntAFK >= TOLERANCE) {
@@ -501,31 +574,31 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 		}
 	}, []);
 
-	const toggleVideo = () => {
-		const videoTrack = localStreamRef.current?.getVideoTracks()[0];
-		if (videoTrack) {
-			videoTrack.enabled = !videoTrack.enabled;
-			setIsVideoEnabled(videoTrack.enabled);
-			if (socketRef.current) {
-				socketRef.current.emit('toggle_media', {
-					userId: socketRef.current.id,
-					email: userEmail,
-					videoEnabled: videoTrack.enabled,
-					audioEnabled: isAudioEnabled,
-					audioDisabledByTeacher: isAudioDisabledByTeacher,
-					screenShareEnabled: isScreenShareEnabled,
-					screenShareDisabledByTeacher: isScreenShareDisabledByTeacher
-				});
-			}
-			if(!videoTrack.enabled){
-				console.log('Stop DD');
-				stopDrowsinessDetection();
-			}else{
-				console.log('Start DD');
-				startDrowsinessDetection();
-			}
-		}
-	};
+  const toggleVideo = () => {
+    const videoTrack = localStreamRef.current?.getVideoTracks()[0];
+    if (videoTrack) {
+      videoTrack.enabled = !videoTrack.enabled;
+      setIsVideoEnabled(videoTrack.enabled);
+      if (socketRef.current) {
+        socketRef.current.emit("toggle_media", {
+          userId: socketRef.current.id,
+          email: userEmail,
+          videoEnabled: videoTrack.enabled,
+          audioEnabled: isAudioEnabled,
+          audioDisabledByTeacher: isAudioDisabledByTeacher,
+          screenShareEnabled: isScreenShareEnabled,
+          screenShareDisabledByTeacher: isScreenShareDisabledByTeacher,
+        });
+      }
+      if (!videoTrack.enabled) {
+        console.log("Stop DD");
+        stopDrowsinessDetection();
+      } else {
+        console.log("Start DD");
+        startDrowsinessDetection();
+      }
+    }
+  };
 
 	const toggleAudio = () => {
 		const audioTrack = localStreamRef.current?.getAudioTracks()[0];
@@ -784,20 +857,25 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 					allowScreenShare();
 				}
 
-				setUsers((oldUsers) =>
-					oldUsers.map((user) =>
-						user.id === data.userId
-							? { ...user, screenShareDisabledByTeacher: data.screenShareDisabledByTeacher }
-							: user,
-					),
-				);
-			}
-		});
+          setUsers((oldUsers) =>
+            oldUsers.map((user) =>
+              user.id === data.userId
+                ? {
+                    ...user,
+                    screenShareDisabledByTeacher:
+                      data.screenShareDisabledByTeacher,
+                  }
+                : user
+            )
+          );
+        }
+      }
+    );
 
-		socketRef.current.on('quiz_start', (data: { quizId: string }) => {
-			//퀴즈모달 켜기
-			openQuiz(data.quizId)
-		});
+    socketRef.current.on("quiz_start", (data: { quizId: string }) => {
+      //퀴즈모달 켜기
+      openQuiz(data.quizId);
+    });
 
 
 
@@ -834,93 +912,93 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 		};
 	}, [createPeerConnection, getLocalStream]);
 
-	const toggleFullscreen = () => {
-		if (localVideoRef.current) {
-			if (!document.fullscreenElement) {
-				localVideoRef.current.requestFullscreen();
-			} else {
-				document.exitFullscreen();
-			}
-		}
-	};
+  const toggleFullscreen = () => {
+    if (localVideoRef.current) {
+      if (!document.fullscreenElement) {
+        localVideoRef.current.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+  };
 
 
-	const toggleChat = () => {
-		setIsChatOpen((prev) => !prev);
-	};
+  const toggleChat = () => {
+    setIsChatOpen((prev) => !prev);
+  };
 
-	const handleTimeUpdate = () => {
-		if (localVideoRef.current) {
-			setCurrentTime(localVideoRef.current.currentTime);
-		}
-	};
+  const handleTimeUpdate = () => {
+    if (localVideoRef.current) {
+      setCurrentTime(localVideoRef.current.currentTime);
+    }
+  };
 
-	const handleLoadedMetadata = () => {
-		if (localVideoRef.current) {
-			setDuration(localVideoRef.current.duration);
-		}
-	};
+  const handleLoadedMetadata = () => {
+    if (localVideoRef.current) {
+      setDuration(localVideoRef.current.duration);
+    }
+  };
 
-	const handleFullscreenChange = () => {
-		setShowControls(true);
-		showControlsTemporarily();
-		if (!document.fullscreenElement) {
-			setShowControls(false);
-		}
-	};
+  const handleFullscreenChange = () => {
+    setShowControls(true);
+    showControlsTemporarily();
+    if (!document.fullscreenElement) {
+      setShowControls(false);
+    }
+  };
 
-	const handleMouseEnter = () => {
-		setShowControls(true);
-		if (hideControlsTimeout.current) {
-			clearTimeout(hideControlsTimeout.current);
-		}
-	};
+  const handleMouseEnter = () => {
+    setShowControls(true);
+    if (hideControlsTimeout.current) {
+      clearTimeout(hideControlsTimeout.current);
+    }
+  };
 
-	const handleMouseMove = () => {
-		showControlsTemporarily();
-	};
+  const handleMouseMove = () => {
+    showControlsTemporarily();
+  };
 
-	const handleMouseLeave = () => {
-		setShowControls(false);
-		if (hideControlsTimeout.current) {
-			clearTimeout(hideControlsTimeout.current);
-		}
-	};
+  const handleMouseLeave = () => {
+    setShowControls(false);
+    if (hideControlsTimeout.current) {
+      clearTimeout(hideControlsTimeout.current);
+    }
+  };
 
-	const showControlsTemporarily = () => {
-		setShowControls(true);
-		if (hideControlsTimeout.current) {
-			clearTimeout(hideControlsTimeout.current);
-		}
-		hideControlsTimeout.current = setTimeout(() => {
-			setShowControls(false);
-		}, 2000);
-	};
+  const showControlsTemporarily = () => {
+    setShowControls(true);
+    if (hideControlsTimeout.current) {
+      clearTimeout(hideControlsTimeout.current);
+    }
+    hideControlsTimeout.current = setTimeout(() => {
+      setShowControls(false);
+    }, 2000);
+  };
 
-	useEffect(() => {
-		if (localVideoRef.current) {
-			localVideoRef.current.addEventListener("timeupdate", handleTimeUpdate);
-			localVideoRef.current.addEventListener(
-				"loadedmetadata",
-				handleLoadedMetadata
-			);
-			document.addEventListener("fullscreenchange", handleFullscreenChange);
-			return () => {
-				localVideoRef.current?.removeEventListener(
-					"timeupdate",
-					handleTimeUpdate
-				);
-				localVideoRef.current?.removeEventListener(
-					"loadedmetadata",
-					handleLoadedMetadata
-				);
-				document.removeEventListener(
-					"fullscreenchange",
-					handleFullscreenChange
-				);
-			};
-		}
-	}, []);
+  useEffect(() => {
+    if (localVideoRef.current) {
+      localVideoRef.current.addEventListener("timeupdate", handleTimeUpdate);
+      localVideoRef.current.addEventListener(
+        "loadedmetadata",
+        handleLoadedMetadata
+      );
+      document.addEventListener("fullscreenchange", handleFullscreenChange);
+      return () => {
+        localVideoRef.current?.removeEventListener(
+          "timeupdate",
+          handleTimeUpdate
+        );
+        localVideoRef.current?.removeEventListener(
+          "loadedmetadata",
+          handleLoadedMetadata
+        );
+        document.removeEventListener(
+          "fullscreenchange",
+          handleFullscreenChange
+        );
+      };
+    }
+  }, []);
 
 	return (
 		<div
@@ -1048,65 +1126,64 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 				))}
 			</div>
 
-			{isQuizModalOpen && selectedQuiz && (
-				<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-					<div className="bg-white rounded-lg shadow-lg w-[500px] relative">
-						{/* Close Button Overlapping DetailQuiz */}
-						<button
-							onClick={handleCloseQuizModal}
-							className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
-						>
-							&times;
-						</button>
+      {isQuizModalOpen && selectedQuiz && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg w-[500px] relative">
+            {/* Close Button Overlapping DetailQuiz */}
+            <button
+              onClick={handleCloseQuizModal}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition text-2xl z-10"
+            >
+              &times;
+            </button>
 
-						{/* DetailQuiz Component Centered */}
-						<div className="flex justify-center items-center">
-							<div className="rounded-lg overflow-hidden w-full">
-								{/* 학생인 경우에는 trialVersion, isTeacher false */}
-								<DetailQuiz
-									initialQuizData={selectedQuiz}
-									onClose={handleCloseQuizModal}
-									trialVersion={false}
-									isTeacher={false}
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
+            {/* DetailQuiz Component Centered */}
+            <div className="flex justify-center items-center">
+              <div className="rounded-lg overflow-hidden w-full">
+                {/* 학생인 경우에는 trialVersion, isTeacher false */}
+                <DetailQuiz
+                  initialQuizData={selectedQuiz}
+                  onClose={handleCloseQuizModal}
+                  trialVersion={false}
+                  isTeacher={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-			<div
-				className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${
-					isChatOpen
-						? "translate-x-0 transition-transform duration-500 ease-in-out"
-						: "hidden translate-x-full transition-transform duration-500 ease-in-out"
-				}`}
-			>
-				<h3 className="my-2 text-2xl font-semibold">채팅</h3>
-				<div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
-					{messages.map((msg, idx) => (
-						<p key={idx}>{msg}</p>
-					))}
-				</div>
-				<form onSubmit={handleSendMessage}>
-					<input
-						type="text"
-						value={newMessage}
-						onChange={(e) => setNewMessage(e.target.value)}
-						placeholder="메세지 전송"
-						className="border-2 my-2 border-discordChatBg2 p-2 w-full bg-discordChatBg text-discordText"
-					/>
-					<button
-						type="submit"
-						className="mb-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2"
-					>
-						전송
-					</button>
-				</form>
-			</div>
-		</div>
-	);
-
+      <div
+        className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${
+          isChatOpen
+            ? "translate-x-0 transition-transform duration-500 ease-in-out"
+            : "hidden translate-x-full transition-transform duration-500 ease-in-out"
+        }`}
+      >
+        <h3 className="my-2 text-2xl font-semibold">채팅</h3>
+        <div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
+          {messages.map((msg, idx) => (
+            <p key={idx}>{msg}</p>
+          ))}
+        </div>
+        <form onSubmit={handleSendMessage}>
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="메세지 전송"
+            className="border-2 my-2 border-discordChatBg2 p-2 w-full bg-discordChatBg text-discordText"
+          />
+          <button
+            type="submit"
+            className="mb-2 p-2 bg-discordChatBg text-discordText rounded w-full border-2 border-discordChatBg2"
+          >
+            전송
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default WebrtcStudent;
