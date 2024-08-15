@@ -487,6 +487,7 @@ const handleMouseEnter = () => {
     currentState: boolean | undefined
   ) => {
     if (socketRef.current) {
+      console.log(studentId)
       socketRef.current.emit("toggle_student_mic", {
         studentId,
         state: !currentState,
@@ -911,7 +912,7 @@ const handleMouseEnter = () => {
 							<div className="flex h-4 pt-10">
 								<div className="w-1/2 flex items-center justify-center text-white">
 									{userRole === 'TEACHER' && user?.userRole === 'STUDENT' && (
-										<button onClick={() => toggleStudentMic(user.id, user.audioDisabledByTeacher)} className="mt-2">
+                      <button onClick={() => toggleStudentMic(user.id, user.audioDisabledByTeacher)} className="mt-2">
 											{user.audioDisabledByTeacher ? '마이크 허용 시키기' : '마이크 금지 시키기'}
 										</button>
 									)}
