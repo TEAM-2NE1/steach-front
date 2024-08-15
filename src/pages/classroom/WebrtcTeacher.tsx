@@ -43,7 +43,7 @@ const SOCKET_SERVER_URL = `${protocol}//${window.location.hostname}:${
 const gridStyles = (userCount: number) => {
   switch (userCount) {
     case 1:
-      return 'grid-cols-1 grid-rows-1';
+      return 'grid-cols-2 grid-rows-1';
     case 2:
       return 'grid-cols-2 grid-rows-1';
     case 3:
@@ -51,9 +51,13 @@ const gridStyles = (userCount: number) => {
     case 4:
       return 'grid-cols-2 grid-rows-2';
     case 5:
-      return 'grid-cols-3 grid-rows-2';
+      return 'grid-cols-4 grid-rows-2';
     case 6:
-      return 'grid-cols-3 grid-rows-2';
+      return 'grid-cols-4 grid-rows-2';
+    case 7:
+      return 'grid-cols-4 grid-rows-2';
+    case 8:
+      return 'grid-cols-4 grid-rows-2';
     default:
       return 'grid-cols-1 grid-rows-1';
   }

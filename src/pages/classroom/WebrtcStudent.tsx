@@ -11,7 +11,7 @@ import { WebRTCUser } from "../../types/index.ts";
 import WebrtcStudentScreenShare from "./WebrtcStudentScreenShare.tsx";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store.tsx";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styles from "./WebrtcStudent.module.css";
 import html2canvas from "html2canvas";
 import { QuizDetailForm } from '../../interface/quiz/QuizInterface.ts';
@@ -169,7 +169,11 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 	const [cntFocus, setCntFocus] = useState<number>(0);
 	const [cntDrowsy, setCntDrowsy] = useState<number>(0);
 	const [notFocusTime, setNotFocusTime] = useState<number>(0);
-	const [sleepTime, setSleepTime] = useState<number>(0);
+  const [sleepTime, setSleepTime] = useState<number>(0);
+  
+  const navigate = useNavigate(); 
+
+
 	// let audioElement: HTMLAudioElement | null = null;
 
   // console.log('sleepTime',sleepTime)
@@ -204,89 +208,19 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
     }
   };
 
-  const startAlarm = () => {
-    const imgElement = document.createElement("img");
-    imgElement.src = alarmImage;
-    imgElement.id = "shakingImage";
-    imgElement.style.position = "fixed";
-    imgElement.style.top = "50%";
-    imgElement.style.left = "50%";
-    imgElement.style.transform = "translate(-50%, -50%)";
-    imgElement.style.width = "512px";
-    imgElement.style.height = "512px";
-    imgElement.style.zIndex = "9999";
-    document.body.appendChild(imgElement);
+	useEffect(() => {
+		const handleUserInteraction = () => {
+			stopAlarm();
+		};
 
-    const shakeAnimation = [
-      { transform: "translate(-50%, -50%) rotate(20deg)" },
-      { transform: "translate(-50%, -50%) rotate(0deg)", offset: 0.25 },
-      { transform: "translate(-50%, -50%) rotate(20deg)", offset: 0.5 },
-      { transform: "translate(-50%, -50%) rotate(40deg)", offset: 0.75 },
-      { transform: "translate(-50%, -50%) rotate(20deg)" },
-      // { transform: 'translate(-50%, -50%) rotate(0deg)' },
-      // { transform: 'translate(-50%, -50%) rotate(-20deg)', offset: 0.25 },
-      // { transform: 'translate(-50%, -50%) rotate(0deg)', offset: 0.5 },
-      // { transform: 'translate(-50%, -50%) rotate(20deg)', offset: 0.75 },
-      // { transform: 'translate(-50%, -50%) rotate(0deg)' }
-    ];
+		document.addEventListener('mousemove', handleUserInteraction);
+		document.addEventListener('keydown', handleUserInteraction);
 
-    imgElement.animate(shakeAnimation, {
-      duration: 400, // Total duration of one complete shake cycle
-      iterations: Infinity,
-    });
-    // setAudioElement(new Audio(alarmAudio));
-    if (audioElement) {
-      audioElement.loop = true;
-      audioElement.play();
-    }
-    // audioElement.loop = true; // Loop the audio indefinitely
-    // audioElement.play();
-  };
-
-  const stopAlarm = () => {
-    const imgElement = document.getElementById("shakingImage");
-    if (imgElement) {
-      imgElement.remove(); // Remove the image from the DOM
-    }
-    if (audioElement !== null) {
-      audioElement.loop = false;
-      audioElement.pause();
-    }
-    console.log("setAudioElement Null");
-    setAudioElement(null);
-    // if (audioElement) {
-    // 	console.log('Audio STOP');
-    // 	audioElement.loop = false;
-    // 	audioElement.pause();
-    // 	audioElement.currentTime = 0; // Reset the audio to the beginning
-    // 	if (!audioElement.paused) {
-    // 		console.error('Audio did not stop as expected');
-    // 	}
-    // 	audioElement = null; // Reset the audio element
-    // }
-  };
-  useEffect(() => {
-    if (audioElement !== null) {
-      audioElement.loop = true;
-      audioElement.play();
-      console.log("useEffect STOP");
-      setAudioElement(null);
-    }
-  }, [audioElement]);
-
-  useEffect(() => {
-    const handleUserInteraction = () => {
-      stopAlarm();
-    };
-
-    document.addEventListener("mousemove", handleUserInteraction);
-    document.addEventListener("keydown", handleUserInteraction);
-
-    return () => {
-      document.removeEventListener("mousemove", handleUserInteraction);
-      document.removeEventListener("keydown", handleUserInteraction);
-    };
-  }, []);
+		return () => {
+			document.removeEventListener('mousemove', handleUserInteraction);
+			document.removeEventListener('keydown', handleUserInteraction);
+		};
+	}, []);
 
 	const getDrowsiness = async () => {
 		if (!divRef.current) return;
@@ -341,7 +275,9 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 		} catch (error) {
 			console.error("Error converting div to image:", error);
 		}
-	};
+  };
+  
+
 
 	const saveAccddRes = (value: number) => {
 		// First, update the counts based on the new value
@@ -370,25 +306,20 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 		});
 	};
 
-  useEffect(() => {
-    const calculatedSleepTime = Math.floor((notFocusTime * 2) / 60);
-    console.log("calculatedSleepTime", calculatedSleepTime);
-    if (calculatedSleepTime !== sleepTime && calculatedSleepTime > 0) {
-      setSleepTime(calculatedSleepTime);
-    }
-  }, [notFocusTime]);
+	useEffect(() => {
+		const calculatedSleepTime = Math.floor(notFocusTime * 2 / 60);
+		console.log('calculatedSleepTime', calculatedSleepTime)
+		if (calculatedSleepTime !== sleepTime && calculatedSleepTime > 0) {
+			setSleepTime(calculatedSleepTime);
+		}
+	}, [notFocusTime])
 
-  useEffect(() => {
-    if (sleepTime > 0 && lecture_id) {
-      dispatch(
-        studentFocusTime({
-          lecture_Id: lecture_id,
-          sleepTimeData: { sleep_time: sleepTime },
-        })
-      );
-      console.log("sleepTime 전송");
-    }
-  }, [sleepTime, dispatch]);
+	useEffect(() => {
+		if (sleepTime > 0 && lecture_id) {
+			dispatch(studentFocusTime({lecture_Id: lecture_id, sleepTimeData: {sleep_time: sleepTime}}))
+			console.log("sleepTime 전송")
+		}
+	}, [sleepTime, dispatch]);
 
 	useEffect(() => {
 		if (cntAFK >= TOLERANCE) {
@@ -880,9 +811,7 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 
 
 		socketRef.current.on('lecture_end', () => {
-			if (lecture_id) {
-				dispatch(finalLectureSlice(lecture_id))
-			}
+
 
 			// 선생님이 강의종료 버튼을 누르면 이 버튼이 눌림.
 			// 여기에 백엔드 서버로 notFocusTime을 업로드하는 코드를 넣으면 됨
@@ -896,7 +825,9 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 					pcsRef.current[user.id].close();
 					delete pcsRef.current[user.id];
 				}
-			});
+      });
+      
+      navigate('/home')
 		});
 
 		return () => {

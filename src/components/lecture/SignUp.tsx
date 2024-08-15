@@ -130,26 +130,44 @@ const LectureSignUp: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await getContents();
+  
     const formDataToSend = {
       ...formData,
       intro: formData.intro,
       information: formData.information,
       weekdays_bitmask: formatBitmask(formData.weekdays_bitmask),
     };
+  
     try {
       const Postcurricula = await dispatch(SignUpLecture(formDataToSend));
-      const curriculaData = Postcurricula.payload as Curricula;
-      if (curriculaData?.curriculum_id !== undefined) {
-        navigate(`/curricula/detail/${curriculaData?.curriculum_id}`)
-        toast.success("수정되었습니다!", {
+      let curriculaData = Postcurricula.payload as Curricula;
+  
+      const waitForCurriculumId = () => {
+        return new Promise<string | undefined>((resolve, reject) => {
+          const interval = setInterval(() => {
+            if (curriculaData?.curriculum_id !== undefined) {
+              clearInterval(interval);
+              resolve(curriculaData.curriculum_id);
+            }
+          }, 100); // 100ms 간격으로 체크
+  
+          setTimeout(() => {
+            clearInterval(interval);
+            reject(new Error("Timeout waiting for curriculum_id"));
+          }, 10000); // 최대 10초 동안 기다림
+        });
+      };
+  
+      const curriculumId = curriculaData?.curriculum_id !== undefined
+        ? curriculaData.curriculum_id
+        : await waitForCurriculumId();
+  
+      if (curriculumId !== undefined) {
+        navigate(`/curricula/detail/${curriculumId}`);
+        toast.success("등록 되었습니다!", {
           position: "top-right",
         });
-      } else {
-        navigate('/home')
-        toast.success("수정되었습니다!", {
-          position: "top-right",
-        });
-      }
+      } 
     } catch (error) {
       toast.error("에러 발생!", {
         position: "top-right",
