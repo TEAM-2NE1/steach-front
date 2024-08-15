@@ -180,7 +180,10 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 	const [notFocusTime, setNotFocusTime] = useState<number>(0);
   const [sleepTime, setSleepTime] = useState<number>(0);
   
-  const navigate = useNavigate();
+  const closeLecture = () => { 
+    localStorage.removeItem('prevRankData')
+    window.location.replace('/home')
+  }
 
 
 	// let audioElement: HTMLAudioElement | null = null;
@@ -782,16 +785,15 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 
 		socketRef.current.on('toggle_student_screen_share', (data: { userId: string; userEmail: string; screenShareDisabledByTeacher: boolean }) => {
 			console.log(`Teacher toggled student's screen share ${data.userId}: screenShareDisabledByTeacher=${data.screenShareDisabledByTeacher}`);
-			if(userEmail === data.userEmail){
 				if(data.screenShareDisabledByTeacher){
 					if (data.userId === socketRef.current?.id) {
-						setIsScreenShareDisabledByTeacher(true);
+						setIsScreenShareDisabledByTeacher(data.screenShareDisabledByTeacher);
 						setIsScreenShareEnabled(false);
 					}
 					banScreenShare();
 				}else{
 					if (data.userId === socketRef.current?.id) {
-						setIsScreenShareDisabledByTeacher(false);
+						setIsScreenShareDisabledByTeacher(data.screenShareDisabledByTeacher);
 						setIsScreenShareEnabled(false);
 					}
 					allowScreenShare();
@@ -808,7 +810,6 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
                 : user
             )
           );
-        }
       }
     );
 
@@ -831,8 +832,8 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 					delete pcsRef.current[user.id];
 				}
       });
-      
-      navigate('/home')
+      closeLecture();
+
 		});
 
 		return () => {
