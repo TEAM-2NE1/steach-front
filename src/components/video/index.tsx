@@ -104,7 +104,7 @@ const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audi
 	if(isScreenShare){
 		return (
 			<ScreenContainer>
-				<p>email : {email.substring(0, email.length-7)}의 화면공유</p>
+				<p> {email.substring(0, email.length-7)}의 화면공유</p>
 				<ScreenVideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen} />
 				{/* <UserLabel>{email}</UserLabel> */}
 			</ScreenContainer>
@@ -112,14 +112,8 @@ const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audi
 	}else{
 		return (
 			<Container>
-				<UserLabel className='text-white'>{email}</UserLabel>
+				<UserLabel className='text-white'>{email} 학생</UserLabel>
 				<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen}/>
-				{/* <UserRoleLabel>{userRole}</UserRoleLabel>
-				<Indicator>Video: {videoEnabled ? 'On' : 'Off'}</Indicator>
-				<Indicator>Audio: {audioEnabled && !audioDisabledByTeacher ? 'On' : 'Off'}</Indicator>
-				<Indicator>Teacher Allowed: {audioDisabledByTeacher ? 'No' : 'Yes'}</Indicator>
-				<Indicator>화면공유 상태: {screenShareEnabled ? 'On' : 'Off'}</Indicator>
-				<Indicator>화면공유 권한: {screenShareDisabledByTeacher ? 'No' : 'Yes'}</Indicator> */}
 			</Container>
 		);
 

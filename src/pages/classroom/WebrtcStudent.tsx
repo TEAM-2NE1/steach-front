@@ -813,10 +813,6 @@ const WebrtcStudent: React.FC<WebrtcProps> = ({
 		socketRef.current.on('lecture_end', () => {
 
 
-			// 선생님이 강의종료 버튼을 누르면 이 버튼이 눌림.
-			// 여기에 백엔드 서버로 notFocusTime을 업로드하는 코드를 넣으면 됨
-
-			// 아래는 P2P 커넥션 끊는 코드임. 주석 풀고 사용하면 됨.
 			if (socketRef.current) {
 				socketRef.current.disconnect();
 			}

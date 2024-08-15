@@ -25,6 +25,14 @@ import DetailQuiz from "../../components/quiz/QuizBlock.tsx";
 import { finalLectureSlice, reportLectureSlice } from '../../store/LectureSlice.tsx';
 import { LectureReport } from '../../interface/Curriculainterface.tsx';
 import { report } from 'process';
+import lecture_close from "../../assets/RTC/lecture_close.png" 
+import cam from "../../assets/RTC/cam.png" 
+import nocam from "../../assets/RTC/no_cam.png" 
+import mic from "../../assets/RTC/mic.png" 
+import nomic from "../../assets/RTC/no_mic.png" 
+import screenShare from "../../assets/RTC/screen.png" 
+import quiz from "../../assets/RTC/quiz.png" 
+import chat from "../../assets/RTC/chat.png" 
 // import DetailQuiz from "./QuizBlock";
 // import { QuizResponseDTO } from "./QuizListComponent";
 
@@ -47,9 +55,9 @@ const gridStyles = (userCount: number) => {
     case 2:
       return 'grid-cols-2 grid-rows-1';
     case 3:
-      return 'grid-cols-2 grid-rows-2';
+      return 'grid-cols-4 grid-rows-1';
     case 4:
-      return 'grid-cols-2 grid-rows-2';
+      return 'grid-cols-4 grid-rows-1';
     case 5:
       return 'grid-cols-4 grid-rows-2';
     case 6:
@@ -802,19 +810,14 @@ const handleMouseEnter = () => {
 			onMouseLeave={handleMouseLeave}
 		>
       <div>
-      <button 
-        onClick={openModal} 
-        className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-2xl hover:bg-red-600"
-      >
-        강의 종료
-      </button>
       <Modal isOpen={isModalOpen} onClose={closeModal} onConfirm={openModal2} />
           <Modal2 isOpen={isModal2Open} report={report} lectureid={lecture_id} />
 			</div>
 			<div className={`${isFullscreen ? 'fixed top-10 left-0 w-full h-full z-50 bg-black grid grid-cols-12 gap-4' : 'grid grid-cols-12 gap-4 w-full'} ${isChatOpen || isItemsOpen || isQuizOpen ? 'mr-[300px] transition-margin-right duration-500 ease-in-out' : 'transition-margin-right duration-500 ease-in-out'} flex flex-wrap items-center justify-center bg-discordChatBg`}>
 				<div className="col-span-6 flex items-center justify-center">
 					<div style={{ display: 'inline-block' }}>
-						<div style={{ position: 'relative', width: 600, height: 338 }} className={`${styles.videoContainer}`}>
+              <div style={{ position: 'relative', width: 600, height: 338 }} className={`${styles.videoContainer}`}>
+                <p>${userEmail} 선생님</p>
 							<video
                 className={`w-full h-full bg-black rounded-2xl ${isFullscreen ? "lg:w-full lg:h-full" : ""}`}
 								onClick={toggleFullscreen}
@@ -828,39 +831,45 @@ const handleMouseEnter = () => {
 							<div className={`fixed bottom-0 left-0 right-0 flex justify-around items-center p-3 rounded-lg ${showControls ? 'translate-y-0 opacity-100 transition-transform transition-opacity duration-500 ease-in-out' : 'translate-y-full opacity-0 transition-transform transition-opacity duration-500 ease-in-out'} bg-opacity-80 bg-gradient-to-t from-black to-transparent z-10`}>
 								<div className='grid grid-cols-12 '>
 								<div className='col-span-2'></div>
-									<div className='col-span-8'>
+									<div className='col-span-8 flex items-center justify-center'>
 										
-								<button onClick={toggleVideo} className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-									{isVideoEnabled ? '📸 ' : '📷 '}
+								<button onClick={toggleVideo} className="flex items-center justify-center text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+                  {isVideoEnabled ? <img src={`${cam}`} className="w-8 h-8" /> : <img src={`${nocam}`} className="w-8 h-8" />}
 								</button>
-								<button onClick={toggleAudio} className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-									{isAudioEnabled ? '🔊' : '🔇'}
+								<button onClick={toggleAudio} className="flex items-center justify-center text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+									{isAudioEnabled ? <img src={`${mic}`} className="w-8 h-8" /> : <img src={`${nomic}`} className="w-8 h-8" />}
 								</button>
-								<button onClick={toggleScreenShare} className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-									{isScreenShareEnabled ? '🖥️' : '🖥️'}
+								<button onClick={toggleScreenShare} className="flex items-center justify-center text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+									{isScreenShareEnabled ? <img src={`${screenShare}`} className="w-8 h-8" /> : <img src={`${screenShare}`} className="w-8 h-8" />}
 								</button>
 								<button
 									onClick={toggleChat}
-									className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+									className="flex items-center justify-center text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
 									>
-									{isChatOpen ? '💬' : '💬'}
+									{isChatOpen ? <img src={`${chat}`} className="w-8 h-8" /> : <img src={`${chat}`} className="w-8 h-8" />}
 								</button>
 								<button
 									onClick={toggleItems}
-									className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+									className="flex items-center justify-center text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
 									>
 									{isItemsOpen ? '👜' : '👜'}
 								</button>
 								<button
 									onClick={toggleQuiz}
-									className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+									className="flex items-center justify-center text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
 									>
-									{isItemsOpen ? '🎓' : '🎓'}
-										</button>
-					</div>
-								<div className='col-span-2'></div>
+									{isItemsOpen ? <img src={`${quiz}`} className="w-8 h-8" /> : <img src={`${quiz}`} className="w-8 h-8" />}
+                </button>
+                <button 
+                  onClick={openModal} 
+                  className="flex items-center justify-center text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-red-500"
+                >
+                <img src={`${lecture_close}`} className="w-8 h-8" />
+              </button>
+            </div>
+          <div className='col-span-2'></div>
 				</div>
-							</div>
+        </div>
 						)}
 					</div>
 				</div>
@@ -926,7 +935,7 @@ const handleMouseEnter = () => {
 			</div>
 			<div className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${isChatOpen ? 'translate-x-0 transition-transform duration-500 ease-in-out' : 'hidden translate-x-full transition-transform duration-500 ease-in-out'}`}>
 			<h3 className="mt-2 mb-5 text-2xl font-semibold">채팅</h3>
-        <div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
+        <div className="border border-discordChatBg2 p-2 h-[320rem] overflow-y-auto bg-discordChatBg text-discordText">
           {messages.map((msg, idx) => (
             <p key={idx}>{msg}</p>
           ))}
