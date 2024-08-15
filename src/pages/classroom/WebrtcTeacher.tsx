@@ -38,7 +38,26 @@ const pc_config = {
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const SOCKET_SERVER_URL = `${protocol}//${window.location.hostname}:${
   window.location.port ? window.location.port : "5000"
-}`;
+  }`;
+
+const gridStyles = (userCount: number) => {
+  switch (userCount) {
+    case 1:
+      return 'grid-cols-1 grid-rows-1';
+    case 2:
+      return 'grid-cols-2 grid-rows-1';
+    case 3:
+      return 'grid-cols-2 grid-rows-2';
+    case 4:
+      return 'grid-cols-2 grid-rows-2';
+    case 5:
+      return 'grid-cols-3 grid-rows-2';
+    case 6:
+      return 'grid-cols-3 grid-rows-2';
+    default:
+      return 'grid-cols-1 grid-rows-1';
+  }
+};
 
 interface WebrtcProps {
   roomId: string;
@@ -158,25 +177,14 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({
 	const [isQuizOpen, setIsQuizOpen] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 	const [isModal2Open, setIsModal2Open] = useState<boolean>(false);
-	
+	const userCount = users.length;
 // --------------------------------------------------------------
 	const dispatch = useDispatch<AppDispatch>();
 	const { lecture_id } = useParams();
 	
-  // drawer 여닫기
-  const [open, setOpen] = useState(false);
-
-  // 마이크 음소거 여부
-  const [isMicroPhoneMute, setIsMicroPhoneMute] = useState(false);
-
-  // 소리 음소거 여부
-  const [isAudioMute, setIsAudioMute] = useState(false);
-
   // 화면 출력 여부
   const [isOnVideo, setIsOnVideo] = useState(false);
 
-  // 화면 출력 여부
-  const [chating, setChating] = useState(false);
 
   // 퀴즈 모달
   //퀴즈모달 출력 여부
@@ -268,20 +276,23 @@ const handleMouseEnter = () => {
     }
   };
 
-  const toggleFullscreen2 = () => {
-    setIsFullscreen((prev) => !prev);
-  };
 
   const toggleChat = () => {
     setIsChatOpen((prev) => !prev);
+    setIsItemsOpen(false)
+    setIsQuizOpen(false)
   };
-
+  
   const toggleItems = () => {
     setIsItemsOpen((prev) => !prev);
+    setIsChatOpen(false)
+    setIsQuizOpen(false)
   };
 
   const toggleQuiz = () => {
     setIsQuizOpen((prev) => !prev);
+    setIsChatOpen(false)
+    setIsItemsOpen(false)
   };
 
   const toggleScreenShare = () => {
@@ -796,12 +807,12 @@ const handleMouseEnter = () => {
       <Modal isOpen={isModalOpen} onClose={closeModal} onConfirm={openModal2} />
           <Modal2 isOpen={isModal2Open} report={report} lectureid={lecture_id} />
 			</div>
-			<div className={`${isFullscreen ? 'fixed top-0 left-0 w-full h-full z-50 bg-black grid grid-cols-12 gap-4' : 'grid grid-cols-12 gap-4 w-full h-screen'} ${isChatOpen || isItemsOpen || isQuizOpen ? 'mr-[300px] transition-margin-right duration-500 ease-in-out' : 'transition-margin-right duration-500 ease-in-out'} flex flex-wrap items-center justify-center bg-discordChatBg`}>
+			<div className={`${isFullscreen ? 'fixed top-10 left-0 w-full h-full z-50 bg-black grid grid-cols-12 gap-4' : 'grid grid-cols-12 gap-4 w-full'} ${isChatOpen || isItemsOpen || isQuizOpen ? 'mr-[300px] transition-margin-right duration-500 ease-in-out' : 'transition-margin-right duration-500 ease-in-out'} flex flex-wrap items-center justify-center bg-discordChatBg`}>
 				<div className="col-span-6 flex items-center justify-center">
 					<div style={{ display: 'inline-block' }}>
 						<div style={{ position: 'relative', width: 600, height: 338 }} className={`${styles.videoContainer}`}>
 							<video
-								className="w-full h-full bg-black rounded-2xl"
+                className={`w-full h-full bg-black rounded-2xl ${isFullscreen ? "lg:w-full lg:h-full" : ""}`}
 								onClick={toggleFullscreen}
 								muted={isMuted}
 								ref={localVideoRef}
@@ -810,7 +821,7 @@ const handleMouseEnter = () => {
 							/>
 						</div>
 						{showControls && (
-							<div className={`absolute bottom-0 left-0 right-0 flex justify-around items-center p-3 rounded-lg ${showControls ? 'translate-y-0 opacity-100 transition-transform transition-opacity duration-500 ease-in-out' : 'translate-y-full opacity-0 transition-transform transition-opacity duration-500 ease-in-out'} bg-opacity-80 bg-gradient-to-t from-black to-transparent z-10`}>
+							<div className={`fixed bottom-0 left-0 right-0 flex justify-around items-center p-3 rounded-lg ${showControls ? 'translate-y-0 opacity-100 transition-transform transition-opacity duration-500 ease-in-out' : 'translate-y-full opacity-0 transition-transform transition-opacity duration-500 ease-in-out'} bg-opacity-80 bg-gradient-to-t from-black to-transparent z-10`}>
 								<div className='grid grid-cols-12 '>
 								<div className='col-span-2'></div>
 									<div className='col-span-8'>
@@ -823,9 +834,6 @@ const handleMouseEnter = () => {
 								</button>
 								<button onClick={toggleScreenShare} className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
 									{isScreenShareEnabled ? '🖥️' : '🖥️'}
-								</button>
-								<button onClick={toggleFullscreen2} className="text-white rounded-full border-2 border-black w-12 h-12 bg-black mx-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-									⛶ {isFullscreen ? '' : ''}
 								</button>
 								<button
 									onClick={toggleChat}
@@ -845,7 +853,6 @@ const handleMouseEnter = () => {
 									>
 									{isItemsOpen ? '🎓' : '🎓'}
 										</button>
-
 					</div>
 								<div className='col-span-2'></div>
 				</div>
@@ -867,30 +874,14 @@ const handleMouseEnter = () => {
 					</div>
 				</div>
 			</div>
-			<div className={`grid grid-cols-12 gap-4 w-full mt-4 ${isChatOpen || isItemsOpen ? 'mr-[320px]' : 'mr-0'} transition-margin duration-500 ease-in-out`}>
+			<div className={`grid gap-4 w-full h-full my-10 ${gridStyles(userCount)} ${isChatOpen || isItemsOpen || isQuizOpen ? 'mr-[320px]' : 'mr-0'} transition-margin duration-500 ease-in-out`}>
 			{users.map((user, index) => (
-				<div key={index} className="col-span-6 flex items-center justify-center">
+				<div key={index} className="flex items-center justify-center">
 
 					{user.userRole.endsWith('_screen') ? null : (
 						<div className="flex flex-col">
 							<div className="flex-grow">
-							<div className="flex h-4">
-								<div className="w-1/2 flex items-center justify-center text-white">
-									{userRole === 'TEACHER' && user?.userRole === 'STUDENT' && (
-										<button onClick={() => toggleStudentMic(user.id, user.audioDisabledByTeacher)} className="mt-2">
-											{user.audioDisabledByTeacher ? '마이크 허용' : '마이크 금지'}
-										</button>
-									)}
-								</div>
-								<div className="w-1/2 flex items-center justify-center text-white">
-									{userRole === 'TEACHER' && user?.userRole === 'STUDENT' && (
-										<button onClick={() => toggleStudentScreenShare(user.id, user.email, user.screenShareDisabledByTeacher)} className="mt-2">
-											{user.screenShareDisabledByTeacher ? '화면공유 허용' : '화면공유 금지'}
-										</button>
-									)}
-								</div>
-							</div>
-								<div className="w-full h-full flex items-center justify-center">
+								<div className={`flex flex-col pb-4 ${isFullscreen ? "lg:w-full lg:h-full" : ""}`}>
 									<WebRTCVideo
 										email={user.email}
 										userRole={user.userRole}
@@ -904,6 +895,23 @@ const handleMouseEnter = () => {
 										isScreenShare={false}
 									/>
 								</div>
+							<div className="flex h-4 pt-10">
+								<div className="w-1/2 flex items-center justify-center text-white">
+									{userRole === 'TEACHER' && user?.userRole === 'STUDENT' && (
+										<button onClick={() => toggleStudentMic(user.id, user.audioDisabledByTeacher)} className="mt-2">
+											{user.audioDisabledByTeacher ? '마이크 허용 시키기' : '마이크 금지 시키기'}
+										</button>
+									)}
+								</div>
+								<div className="w-1/2 flex items-center justify-center text-white">
+									{userRole === 'TEACHER' && user?.userRole === 'STUDENT' && (
+										<button onClick={() => toggleStudentScreenShare(user.id, user.email, user.screenShareDisabledByTeacher)} className="mt-2">
+											{user.screenShareDisabledByTeacher ? '화면공유 허용 시키기' : '화면공유 금지 시키기'}
+										</button>
+									)}
+								</div>
+                </div>
+                <div className="h-20 bg-discordChatBg"></div>
 							</div>
 
 						</div>
@@ -936,7 +944,7 @@ const handleMouseEnter = () => {
         </form>
 			</div>
 			<div className={`absolute border-l-2 border-discordChatBg2 top-0 right-0 h-full w-80 p-4 bg-discordChatBg2 text-discordText ${isItemsOpen ? 'translate-x-0 transition-transform duration-500 ease-in-out' : 'hidden translate-x-full transition-transform duration-500 ease-in-out'}`}>
-				<h3>Items</h3>
+				<h3>Student Screen</h3>
 				<div className="border border-discordChatBg2 p-2 h-3/4 overflow-y-auto bg-discordChatBg text-discordText">
 				{users.filter(user => user.userRole.endsWith('_screen')).map((user, index) => (
             <WebRTCVideo

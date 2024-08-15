@@ -7,6 +7,11 @@ const Container = styled.div`
 	width: 600px;
 	height: 338px;
 	margin: 5px;
+
+		@media (max-width: 768px) {
+		width: 200px;
+		height: 113px;
+	}
 `;
 
 const VideoContainer = styled.video`
@@ -14,6 +19,11 @@ const VideoContainer = styled.video`
   height: 338px;
   background-color: black;
   border-radius: 16px;
+
+		@media (max-width: 768px) {
+		width: 200px;
+		height: 113px;
+	}
 `;
 
 const ScreenContainer = styled.div`
@@ -102,8 +112,8 @@ const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audi
 	}else{
 		return (
 			<Container>
-				<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen}/>
 				<UserLabel className='text-white'>{email}</UserLabel>
+				<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen}/>
 				{/* <UserRoleLabel>{userRole}</UserRoleLabel>
 				<Indicator>Video: {videoEnabled ? 'On' : 'Off'}</Indicator>
 				<Indicator>Audio: {audioEnabled && !audioDisabledByTeacher ? 'On' : 'Off'}</Indicator>

@@ -49,7 +49,7 @@ const Classroom = () => {
     if (userData?.email && lecture_id) {
       setRole(userData.role);
       setRoomId(lecture_id);
-      setUserEmail(userData.email);
+      setUserEmail(userData.nickname);
     }
   }, [lecture_id]);
 
