@@ -1,17 +1,19 @@
 import axios from "axios";
-import { BASE_URL } from "../BASE_URL";
+import { BASE_URL, getAuthToken } from "../BASE_URL";
 
 // Post student focus time
 export const postStudentFocusTime = async (
-  lectureId: number,
-  focusTimeData: { focus_time: number }
+  lecture_Id: string,
+  sleepTimeData: { sleep_time: number }
 ) => {
   try {
+    const token = getAuthToken();
     const response = await axios.post(
-      `${BASE_URL}/api/v1/studentsLectures/focus-time/${lectureId}`,
-      focusTimeData,
+      `${BASE_URL}/api/v1/studentsLectures/focus-time/${lecture_Id}`,
+      sleepTimeData,
       {
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }

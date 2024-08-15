@@ -4,12 +4,11 @@ import {
   CurriculaFormData,
 } from "../../interface/Curriculainterface";
 import axios from "axios";
-import { BASE_URL } from "../BASE_URL";
-import { SearchSend } from "../../interface/search/SearchInterface";
+import { BASE_URL, getAuthToken } from "../BASE_URL";
+import { SearchSendCurricula } from "../../interface/search/SearchInterface";
 
-const IMG_SERVER_URL = "https://steach.ssafy.io:8082";
+const IMG_SERVER_URL = "https://steach.ssafy.io";
 const Auth = localStorage.getItem("auth");
-const token = Auth ? JSON.parse(Auth).token : null;
 
 let AuthData: any;
 if (Auth) {
@@ -46,7 +45,13 @@ export const fetchCurricula = async (params: {
 export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
   "curricula/signup",
   async (newLectureData) => {
+    const token = await getAuthToken();
+
     const formData = new FormData();
+    console.log("a");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
     formData.append("userName", AuthData.username);
     formData.append("file", newLectureData.banner_img_url);
     const imgPost = await axios.post(
@@ -54,11 +59,12 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
       formData,
       {
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       }
     );
-
+    console.log("b");
     const response = await axios.post(
       `${BASE_URL}/api/v1/curricula`,
       {
@@ -79,10 +85,11 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${AuthData.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
+    console.log(response.data);
     return response.data;
   }
 );
@@ -90,13 +97,13 @@ export const SignUpLecture = createAsyncThunk<Curricula, CurriculaFormData>(
 // [학생] 커리큘럼 수강신청
 export const applyToCurriculum = async (curricula_id: string) => {
   try {
-    console.log(AuthData.token);
+    const token = await getAuthToken();
     const response = await axios.post(
       `${BASE_URL}/api/v1/curricula/${curricula_id}/apply`,
       {},
       {
         headers: {
-          Authorization: `Bearer ${AuthData.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -126,6 +133,7 @@ export const petchCurriculumDetails = createAsyncThunk<
   Curricula,
   { newLectureData: any; id: any }
 >("curricula/update", async ({ newLectureData, id }) => {
+  const token = await getAuthToken();
   let bannerImgUrl;
 
   const formData = new FormData();
@@ -167,10 +175,11 @@ export const petchCurriculumDetails = createAsyncThunk<
     {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${AuthData.token}`,
+        Authorization: `Bearer ${token}`,
       },
     }
   );
+  console.log(response.data);
   return response.data;
 });
 
@@ -190,11 +199,12 @@ export const fetchCurriculumLectures = async (curriculum_id: string) => {
 // 단일 커리큘럼 삭제
 export const deleteCurricula = async (curriculum_id: string) => {
   try {
+    const token = await getAuthToken();
     const response = await axios.delete(
       `${BASE_URL}/api/v1/curricula/${curriculum_id}`,
       {
         headers: {
-          Authorization: `Bearer ${AuthData.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -209,9 +219,10 @@ export const deleteCurricula = async (curriculum_id: string) => {
 // 학생이 수강하는 커리큘럼 조회
 export const getStudentCurriculaList = async () => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${BASE_URL}/api/v1/students/curricula`, {
       headers: {
-        Authorization: `Bearer ${AuthData.token}`,
+        Authorization: `Bearer ${token}`,
       },
       params: {
         pageSize: 10,
@@ -229,9 +240,10 @@ export const getStudentCurriculaList = async () => {
 // 선생님이 강의하는 자신의 커리큘럼 조회
 export const getTeacherCurriculaList = async () => {
   try {
+    const token = await getAuthToken();
     const response = await axios.get(`${BASE_URL}/api/v1/teachers/curricula`, {
       headers: {
-        Authorization: `Bearer ${AuthData.token}`,
+        Authorization: `Bearer ${token}`,
       },
       params: {
         pageSize: null,
@@ -239,6 +251,25 @@ export const getTeacherCurriculaList = async () => {
       },
     });
 
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+// 학생이 볼 수 있는 선생님 수업리스트
+export const TargetTeacherCurriculaList = async (teachers_id: string) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/v1/teachers/curricula/${teachers_id}`,
+      {
+        params: {
+          pageSize: null,
+          currentPageNumber: null,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.log(error);
@@ -267,12 +298,14 @@ export const getCurriculimApply = async (curriculum_id: string) => {
 // [학생] 학생이 커리큘럼 수강 취소하기
 export const postCurriculimCancel = async (curriculum_id: string) => {
   try {
+    const token = await getAuthToken();
+
     const response = await axios.post(
       `${BASE_URL}/api/v1/curricula/${curriculum_id}/cancel`,
       {},
       {
         headers: {
-          Authorization: `Bearer ${AuthData.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -285,18 +318,15 @@ export const postCurriculimCancel = async (curriculum_id: string) => {
 };
 
 // 커리큘럼 검색
-export const searchCurriculaApi = async (searchData: SearchSend) => {
+export const searchCurriculaApi = async (searchData: SearchSendCurricula) => {
   const response = await axios.get(`${BASE_URL}/api/v1/curricula`, {
     params: {
       curriculum_category: searchData.curriculum_category,
       order: searchData.order,
       only_available: searchData.only_available,
       search: searchData.search,
-      pageSize: null,
-      currentPageNumber: null,
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
+      pageSize: searchData.pageSize,
+      currentPageNumber: searchData.currentPageNumber,
     },
   });
 

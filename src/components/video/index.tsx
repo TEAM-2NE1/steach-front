@@ -4,15 +4,41 @@ import styled from 'styled-components';
 const Container = styled.div`
 	position: relative;
 	display: inline-block;
-	width: 240px;
-	height: 300px;
+	width: 600px;
+	height: 338px;
 	margin: 5px;
+
+		@media (max-width: 768px) {
+		width: 200px;
+		height: 113px;
+	}
 `;
 
 const VideoContainer = styled.video`
-	width: 240px;
-	height: 240px;
-	background-color: black;
+  width: 600px;
+  height: 338px;
+  background-color: black;
+  border-radius: 16px;
+
+		@media (max-width: 768px) {
+		width: 200px;
+		height: 113px;
+	}
+`;
+
+const ScreenContainer = styled.div`
+	position: relative;
+	display: inline-block;
+	width: 200px;
+	height: 113px;
+	margin: 5px;
+`;
+
+const ScreenVideoContainer = styled.video`
+  width: 200px;
+  height: 113px;
+  background-color: black;
+  border-radius: 16px;
 `;
 
 const UserLabel = styled.p`
@@ -26,7 +52,6 @@ const UserLabel = styled.p`
 `;
 
 const UserRoleLabel = styled.p`
-	//position: absolute;
 	top: 255px;
 	left: 0;
 	width: 100%;
@@ -52,26 +77,47 @@ interface Props {
 	videoEnabled: boolean;
 	audioEnabled: boolean;
 	audioDisabledByTeacher?: boolean;
+	screenShareEnabled: boolean;
+	screenShareDisabledByTeacher?: boolean;
 	muted?: boolean;
+	isScreenShare?: boolean;
 }
 
-const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audioDisabledByTeacher, muted }: Props) => {
+const WebRTCVideo = ({ email, userRole, stream, videoEnabled, audioEnabled, audioDisabledByTeacher, screenShareEnabled, screenShareDisabledByTeacher, muted, isScreenShare}: Props) => {
 	const ref = useRef<HTMLVideoElement>(null);
+
+	const toggleFullscreen = () => {
+    if (ref.current) {
+      if (!document.fullscreenElement) {
+        ref.current.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+	};
+
 
 	useEffect(() => {
 		if (ref.current) ref.current.srcObject = stream;
 	}, [stream]);
 
-	return (
-		<Container>
-			<VideoContainer ref={ref} muted={muted} autoPlay />
-			<UserLabel>{email}</UserLabel>
-			<UserRoleLabel>{userRole}</UserRoleLabel>
-			<Indicator>Video: {videoEnabled ? 'On' : 'Off'}</Indicator>
-			<Indicator>Audio: {audioEnabled && !audioDisabledByTeacher ? 'On' : 'Off'}</Indicator>
-			<Indicator>Teacher Allowed: {audioDisabledByTeacher ? 'No' : 'Yes'}</Indicator>
-		</Container>
-	);
+	if(isScreenShare){
+		return (
+			<ScreenContainer>
+				<p> {email.substring(0, email.length-7)}의 화면공유</p>
+				<ScreenVideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen} />
+				{/* <UserLabel>{email}</UserLabel> */}
+			</ScreenContainer>
+		);
+	}else{
+		return (
+			<Container>
+				<UserLabel className='text-white'>{email} 학생</UserLabel>
+				<VideoContainer ref={ref} muted={muted} autoPlay onClick={toggleFullscreen}/>
+			</Container>
+		);
+
+	}
 };
 
 export default WebRTCVideo;

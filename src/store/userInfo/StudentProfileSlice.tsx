@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { StudentInfoUpdateForm } from "../../components/student/studentMyInfo/StudentMyInfoUpdateForm";
-import { studentInfoGet } from "../../api/user/userAPI";
+import {
+  fetchStudentAICareerRecommendApi,
+  studentInfoGet,
+} from "../../api/user/userAPI";
 import { studentInfoUpdate } from "../../api/user/userAPI";
 import { returnStudentCurriculaList } from "../../interface/Curriculainterface";
 import { getStudentCurriculaList } from "../../api/lecture/curriculumAPI";
@@ -16,6 +19,7 @@ const initialState: StudentUserInfo = {
   error: null,
   info: null,
   curricula: [],
+  gptStatistic: "",
 };
 
 // 학생 정보 조회
@@ -24,7 +28,6 @@ export const fetchStudentInfo = createAsyncThunk<StudentInfo>(
   async (_, thunkAPI) => {
     try {
       const response = await studentInfoGet();
-
       return response;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -52,7 +55,7 @@ export const updateStudentInfo = createAsyncThunk<
   }
 });
 
-// 학생이 수강신청한 강의 목록 가져오기
+// 학생이 수강신청한 커리큘럼 목록 가져오기
 export const getStudentCurriculas =
   createAsyncThunk<returnStudentCurriculaList>(
     "student/curricula/get",
@@ -69,6 +72,23 @@ export const getStudentCurriculas =
       }
     }
   );
+
+// gpt 진로 추천
+export const fetchStudentAICareerRecommend = createAsyncThunk(
+  "student/ai-recommend",
+  async (_, thunkAPI) => {
+    try {
+      const response = await fetchStudentAICareerRecommendApi();
+
+      return response;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return thunkAPI.rejectWithValue(error.response.data);
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
 
 // 학생 프로필 슬라이스
 const studentProfileSlice = createSlice({
@@ -110,6 +130,18 @@ const studentProfileSlice = createSlice({
         state.curricula = action.payload.curricula;
       })
       .addCase(getStudentCurriculas.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || null;
+      })
+      // 학생 AI 진로추천 조회
+      .addCase(fetchStudentAICareerRecommend.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchStudentAICareerRecommend.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.gptStatistic = action.payload;
+      })
+      .addCase(fetchStudentAICareerRecommend.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || null;
       });

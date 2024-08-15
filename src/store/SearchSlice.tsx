@@ -9,6 +9,7 @@ import axios from "axios";
 
 // 커리큘럼 검색 초기 상태
 const initialState: SearchCurriculaState = {
+  total_page: 0,
   curricula: [],
   status: "idle",
   error: null,
@@ -22,7 +23,7 @@ export const searchCurricula = createAsyncThunk<
   try {
     const data = await searchCurriculaApi(searchData);
 
-    console.log("검색 성공!");
+    console.log("검색 성공!", searchData);
     return data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -45,6 +46,7 @@ const searchSlice = createSlice({
       .addCase(searchCurricula.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.curricula = action.payload.curricula;
+        state.total_page = action.payload.total_page;
       })
       .addCase(searchCurricula.rejected, (state, action) => {
         state.status = "failed";

@@ -4,13 +4,12 @@ import {
   QuizCreateSendForm,
   QuizUpdateSendForm,
 } from "../../interface/quiz/QuizInterface";
-
-// 토큰 추출
-const userData = localStorage.getItem("auth");
-const token = userData ? JSON.parse(userData).token : null;
+import { getAuthToken } from "../BASE_URL";
 
 // 하나의 강의에 대한 퀴즈들 조회
 export const fetchLectureQuizApi = async (lectureId: string) => {
+  const token = getAuthToken();
+
   const response = await axios.get(
     `${BASE_URL}/api/v1/quizzes/lecture/${lectureId}`,
     {
@@ -25,6 +24,8 @@ export const fetchLectureQuizApi = async (lectureId: string) => {
 
 // 퀴즈 생성
 export const createQuizApi = async (quizCreateData: QuizCreateSendForm) => {
+  const token = getAuthToken();
+
   // 강의 아이디
   const lectureId: string | undefined = quizCreateData.lectureId;
 
@@ -47,6 +48,8 @@ export const createQuizApi = async (quizCreateData: QuizCreateSendForm) => {
 
 // 퀴즈 수정
 export const updateQuizApi = async (quizUpdateData: QuizUpdateSendForm) => {
+  const token = getAuthToken();
+
   // 강의 아이디
   const lectureId: string | undefined = quizUpdateData.lectureId;
 
@@ -70,10 +73,14 @@ export const updateQuizApi = async (quizUpdateData: QuizUpdateSendForm) => {
 
 // 퀴즈 삭제
 export const deleteQuizApi = async (quizId: number) => {
+  const token = getAuthToken();
+
   const response = await axios.delete(`${BASE_URL}/api/v1/quizzes/${quizId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+
+  console.log("퀴즈 삭제 완료!");
   return response;
 };

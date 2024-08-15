@@ -21,7 +21,7 @@ const SearchOrderMenu: React.FC<SearchOrderMenuProps> = ({
     <div>
       <Space wrap>
         <Select
-          defaultValue=""
+          defaultValue="LATEST"
           style={{ width: 120 }}
           onChange={handleChange}
           options={[

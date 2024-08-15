@@ -1,5 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { Curricula, LectureSeries } from "../interface/Curriculainterface";
+import {
+  Curricula,
+  LectureSeries,
+  returnHotCurriculaList,
+  returnLastestCurriculaList,
+} from "../interface/Curriculainterface";
 import {
   fetchCurriculumDetails,
   petchCurriculumDetails,
@@ -10,14 +15,20 @@ import {
   getCurriculimApply,
   postCurriculimCancel,
 } from "../api/lecture/curriculumAPI";
+import {
+  fetchLatestCurricula,
+  fetchPopularCurricula,
+} from "../api/main/mainAPI";
 
 import axios from "axios";
 
 // 이진송
 // axios 구성 기본틀인데 서버통신 가능할때 시험해보고 적용할 것 같음
 export interface CurriculasState {
-  curricula: Curricula[];
+  curricula: Curricula | null;
   lectureslist: LectureSeries | null;
+  returnHotCurriculaList: returnHotCurriculaList | null;
+  returnLastestCurriculaList: returnLastestCurriculaList | null;
   selectlectures: Curricula | null;
   isApply: boolean;
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -26,8 +37,10 @@ export interface CurriculasState {
 
 // 커리큘럼 및 강의 초기 상태
 const initialState: CurriculasState = {
-  curricula: [],
+  curricula: null,
   lectureslist: null,
+  returnHotCurriculaList: null,
+  returnLastestCurriculaList: null,
   selectlectures: null,
   isApply: false,
   status: "idle",
@@ -130,6 +143,39 @@ export const CurriculaCancel = createAsyncThunk<boolean, string>(
   }
 );
 
+// pop한 강의 들고오기
+export const getpopLecturelist = createAsyncThunk<returnHotCurriculaList>(
+  "lectures/poplist",
+  async (_, thunkAPI) => {
+    try {
+      const data = await fetchPopularCurricula();
+      return data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return thunkAPI.rejectWithValue(error.response.data);
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+// Lastest한 강의 들고오기
+export const getLastestLecturelist =
+  createAsyncThunk<returnLastestCurriculaList>(
+    "lectures/lastestlist",
+    async (_, thunkAPI) => {
+      try {
+        const data = await fetchLatestCurricula();
+        return data;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          return thunkAPI.rejectWithValue(error.response.data);
+        }
+        return thunkAPI.rejectWithValue(error);
+      }
+    }
+  );
+
 // 커리큘럼 슬라이스
 const curriculaSlice = createSlice({
   name: "curricula",
@@ -145,7 +191,7 @@ const curriculaSlice = createSlice({
         SignUpLecture.fulfilled,
         (state, action: PayloadAction<Curricula>) => {
           state.status = "succeeded";
-          state.curricula.push(action.payload);
+          state.curricula = action.payload;
         }
       )
       .addCase(SignUpLecture.rejected, (state, action) => {
@@ -160,7 +206,7 @@ const curriculaSlice = createSlice({
         petchCurriculumDetails.fulfilled,
         (state, action: PayloadAction<Curricula>) => {
           state.status = "succeeded";
-          state.curricula.push(action.payload);
+          state.curricula = action.payload;
         }
       )
       .addCase(petchCurriculumDetails.rejected, (state, action) => {
@@ -205,7 +251,7 @@ const curriculaSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
       })
-      // 커리큘럼에 해당하는 강의
+      // 커리큘럼 신청
       .addCase(applyCurricula.pending, (state) => {
         state.status = "loading";
       })
@@ -216,7 +262,7 @@ const curriculaSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
       })
-      // 커리큘럼에 해당하는 강의
+      // 커리큘럼 신청 확인
       .addCase(applyCurriculaCheck.pending, (state) => {
         state.status = "loading";
       })
@@ -237,6 +283,36 @@ const curriculaSlice = createSlice({
         console.log(state.status);
       })
       .addCase(CurriculaCancel.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to fetch lectures";
+      })
+      // pop한 강의 들고오기
+      .addCase(getpopLecturelist.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        getpopLecturelist.fulfilled,
+        (state, action: PayloadAction<returnHotCurriculaList>) => {
+          state.status = "succeeded";
+          state.returnHotCurriculaList = action.payload;
+        }
+      )
+      .addCase(getpopLecturelist.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to fetch lectures";
+      })
+      // lastest한 강의 들고오기
+      .addCase(getLastestLecturelist.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        getLastestLecturelist.fulfilled,
+        (state, action: PayloadAction<returnLastestCurriculaList>) => {
+          state.status = "succeeded";
+          state.returnLastestCurriculaList = action.payload;
+        }
+      )
+      .addCase(getLastestLecturelist.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch lectures";
       });

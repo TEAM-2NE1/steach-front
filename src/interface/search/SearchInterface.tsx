@@ -4,8 +4,8 @@ export interface SearchSendCurricula {
   order: string;
   only_available: boolean;
   search: string;
-  pageSize: null;
-  currentPageNumber: null;
+  pageSize: number;
+  currentPageNumber: number;
 }
 
 // 커리큘럼 검색 인터페이스
@@ -37,7 +37,9 @@ export interface SearchReturnCurricula {
   curricula: SearchCurricula[];
 }
 
+// 커리큘럼 검색 상태 인터페이스
 export interface SearchCurriculaState {
+  total_page: number;
   curricula: SearchCurricula[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;

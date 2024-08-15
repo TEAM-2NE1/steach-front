@@ -1,17 +1,11 @@
-import { Spinner } from "@chakra-ui/react";
+import TempoarySpinner from "../../../assets/TemporarySpinner.gif";
 
-const SpinnerComponent: React.FC = () => {
+const Spinner: React.FC = () => {
   return (
-    <>
-      <Spinner
-        thickness="4px"
-        speed="0.65s"
-        emptyColor="gray.200"
-        color="blue.500"
-        size="xl"
-      />
-    </>
+    <div className="flex justify-center items-center min-h-screen">
+      <img src={TempoarySpinner} alt="no-image" />
+    </div>
   );
 };
 
-export default SpinnerComponent;
+export default Spinner;

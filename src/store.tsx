@@ -1,9 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import curriculaReducer from "./store/curriculaSlice.tsx";
+import curriculaReducer from "./store/CurriculaSlice.tsx";
 import studentReducer from "./store/userInfo/AuthSlice.tsx";
-import lecturesListReducer from "./store/lectureSlice.tsx";
+import lecturesListReducer from "./store/LectureSlice.tsx";
 import studentProfileReducer from "./store/userInfo/StudentProfileSlice.tsx";
 import teacherProfileReducer from "./store/userInfo/TeacherProfileSlice.tsx";
+import mettingReducer from "./store/MeetingSlice.tsx";
 import quizReducer from "./store/QuizSlice.tsx";
 import searchReducer from "./store/SearchSlice.tsx";
 
@@ -15,6 +16,7 @@ const store = configureStore({
     lectures: lecturesListReducer,
     studentProfile: studentProfileReducer,
     teacherProfile: teacherProfileReducer,
+    metting: mettingReducer,
     quiz: quizReducer,
     search: searchReducer,
   },
