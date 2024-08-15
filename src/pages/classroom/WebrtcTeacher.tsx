@@ -93,6 +93,7 @@ interface ModalProps2 {
   isOpen: boolean;
   report: LectureReport | null
   lectureid: string | undefined
+  onConfirm: () => void;
 }
 
 
@@ -123,16 +124,17 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm }) => {
   );
 };
 
-const Modal2: React.FC<ModalProps2> = ({ isOpen, report, lectureid }) => {
+const Modal2: React.FC<ModalProps2> = ({ isOpen, report, lectureid, onConfirm }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const onConfirm = async () => {
-    if (lectureid) {
-      await dispatch(finalLectureSlice(lectureid))
-      navigate('/home')
-      window.location.replace(window.location.href);
-    }
-  }
+  // const onConfirm = async () => {
+  //   if (lectureid) {
+  //     await dispatch(finalLectureSlice(lectureid))
+  //     navigate('/home')
+  //     window.location.replace(window.location.href);
+      
+  //   }
+  // }
 	if (!isOpen) return null;
 	
   return (
@@ -199,7 +201,7 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({
 // --------------------------------------------------------------
 	const dispatch = useDispatch<AppDispatch>();
 	const { lecture_id } = useParams();
-	
+  const navigate = useNavigate();
   // 화면 출력 여부
   const [isOnVideo, setIsOnVideo] = useState(false);
 
@@ -247,12 +249,16 @@ const WebrtcTeacher: React.FC<WebrtcProps> = ({
     setIsModal2Open(false);
   };
 
-	const confirmAction = () => {
+	const confirmAction = async () => {
 		if (socketRef.current) {
 			socketRef.current.emit('lecture_end');
-		}
-		openModal2();
-    closeModal();
+    }
+    if (lecture_id) {
+
+      await dispatch(finalLectureSlice(lecture_id))
+      navigate('/home')
+      window.location.replace(window.location.href);
+    }
   };
 	
 
@@ -501,7 +507,7 @@ const handleMouseEnter = () => {
       });
     }
   };
-
+  
   const toggleStudentScreenShare = (
     studentId: string,
     userEmail: string,
@@ -819,7 +825,7 @@ const handleMouseEnter = () => {
 		>
       <div>
       <Modal isOpen={isModalOpen} onClose={closeModal} onConfirm={openModal2} />
-          <Modal2 isOpen={isModal2Open} report={report} lectureid={lecture_id} />
+          <Modal2 isOpen={isModal2Open} report={report} lectureid={lecture_id} onConfirm={confirmAction} />
 			</div>
 			<div className={`${isFullscreen ? 'fixed top-10 left-0 w-full h-full z-50 bg-black grid grid-cols-12 gap-4' : 'grid grid-cols-12 gap-4 w-full'} ${isChatOpen || isItemsOpen || isQuizOpen ? 'mr-[300px] transition-margin-right duration-500 ease-in-out' : 'transition-margin-right duration-500 ease-in-out'} flex flex-wrap items-center justify-center bg-discordChatBg`}>
 				<div className="col-span-6 flex items-center justify-center">

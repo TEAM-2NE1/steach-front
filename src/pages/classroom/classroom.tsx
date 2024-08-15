@@ -65,13 +65,14 @@ const Classroom = () => {
       return;
     } else if (role === "TEACHER") {
       if (lecture_id) {
+        localStorage.removeItem('prevRankData');
         setPage("WebrtcTeacher");
-        
         dispatch(startLectureSlice(lecture_id))
         setHidden(1);
         setIsVisible(false);
       }
     } else if (role === "STUDENT") {
+      localStorage.removeItem('prevRankData');
       setPage("WebrtcStudent");
       setHidden(1);
       setIsVisible(false);
