@@ -31,7 +31,7 @@ import nocam from "../../assets/RTC/no_cam.png"
 import mic from "../../assets/RTC/mic.png" 
 import nomic from "../../assets/RTC/no_mic.png" 
 import screenShare from "../../assets/RTC/screen.png"
-// import noScreenShare from "../../assets/RTC/no_screen.png"
+import noScreenShare from "../../assets/RTC/no_screen.png"
 import quiz from "../../assets/RTC/quiz.png"
 import noQuiz from "../../assets/RTC/no_quiz.png"
 import chat from "../../assets/RTC/chat.png"
@@ -854,7 +854,7 @@ const handleMouseEnter = () => {
                                           {isAudioEnabled ? <img src={`${mic}`} className="w-8 h-8" /> : <img src={`${nomic}`} className="w-8 h-8" />}
                                       </button>
                                       <button onClick={toggleScreenShare} className="flex items-center justify-center text-white rounded-full border-0 border-white w-14 h-14 mx-3 bg-[#262626]">
-                                          {isScreenShareEnabled ? <img src={`${screenShare}`} className="w-8 h-8" /> : <img src={`${screenShare}`} className="w-8 h-8" />}
+                                          {isScreenShareEnabled ? <img src={`${screenShare}`} className="w-8 h-8" /> : <img src={`${noScreenShare}`} className="w-8 h-8" />}
                                       </button>
                                       <button
                                           onClick={toggleChat}
